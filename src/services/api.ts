@@ -281,6 +281,33 @@ export async function registerApi(input: {
   return data;
 }
 
+export async function forgotPasswordApi(
+  email: string
+): Promise<{ message: string; devResetToken?: string; devResetUrl?: string }> {
+  const res = await fetch('/api/auth/forgot-password', {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ email })
+  });
+  const data = await res.json();
+  if (!res.ok) throw new Error(data.message || 'Request failed');
+  return data;
+}
+
+export async function resetPasswordApi(input: {
+  token: string;
+  password: string;
+}): Promise<{ message: string }> {
+  const res = await fetch('/api/auth/reset-password', {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify(input)
+  });
+  const data = await res.json();
+  if (!res.ok) throw new Error(data.message || 'Reset failed');
+  return data;
+}
+
 export async function logoutApi(): Promise<void> {
   await fetch('/api/auth/logout', { method: 'POST' });
 }

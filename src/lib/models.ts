@@ -154,6 +154,8 @@ const UserSchema = new Schema(
     email: { type: String, required: true, unique: true, index: true },
     passwordHash: { type: String, required: true },
     role: { type: String, enum: Object.values(UserRole), default: UserRole.Customer },
+    resetTokenHash: { type: String, default: null },
+    resetTokenExpires: { type: Date, default: null },
     createdAt: String
   },
   { strict: false }

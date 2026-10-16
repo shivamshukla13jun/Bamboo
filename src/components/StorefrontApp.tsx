@@ -6,7 +6,7 @@ import { RootState } from '../store';
 import { useProductsQuery, useSeoQuery, useMeQuery } from '../services/api';
 import { setSeoConfig } from '../store/seoSlice';
 import { setNotification, NotificationType } from '../store/adminSlice';
-import { setUser } from '../store/authSlice';
+import { setUser, openAuthModal } from '../store/authSlice';
 import { Header } from './Header';
 import { HeroBanner } from './HeroBanner';
 import { PriceRangeSelector } from './PriceRangeSelector';
@@ -57,6 +57,13 @@ export const StorefrontApp: React.FC<StorefrontAppProps> = ({ initialProducts, i
       dispatch(setSeoConfig(serverSeo));
     }
   }, [serverSeo, dispatch]);
+
+  // Open the auth modal directly on password-reset links (/?reset-token=...)
+  useEffect(() => {
+    if (typeof window !== 'undefined' && new URLSearchParams(window.location.search).has('reset-token')) {
+      dispatch(openAuthModal(true));
+    }
+  }, [dispatch]);
 
   // Hydrate session from the httpOnly cookie on first load
   const { data: me } = useMeQuery();

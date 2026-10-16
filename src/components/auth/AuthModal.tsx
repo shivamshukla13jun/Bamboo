@@ -7,63 +7,133 @@ import { RootState } from '../../store';
 import { setUser, openAuthModal } from '../../store/authSlice';
 import { setNotification, NotificationType } from '../../store/adminSlice';
 import { useFormReduxSync } from '../../hooks/useFormReduxSync';
-import { loginApi, registerApi } from '../../services/api';
-import { X, User, ShieldAlert, Leaf, UserPlus, LogIn } from 'lucide-react';
+import { loginApi, registerApi, forgotPasswordApi, resetPasswordApi } from '../../services/api';
+import { X, User, ShieldAlert, Leaf, UserPlus, LogIn, KeyRound, MailCheck } from 'lucide-react';
 import { siteConfig } from '../../config/site';
 
 enum AuthMode {
   Login = 'login',
-  Register = 'register'
+  Register = 'register',
+  Forgot = 'forgot',
+  Reset = 'reset'
 }
 
 interface AuthInputs {
   name: string;
   email: string;
   password: string;
+  resetToken: string;
 }
 
-/** Customer sign-in / register modal. */
+/** Customer sign-in / register / forgot-password modal. */
 export const AuthModal: React.FC = () => {
   const dispatch = useDispatch();
   const isOpen = useSelector((state: RootState) => state.auth.isAuthModalOpen);
-  const [mode, setMode] = useState<AuthMode>(AuthMode.Login);
+
+  // Deep link support: /?reset-token=<token> opens the reset step prefilled
+  const [prefilledToken] = useState<string>(() => {
+    if (typeof window === 'undefined') return '';
+    const t = new URLSearchParams(window.location.search).get('reset-token');
+    if (t) {
+      const url = new URL(window.location.href);
+      url.searchParams.delete('reset-token');
+      window.history.replaceState({}, '', url.toString());
+    }
+    return t || '';
+  });
+
+  const [mode, setMode] = useState<AuthMode>(
+    prefilledToken ? AuthMode.Reset : AuthMode.Login
+  );
   const [serverError, setServerError] = useState('');
+  const [forgotMessage, setForgotMessage] = useState('');
+  const [devResetToken, setDevResetToken] = useState('');
 
   const loginMutation = useMutation({ mutationFn: loginApi });
   const registerMutation = useMutation({ mutationFn: registerApi });
-  const isPending = loginMutation.isPending || registerMutation.isPending;
+  const forgotMutation = useMutation({ mutationFn: forgotPasswordApi });
+  const resetMutation = useMutation({ mutationFn: resetPasswordApi });
+  const isPending =
+    loginMutation.isPending ||
+    registerMutation.isPending ||
+    forgotMutation.isPending ||
+    resetMutation.isPending;
 
-  const { register, handleSubmit, reset, formState } = useForm<AuthInputs>({
+  const { register, handleSubmit, reset, setValue, formState } = useForm<AuthInputs>({
     mode: 'onChange',
-    defaultValues: { name: '', email: '', password: '' }
+    defaultValues: { name: '', email: '', password: '', resetToken: prefilledToken }
   });
 
-  useFormReduxSync(mode === AuthMode.Login ? 'customer-login-form' : 'customer-register-form', formState);
+  const FORM_IDS: Record<AuthMode, string> = {
+    [AuthMode.Login]: 'customer-login-form',
+    [AuthMode.Register]: 'customer-register-form',
+    [AuthMode.Forgot]: 'customer-forgot-password-form',
+    [AuthMode.Reset]: 'customer-reset-password-form'
+  };
+
+  useFormReduxSync(FORM_IDS[mode], formState);
 
   if (!isOpen) return null;
+
+  const switchMode = (m: AuthMode) => {
+    setMode(m);
+    setServerError('');
+    setForgotMessage('');
+  };
 
   const close = () => {
     dispatch(openAuthModal(false));
     setServerError('');
+    setForgotMessage('');
   };
+
+  const notify = (message: string) =>
+    dispatch(setNotification({ message, type: NotificationType.Success }));
 
   const onSubmit = (data: AuthInputs) => {
     setServerError('');
+    const onError = (err: any) => setServerError(err.message || 'Request failed');
+
+    if (mode === AuthMode.Forgot) {
+      forgotMutation.mutate(data.email, {
+        onSuccess: (res) => {
+          setForgotMessage(res.message);
+          // Dev convenience — jump straight to the reset step prefilled
+          if (res.devResetToken) {
+            setDevResetToken(res.devResetToken);
+            setMode(AuthMode.Reset);
+            setValue('resetToken', res.devResetToken);
+          }
+        },
+        onError
+      });
+      return;
+    }
+
+    if (mode === AuthMode.Reset) {
+      resetMutation.mutate(
+        { token: data.resetToken, password: data.password },
+        {
+          onSuccess: (res) => {
+            notify(`✅ ${res.message}`);
+            switchMode(AuthMode.Login);
+          },
+          onError
+        }
+      );
+      return;
+    }
+
     const onSuccess = (user: any) => {
       dispatch(setUser(user));
       dispatch(openAuthModal(false));
-      dispatch(
-        setNotification({
-          message:
-            mode === AuthMode.Register
-              ? `Welcome to ${siteConfig.siteName}, ${user.name}! Your account is ready.`
-              : `Welcome back, ${user.name}!`,
-          type: NotificationType.Success
-        })
+      notify(
+        mode === AuthMode.Register
+          ? `Welcome to ${siteConfig.siteName}, ${user.name}! Your account is ready.`
+          : `Welcome back, ${user.name}!`
       );
       reset();
     };
-    const onError = (err: any) => setServerError(err.message || 'Request failed');
 
     if (mode === AuthMode.Register) {
       registerMutation.mutate(
@@ -74,6 +144,15 @@ export const AuthModal: React.FC = () => {
       loginMutation.mutate({ email: data.email, password: data.password }, { onSuccess, onError });
     }
   };
+
+  const titles: Record<AuthMode, string> = {
+    [AuthMode.Login]: `Sign In to ${siteConfig.siteName}`,
+    [AuthMode.Register]: 'Create Your Account',
+    [AuthMode.Forgot]: 'Forgot Password',
+    [AuthMode.Reset]: 'Reset Your Password'
+  };
+
+  const isPasswordless = mode === AuthMode.Forgot;
 
   return (
     <div className="fixed inset-0 z-50 bg-neutral-950/80 backdrop-blur-sm flex items-center justify-center p-4">
@@ -89,41 +168,45 @@ export const AuthModal: React.FC = () => {
           <div className="w-9 h-9 rounded-xl bg-primary-700 flex items-center justify-center text-primary-200">
             <Leaf className="w-5 h-5" />
           </div>
-          <h2 className="text-lg font-black text-neutral-50">
-            {mode === AuthMode.Login ? `Sign In to ${siteConfig.siteName}` : 'Create Your Account'}
-          </h2>
+          <h2 className="text-lg font-black text-neutral-50">{titles[mode]}</h2>
         </div>
         <p className="text-xs text-neutral-400 mb-5">
-          Save eco-products, track bamboo home quotes, and check out faster.
+          {mode === AuthMode.Forgot
+            ? 'Enter your account email and we will generate a password reset link.'
+            : mode === AuthMode.Reset
+              ? 'Paste your reset token and choose a new password.'
+              : 'Save eco-products, track bamboo home quotes, and check out faster.'}
         </p>
 
         {/* Mode Tabs */}
-        <div className="flex bg-neutral-950 p-1 rounded-xl border border-neutral-800 mb-5 text-xs font-bold">
-          <button
-            onClick={() => {
-              setMode(AuthMode.Login);
-              setServerError('');
-            }}
-            className={`flex-1 py-2 rounded-lg flex items-center justify-center gap-1.5 transition-colors ${
-              mode === AuthMode.Login ? 'bg-primary-700 text-white' : 'text-neutral-400 hover:text-neutral-200'
-            }`}
-          >
-            <LogIn className="w-3.5 h-3.5" />
-            <span>Sign In</span>
-          </button>
-          <button
-            onClick={() => {
-              setMode(AuthMode.Register);
-              setServerError('');
-            }}
-            className={`flex-1 py-2 rounded-lg flex items-center justify-center gap-1.5 transition-colors ${
-              mode === AuthMode.Register ? 'bg-primary-700 text-white' : 'text-neutral-400 hover:text-neutral-200'
-            }`}
-          >
-            <UserPlus className="w-3.5 h-3.5" />
-            <span>Register</span>
-          </button>
-        </div>
+        {(mode === AuthMode.Login || mode === AuthMode.Register) && (
+          <div className="flex bg-neutral-950 p-1 rounded-xl border border-neutral-800 mb-5 text-xs font-bold">
+            <button
+              onClick={() => switchMode(AuthMode.Login)}
+              className={`flex-1 py-2 rounded-lg flex items-center justify-center gap-1.5 transition-colors ${
+                mode === AuthMode.Login ? 'bg-primary-700 text-white' : 'text-neutral-400 hover:text-neutral-200'
+              }`}
+            >
+              <LogIn className="w-3.5 h-3.5" />
+              <span>Sign In</span>
+            </button>
+            <button
+              onClick={() => switchMode(AuthMode.Register)}
+              className={`flex-1 py-2 rounded-lg flex items-center justify-center gap-1.5 transition-colors ${
+                mode === AuthMode.Register ? 'bg-primary-700 text-white' : 'text-neutral-400 hover:text-neutral-200'
+              }`}
+            >
+              <UserPlus className="w-3.5 h-3.5" />
+              <span>Register</span>
+            </button>
+          </div>
+        )}
+
+        {devResetToken && mode === AuthMode.Reset && (
+          <div className="mb-4 bg-accent-950/60 border border-accent-800/60 text-accent-300 p-3 rounded-xl text-[11px]">
+            Dev mode: reset token generated — already filled below.
+          </div>
+        )}
 
         <form onSubmit={handleSubmit(onSubmit)} className="space-y-4 text-xs">
           {mode === AuthMode.Register && (
@@ -147,45 +230,76 @@ export const AuthModal: React.FC = () => {
             </div>
           )}
 
-          <div>
-            <label className="block text-neutral-300 font-medium mb-1">
-              Email Address <span className="text-rose-400">*</span>
-            </label>
-            <input
-              type="email"
-              placeholder="you@example.com"
-              {...register('email', {
-                required: 'Email is required',
-                pattern: { value: /^[A-Z0-9._%+-]+@[A-Z0-9.-]+\.[A-Z]{2,}$/i, message: 'Invalid email' }
-              })}
-              className={`w-full bg-neutral-950 text-neutral-100 border rounded-xl px-3 py-2.5 focus:outline-none ${
-                formState.errors.email ? 'border-rose-500' : 'border-neutral-700'
-              }`}
-            />
-            {formState.errors.email && (
-              <span className="text-[11px] text-rose-400 block mt-0.5">{formState.errors.email.message}</span>
-            )}
-          </div>
+          {mode !== AuthMode.Reset && (
+            <div>
+              <label className="block text-neutral-300 font-medium mb-1">
+                Email Address <span className="text-rose-400">*</span>
+              </label>
+              <input
+                type="email"
+                placeholder="you@example.com"
+                {...register('email', {
+                  required: 'Email is required',
+                  pattern: { value: /^[A-Z0-9._%+-]+@[A-Z0-9.-]+\.[A-Z]{2,}$/i, message: 'Invalid email' }
+                })}
+                className={`w-full bg-neutral-950 text-neutral-100 border rounded-xl px-3 py-2.5 focus:outline-none ${
+                  formState.errors.email ? 'border-rose-500' : 'border-neutral-700'
+                }`}
+              />
+              {formState.errors.email && (
+                <span className="text-[11px] text-rose-400 block mt-0.5">{formState.errors.email.message}</span>
+              )}
+            </div>
+          )}
 
-          <div>
-            <label className="block text-neutral-300 font-medium mb-1">
-              Password <span className="text-rose-400">*</span>
-            </label>
-            <input
-              type="password"
-              placeholder={mode === AuthMode.Register ? 'Min. 6 characters' : '••••••••'}
-              {...register('password', {
-                required: 'Password is required',
-                minLength: { value: 6, message: 'Password must be at least 6 characters' }
-              })}
-              className={`w-full bg-neutral-950 text-neutral-100 border rounded-xl px-3 py-2.5 focus:outline-none ${
-                formState.errors.password ? 'border-rose-500' : 'border-neutral-700'
-              }`}
-            />
-            {formState.errors.password && (
-              <span className="text-[11px] text-rose-400 block mt-0.5">{formState.errors.password.message}</span>
-            )}
-          </div>
+          {mode === AuthMode.Reset && (
+            <div>
+              <label className="block text-neutral-300 font-medium mb-1">
+                Reset Token <span className="text-rose-400">*</span>
+              </label>
+              <input
+                type="text"
+                placeholder="Paste the token from your reset link"
+                {...register('resetToken', { required: 'Reset token is required' })}
+                className={`w-full bg-neutral-950 text-neutral-100 border rounded-xl px-3 py-2.5 focus:outline-none font-mono ${
+                  formState.errors.resetToken ? 'border-rose-500' : 'border-neutral-700'
+                }`}
+              />
+              {formState.errors.resetToken && (
+                <span className="text-[11px] text-rose-400 block mt-0.5">{formState.errors.resetToken.message}</span>
+              )}
+            </div>
+          )}
+
+          {!isPasswordless && (
+            <div>
+              <label className="block text-neutral-300 font-medium mb-1">
+                {mode === AuthMode.Reset ? 'New Password' : 'Password'}{' '}
+                <span className="text-rose-400">*</span>
+              </label>
+              <input
+                type="password"
+                placeholder={mode === AuthMode.Login ? '••••••••' : 'Min. 6 characters'}
+                {...register('password', {
+                  required: 'Password is required',
+                  minLength: { value: 6, message: 'Password must be at least 6 characters' }
+                })}
+                className={`w-full bg-neutral-950 text-neutral-100 border rounded-xl px-3 py-2.5 focus:outline-none ${
+                  formState.errors.password ? 'border-rose-500' : 'border-neutral-700'
+                }`}
+              />
+              {formState.errors.password && (
+                <span className="text-[11px] text-rose-400 block mt-0.5">{formState.errors.password.message}</span>
+              )}
+            </div>
+          )}
+
+          {forgotMessage && mode === AuthMode.Forgot && (
+            <div className="bg-primary-950/60 border border-primary-800 text-primary-200 p-3 rounded-xl flex items-center gap-2">
+              <MailCheck className="w-4 h-4 text-primary-400 shrink-0" />
+              <span>{forgotMessage}</span>
+            </div>
+          )}
 
           {serverError && (
             <div className="bg-rose-950/60 border border-rose-800 text-rose-200 p-3 rounded-xl flex items-center gap-2">
@@ -199,16 +313,46 @@ export const AuthModal: React.FC = () => {
             disabled={isPending}
             className="w-full py-3 rounded-xl bg-primary-600 hover:bg-primary-500 text-white font-black text-sm flex items-center justify-center gap-2 transition-colors shadow-lg"
           >
-            <User className="w-4 h-4" />
+            {mode === AuthMode.Forgot ? (
+              <MailCheck className="w-4 h-4" />
+            ) : mode === AuthMode.Reset ? (
+              <KeyRound className="w-4 h-4" />
+            ) : (
+              <User className="w-4 h-4" />
+            )}
             <span>
               {isPending
                 ? 'Please wait...'
                 : mode === AuthMode.Login
                   ? 'Sign In'
-                  : 'Create Account & Sign In'}
+                  : mode === AuthMode.Register
+                    ? 'Create Account & Sign In'
+                    : mode === AuthMode.Forgot
+                      ? 'Send Reset Link'
+                      : 'Update Password'}
             </span>
           </button>
         </form>
+
+        {/* Footer links */}
+        <div className="mt-4 text-center text-xs text-neutral-400">
+          {mode === AuthMode.Login && (
+            <button
+              onClick={() => switchMode(AuthMode.Forgot)}
+              className="text-primary-400 hover:text-primary-300 font-semibold"
+            >
+              Forgot your password?
+            </button>
+          )}
+          {(mode === AuthMode.Forgot || mode === AuthMode.Reset) && (
+            <button
+              onClick={() => switchMode(AuthMode.Login)}
+              className="text-primary-400 hover:text-primary-300 font-semibold"
+            >
+              ← Back to Sign In
+            </button>
+          )}
+        </div>
       </div>
     </div>
   );

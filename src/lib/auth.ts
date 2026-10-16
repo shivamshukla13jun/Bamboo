@@ -89,3 +89,21 @@ export function toPublicUser(doc: any): AuthUser {
   const { passwordHash, ...rest } = clean<any>(doc);
   return rest as AuthUser;
 }
+
+// ---------- Password reset tokens ----------
+
+export const RESET_TOKEN_TTL_MS = 30 * 60 * 1000; // 30 minutes
+
+/** Plain token goes to the user's "email"; only the SHA-256 hash is stored. */
+export function createPasswordResetToken(): { token: string; hash: string; expires: Date } {
+  const token = crypto.randomBytes(32).toString('hex');
+  return {
+    token,
+    hash: crypto.createHash('sha256').update(token).digest('hex'),
+    expires: new Date(Date.now() + RESET_TOKEN_TTL_MS)
+  };
+}
+
+export function hashResetToken(token: string): string {
+  return crypto.createHash('sha256').update(String(token)).digest('hex');
+}
