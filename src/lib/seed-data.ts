@@ -314,8 +314,20 @@ export const INITIAL_QUOTES: HomeQuote[] = [
     interiorFinish: 'luxury_teak_bamboo',
     estimatedPrice: 94500,
     notes: 'Looking to build on a coastal slope property in Northern California.',
-    status: QuoteStatus.QuoteRequested,
-    createdAt: new Date().toISOString()
+    status: QuoteStatus.BlueprintDrafted,
+    statusHistory: [
+      {
+        status: QuoteStatus.QuoteRequested,
+        changedAt: new Date(Date.now() - 86400000 * 4).toISOString(),
+        note: 'Quote request received'
+      },
+      {
+        status: QuoteStatus.BlueprintDrafted,
+        changedAt: new Date(Date.now() - 86400000 * 1).toISOString(),
+        note: 'Draft blueprint + preliminary estimate sent to client'
+      }
+    ],
+    createdAt: new Date(Date.now() - 86400000 * 4).toISOString()
   }
 ];
 

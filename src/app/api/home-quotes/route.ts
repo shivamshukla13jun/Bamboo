@@ -44,6 +44,13 @@ export async function POST(request: NextRequest) {
       roofStyleName: roofStyle?.name || body.roofStyleName,
       estimatedPrice: Math.round(estimated),
       status: QuoteStatus.QuoteRequested,
+      statusHistory: [
+        {
+          status: QuoteStatus.QuoteRequested,
+          changedAt: new Date().toISOString(),
+          note: 'Quote request received'
+        }
+      ],
       createdAt: new Date().toISOString()
     };
 

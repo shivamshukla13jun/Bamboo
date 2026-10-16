@@ -104,6 +104,12 @@ export interface Product {
   seoKeywords?: string[];
 }
 
+export interface QuoteStatusEvent {
+  status: QuoteStatus;
+  changedAt: string;
+  note?: string;
+}
+
 export interface HomeQuote {
   id?: string;
   clientName: string;
@@ -122,6 +128,19 @@ export interface HomeQuote {
   estimatedPrice: number;
   notes?: string;
   status?: QuoteStatus;
+  statusHistory?: QuoteStatusEvent[];
+  /** When the engagement/build started */
+  startDate?: string;
+  /** Planned duration of the engagement */
+  estimatedDurationWeeks?: number;
+  /** Auto-derived: startDate + estimatedDurationWeeks (or manually set) */
+  estimatedCompletionDate?: string;
+  /** Actual completion timestamp */
+  completedAt?: string;
+  /** Negotiated final price (vs estimatedPrice) */
+  finalPrice?: number;
+  /** Internal admin notes on the quote/project */
+  adminNotes?: string;
   createdAt?: string;
 }
 
@@ -130,7 +149,9 @@ export enum QuoteStatus {
   BlueprintDrafted = 'blueprint_drafted',
   Approved = 'approved',
   InConstruction = 'in_construction',
-  Completed = 'completed'
+  OnHold = 'on_hold',
+  Completed = 'completed',
+  Cancelled = 'cancelled'
 }
 
 export type ProductCategory = string;

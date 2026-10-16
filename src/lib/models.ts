@@ -142,6 +142,19 @@ const HomeQuoteSchema = new Schema(
     estimatedPrice: Number,
     notes: String,
     status: { type: String, default: 'quote_requested' },
+    statusHistory: [
+      {
+        status: String,
+        changedAt: String,
+        note: String
+      }
+    ],
+    startDate: String,
+    estimatedDurationWeeks: Number,
+    estimatedCompletionDate: String,
+    completedAt: String,
+    finalPrice: Number,
+    adminNotes: String,
     createdAt: String
   },
   { strict: false }
