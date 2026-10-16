@@ -1,11 +1,12 @@
 'use client';
 import React from 'react';
+import Link from 'next/link';
 import { useDispatch, useSelector } from 'react-redux';
 import { RootState } from '../store';
 import { addToCart } from '../store/cartSlice';
 import { Product } from '../types';
 import { formatPrice } from '../utils/formatters';
-import { ShoppingBag, Star, Eye, Home } from 'lucide-react';
+import { ShoppingBag, Star, Eye, Home, ArrowRight } from 'lucide-react';
 
 interface ProductCardProps {
   product: Product;
@@ -20,6 +21,13 @@ export const ProductCard: React.FC<ProductCardProps> = ({ product, onOpenDetail 
   const isHome = product.isCustomHome || product.categorySlug === 'homes';
   const defaultVariant = product.variants?.find((v) => v.isDefault) || product.variants?.[0];
   const displayImage = defaultVariant?.image || product.images[0];
+  const inCart = useSelector((state: RootState) =>
+    state.cart.items.some(
+      (i) =>
+        i.product.id === product.id &&
+        (i.variant?.id ?? i.selectedOption ?? null) === (defaultVariant?.id ?? null)
+    )
+  );
 
   return (
     <div className="bg-neutral-800 border border-neutral-700/80 rounded-2xl overflow-hidden flex flex-col justify-between group hover:border-primary-600/80 transition-all duration-300 shadow-sm hover:shadow-xl">
@@ -123,13 +131,26 @@ export const ProductCard: React.FC<ProductCardProps> = ({ product, onOpenDetail 
             <span>Customize Home Blueprint</span>
           </a>
         ) : (
-          <button
-            onClick={() => dispatch(addToCart({ product, quantity: 1 }))}
-            className="w-full py-2 rounded-xl bg-primary-700 hover:bg-primary-600 text-white font-bold text-xs flex items-center justify-center gap-1.5 transition-colors shadow"
-          >
-            <ShoppingBag className="w-3.5 h-3.5" />
-            <span>Add to Bag</span>
-          </button>
+          inCart ? (
+            <Link
+              href="/cart"
+              className="w-full py-2 rounded-xl bg-accent-500 hover:bg-accent-400 text-neutral-950 font-black text-xs flex items-center justify-center gap-1.5 transition-colors shadow"
+            >
+              <ShoppingBag className="w-3.5 h-3.5" />
+              <span>Go to Cart</span>
+              <ArrowRight className="w-3.5 h-3.5" />
+            </Link>
+          ) : (
+            <button
+              onClick={() =>
+                dispatch(addToCart({ product, variant: defaultVariant, quantity: 1 }))
+              }
+              className="w-full py-2 rounded-xl bg-primary-700 hover:bg-primary-600 text-white font-bold text-xs flex items-center justify-center gap-1.5 transition-colors shadow"
+            >
+              <ShoppingBag className="w-3.5 h-3.5" />
+              <span>Add to Bag</span>
+            </button>
+          )
         )}
       </div>
     </div>

@@ -59,25 +59,10 @@ export const Header: React.FC = () => {
         <div className="flex items-center gap-4 text-xs mx-auto sm:mx-0 mt-1 sm:mt-0">
           <span className="text-neutral-300 hidden md:inline">{siteConfig.topbar.rightText}</span>
 
-          {/* Currency Picker (only shown when multiple currencies configured) */}
-          {currencyCodes.length > 1 && (
-            <div className="flex items-center gap-1 bg-neutral-800 px-2 py-0.5 rounded border border-neutral-700">
-              <span className="text-neutral-400 text-[10px]">Currency:</span>
-              <select
-                value={currency}
-                onChange={(e) => dispatch(setCurrency(e.target.value))}
-                className="bg-transparent text-neutral-100 font-bold focus:outline-none cursor-pointer text-xs"
-              >
-                {currencyCodes.map((code) => (
-                  <option key={code} value={code} className="bg-neutral-900">
-                    {siteConfig.commerce.currencies[code].label}
-                  </option>
-                ))}
-              </select>
-            </div>
-          )}
+       
 
           {/* Dashboard Link → role-aware target */}
+          {user?.role && (
           <Link
             href={user?.role === UserRole.Admin ? '/admin' : '/account'}
             className={`px-3 py-1 rounded-md text-xs font-semibold flex items-center gap-1.5 transition-all shadow-sm ${
@@ -89,6 +74,7 @@ export const Header: React.FC = () => {
             <LayoutDashboard className="w-3.5 h-3.5" />
             {user?.role === UserRole.Admin ? 'Admin Dashboard' : user ? 'My Dashboard' : 'Dashboard'}
           </Link>
+          )}
         </div>
       </div>
 

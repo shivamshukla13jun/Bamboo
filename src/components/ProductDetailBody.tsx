@@ -1,12 +1,13 @@
 'use client';
 import React, { useState, useEffect } from 'react';
+import Link from 'next/link';
 import { useDispatch, useSelector } from 'react-redux';
 import { RootState } from '../store';
 import { addToCart } from '../store/cartSlice';
 import { Product } from '../types';
 import { formatPrice } from '../utils/formatters';
 import { siteConfig } from '../config/site';
-import { Star, ShoppingBag, Leaf, Check, Search } from 'lucide-react';
+import { Star, ShoppingBag, Leaf, Check, Search, ArrowRight } from 'lucide-react';
 
 /**
  * Shared product detail content (gallery, variants, specs, add-to-cart).
@@ -16,6 +17,7 @@ export const ProductDetailBody: React.FC<{ product: Product }> = ({ product }) =
   const dispatch = useDispatch();
   const currency = useSelector((state: RootState) => state.cart.currency);
   const currencyRates = useSelector((state: RootState) => state.cart.currencyRates);
+  const cartItems = useSelector((state: RootState) => state.cart.items);
 
   const [activeImageIndex, setActiveImageIndex] = useState(0);
   const [selectedVariantId, setSelectedVariantId] = useState<string | null>(null);
@@ -34,6 +36,11 @@ export const ProductDetailBody: React.FC<{ product: Product }> = ({ product }) =
     selectedVariant?.image || product.images[activeImageIndex] || product.images[0];
   const displayPrice = selectedVariant?.price ?? product.price;
   const displayStock = selectedVariant?.stock ?? product.stock;
+  const inCart = cartItems.some(
+    (i) =>
+      i.product.id === product.id &&
+      (i.variant?.id ?? i.selectedOption ?? null) === (selectedVariant?.id ?? null)
+  );
 
   const handleAddToCart = () => {
     dispatch(addToCart({ product, variant: selectedVariant || undefined, quantity }));
@@ -228,31 +235,42 @@ export const ProductDetailBody: React.FC<{ product: Product }> = ({ product }) =
             </div>
           </div>
 
-          <button
-            onClick={handleAddToCart}
-            disabled={displayStock === 0}
-            className={`w-full py-3.5 rounded-xl font-black text-sm flex items-center justify-center gap-2 transition-all shadow-lg ${
-              displayStock === 0
-                ? 'bg-neutral-800 text-neutral-500 cursor-not-allowed'
-                : addedSuccess
-                  ? 'bg-primary-500 text-neutral-950'
-                  : 'bg-primary-600 hover:bg-primary-500 text-white'
-            }`}
-          >
-            {displayStock === 0 ? (
-              <span>Out of Stock</span>
-            ) : addedSuccess ? (
-              <>
-                <Check className="w-5 h-5" />
-                <span>Added to Shopping Bag!</span>
-              </>
-            ) : (
-              <>
-                <ShoppingBag className="w-5 h-5" />
-                <span>Add {quantity} to Bag</span>
-              </>
-            )}
-          </button>
+          {inCart ? (
+            <Link
+              href="/cart"
+              className="w-full py-3.5 rounded-xl font-black text-sm flex items-center justify-center gap-2 transition-all shadow-lg bg-accent-500 hover:bg-accent-400 text-neutral-950"
+            >
+              <ShoppingBag className="w-5 h-5" />
+              <span>Go to Cart</span>
+              <ArrowRight className="w-5 h-5" />
+            </Link>
+          ) : (
+            <button
+              onClick={handleAddToCart}
+              disabled={displayStock === 0}
+              className={`w-full py-3.5 rounded-xl font-black text-sm flex items-center justify-center gap-2 transition-all shadow-lg ${
+                displayStock === 0
+                  ? 'bg-neutral-800 text-neutral-500 cursor-not-allowed'
+                  : addedSuccess
+                    ? 'bg-primary-500 text-neutral-950'
+                    : 'bg-primary-600 hover:bg-primary-500 text-white'
+              }`}
+            >
+              {displayStock === 0 ? (
+                <span>Out of Stock</span>
+              ) : addedSuccess ? (
+                <>
+                  <Check className="w-5 h-5" />
+                  <span>Added to Shopping Bag!</span>
+                </>
+              ) : (
+                <>
+                  <ShoppingBag className="w-5 h-5" />
+                  <span>Add {quantity} to Bag</span>
+                </>
+              )}
+            </button>
+          )}
         </div>
       </div>
     </div>

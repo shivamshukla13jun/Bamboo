@@ -39,7 +39,9 @@ export const cartSlice = createSlice({
       } else {
         state.items.push({ product, variant, quantity, selectedOption: optionId });
       }
-      state.isOpen = true;
+      if(state.items.length ==1) {
+        state.isOpen = true;
+      }
     },
     removeFromCart: (state, action: PayloadAction<{ productId: string; selectedOption?: string }>) => {
       state.items = state.items.filter(
