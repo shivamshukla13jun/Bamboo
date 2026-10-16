@@ -2,7 +2,7 @@ import { createSlice, PayloadAction } from '@reduxjs/toolkit';
 import { CartItem, Product, ProductVariant, CouponType } from '../types';
 import { siteConfig, currencyRates } from '../config/site';
 
-interface CartState {
+export interface CartState {
   items: CartItem[];
   isOpen: boolean;
   couponCode: string;
@@ -37,7 +37,11 @@ export const cartSlice = createSlice({
       if (existing) {
         existing.quantity += quantity;
       } else {
-        state.items.push({ product, variant, quantity, selectedOption: optionId });
+        // Deep-serialize — product docs may carry non-plain values (BSON
+        // ids / Date fields) which violate Redux serializability rules.
+        const plainProduct = JSON.parse(JSON.stringify(product));
+        const plainVariant = variant ? JSON.parse(JSON.stringify(variant)) : undefined;
+        state.items.push({ product: plainProduct, variant: plainVariant, quantity, selectedOption: optionId });
       }
       if(state.items.length ==1) {
         state.isOpen = true;
