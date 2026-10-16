@@ -5,9 +5,9 @@ import { useDispatch, useSelector } from 'react-redux';
 import { useMutation } from '@tanstack/react-query';
 import { RootState } from '../../store';
 import { setUser } from '../../store/authSlice';
-import { toggleAdminMode } from '../../store/adminSlice';
 import { useFormReduxSync } from '../../hooks/useFormReduxSync';
 import { loginApi } from '../../services/api';
+import { useRouter } from 'next/navigation';
 import { ShieldCheck, ArrowLeft, Lock, AlertCircle } from 'lucide-react';
 import { siteConfig } from '../../config/site';
 import { UserRole } from '../../types';
@@ -20,6 +20,7 @@ interface AdminLoginInputs {
 /** Full-page login gate shown before the admin panel is accessible. */
 export const AdminLogin: React.FC = () => {
   const dispatch = useDispatch();
+  const router = useRouter();
   const user = useSelector((state: RootState) => state.auth.user);
   const [serverError, setServerError] = React.useState('');
 
@@ -41,6 +42,8 @@ export const AdminLogin: React.FC = () => {
           return;
         }
         dispatch(setUser(authUser));
+        // Re-render the admin layout — the session cookie now grants access
+        router.refresh();
       },
       onError: (err: any) => {
         setServerError(err.message || 'Login failed');
@@ -136,7 +139,7 @@ export const AdminLogin: React.FC = () => {
         </form>
 
         <button
-          onClick={() => dispatch(toggleAdminMode(false))}
+          onClick={() => router.push('/')}
           className="mx-auto flex items-center gap-1.5 text-xs text-neutral-400 hover:text-primary-400 transition-colors"
         >
           <ArrowLeft className="w-3.5 h-3.5" />

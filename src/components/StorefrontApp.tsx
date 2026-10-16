@@ -16,20 +16,7 @@ import { ProductDetailModal } from './ProductDetailModal';
 import { CartDrawer } from './CartDrawer';
 import { CheckoutModal } from './CheckoutModal';
 import { Footer } from './Footer';
-import { Product, AdminTab, SeoConfig, UserRole } from '../types';
-
-// Admin Components
-import { AdminLayout } from './admin/AdminLayout';
-import { DashboardView } from './admin/DashboardView';
-import { ProductsManager } from './admin/ProductsManager';
-import { InventoryManager } from './admin/InventoryManager';
-import { MastersManager } from './admin/MastersManager';
-import { HomeQuotesManager } from './admin/HomeQuotesManager';
-import { SeoManager } from './admin/SeoManager';
-import { StorageManager } from './admin/StorageManager';
-import { OrdersManager } from './admin/OrdersManager';
-import { ReduxFormConsole } from './admin/ReduxFormConsole';
-import { AdminLogin } from './auth/AdminLogin';
+import { Product, SeoConfig } from '../types';
 import { AuthModal } from './auth/AuthModal';
 import { CheckCircle2, Info, X } from 'lucide-react';
 
@@ -41,15 +28,11 @@ interface StorefrontAppProps {
 
 export const StorefrontApp: React.FC<StorefrontAppProps> = ({ initialProducts, initialSeo }) => {
   const dispatch = useDispatch();
-  const isAdminMode = useSelector((state: RootState) => state.admin.isAdminMode);
-  const activeTab = useSelector((state: RootState) => state.admin.activeTab);
   const notification = useSelector((state: RootState) => state.admin.notification);
 
   const { category, searchTerm, minPrice, maxPrice, sortBy } = useSelector(
     (state: RootState) => state.filter
   );
-
-  const user = useSelector((state: RootState) => state.auth.user);
 
   const { data: serverSeo } = useSeoQuery(initialSeo);
   useEffect(() => {
@@ -116,24 +99,7 @@ export const StorefrontApp: React.FC<StorefrontAppProps> = ({ initialProducts, i
         </div>
       )}
 
-      {isAdminMode && user?.role !== UserRole.Admin ? (
-        /* Admin Login Gate */
-        <AdminLogin />
-      ) : isAdminMode ? (
-        /* Shopify Admin Panel Mode */
-        <AdminLayout>
-          {activeTab === AdminTab.Dashboard && <DashboardView />}
-          {activeTab === AdminTab.Products && <ProductsManager />}
-          {activeTab === AdminTab.Inventory && <InventoryManager />}
-          {activeTab === AdminTab.Masters && <MastersManager />}
-          {activeTab === AdminTab.Homes && <HomeQuotesManager />}
-          {activeTab === AdminTab.Seo && <SeoManager />}
-          {activeTab === AdminTab.Storage && <StorageManager />}
-          {activeTab === AdminTab.Orders && <OrdersManager />}
-          {activeTab === AdminTab.ReduxConsole && <ReduxFormConsole />}
-        </AdminLayout>
-      ) : (
-        /* Shopify Customer Storefront Mode */
+      {/* Customer Storefront — admin panel lives at /admin/* routes now */}
         <div className="flex-1 flex flex-col">
           <Header />
           <HeroBanner />
@@ -236,7 +202,6 @@ export const StorefrontApp: React.FC<StorefrontAppProps> = ({ initialProducts, i
             </div>
           )}
         </div>
-      )}
     </div>
   );
 };

@@ -1,9 +1,9 @@
 'use client';
 import React, { useState } from 'react';
+import Link from 'next/link';
 import { useSelector, useDispatch } from 'react-redux';
 import { RootState } from '../store';
 import { toggleCartDrawer, setCurrency } from '../store/cartSlice';
-import { toggleAdminMode, setActiveTab, AdminTab } from '../store/adminSlice';
 import { setSearchTerm, setCategory } from '../store/filterSlice';
 import { ShoppingBag, Search, ShieldCheck, Home, Layers, ArrowRight, User, LogOut } from 'lucide-react';
 import { useQuery } from '@tanstack/react-query';
@@ -16,7 +16,6 @@ export const Header: React.FC = () => {
   const dispatch = useDispatch();
   const cartItems = useSelector((state: RootState) => state.cart.items);
   const currency = useSelector((state: RootState) => state.cart.currency);
-  const isAdminMode = useSelector((state: RootState) => state.cart ? state.admin.isAdminMode : false);
   const currentCategory = useSelector((state: RootState) => state.filter.category);
   const searchTerm = useSelector((state: RootState) => state.filter.searchTerm);
   const formLogs = useSelector((state: RootState) => state.formErrors.errorLogs);
@@ -78,18 +77,14 @@ export const Header: React.FC = () => {
             </div>
           )}
 
-          {/* Admin Switcher Button */}
-          <button
-            onClick={() => dispatch(toggleAdminMode())}
-            className={`px-3 py-1 rounded-md text-xs font-semibold flex items-center gap-1.5 transition-all shadow-sm ${
-              isAdminMode
-                ? 'bg-accent-500 hover:bg-accent-600 text-neutral-950 ring-2 ring-accent-300'
-                : 'bg-primary-600 hover:bg-primary-500 text-white'
-            }`}
+          {/* Admin Panel Link → /admin routes */}
+          <Link
+            href="/admin"
+            className="px-3 py-1 rounded-md text-xs font-semibold flex items-center gap-1.5 transition-all shadow-sm bg-primary-600 hover:bg-primary-500 text-white"
           >
             <ShieldCheck className="w-3.5 h-3.5" />
-            {isAdminMode ? 'Back to Storefront' : `${siteConfig.adminTitle} Panel`}
-          </button>
+            {siteConfig.adminTitle} Panel
+          </Link>
         </div>
       </div>
 
@@ -99,7 +94,6 @@ export const Header: React.FC = () => {
         <div className="flex items-center gap-3">
           <button
             onClick={() => {
-              dispatch(toggleAdminMode(false));
               dispatch(setCategory('all'));
             }}
             className="flex items-center gap-2 group text-left"
@@ -154,8 +148,7 @@ export const Header: React.FC = () => {
           {formLogs.length > 0 && (
             <button
               onClick={() => {
-                dispatch(toggleAdminMode(true));
-                dispatch(setActiveTab(AdminTab.ReduxConsole));
+                window.location.href = '/admin/redux-console';
               }}
               className="bg-rose-900/60 hover:bg-rose-900 text-rose-300 border border-rose-700/60 text-xs px-2.5 py-1.5 rounded-lg flex items-center gap-1 font-mono"
               title="Click to view Redux Form Error Logs"
@@ -211,7 +204,6 @@ export const Header: React.FC = () => {
       </div>
 
       {/* Category Pills Navigation */}
-      {!isAdminMode && (
         <div className="bg-neutral-950 border-t border-neutral-800 py-2 px-4 overflow-x-auto no-scrollbar">
           <div className="max-w-7xl mx-auto flex items-center gap-2 text-xs">
             {categories.map((cat) => {
@@ -237,7 +229,6 @@ export const Header: React.FC = () => {
             })}
           </div>
         </div>
-      )}
     </header>
   );
 };

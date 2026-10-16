@@ -1,12 +1,15 @@
 'use client';
 import React from 'react';
 import { useAnalyticsQuery } from '../../services/api';
-import { useDispatch } from 'react-redux';
-import { setActiveTab, AdminTab } from '../../store/adminSlice';
-import { DollarSign, Home, Package, HardDrive, Search, ArrowUpRight, ShieldCheck } from 'lucide-react';
+import { useRouter } from 'next/navigation';
+import { ADMIN_ROUTES } from '../../lib/admin-routes';
+import { formatPrice } from '../../utils/formatters';
+import { AdminTab } from '../../types';
+
+import { DollarSign, Home, Package, HardDrive, Search, ArrowUpRight } from 'lucide-react';
 
 export const DashboardView: React.FC = () => {
-  const dispatch = useDispatch();
+  const router = useRouter();
   const { data: analytics, isLoading } = useAnalyticsQuery();
 
   if (isLoading) {
@@ -30,14 +33,14 @@ export const DashboardView: React.FC = () => {
 
         <div className="flex items-center gap-2">
           <button
-            onClick={() => dispatch(setActiveTab(AdminTab.Seo))}
+            onClick={() => router.push(ADMIN_ROUTES[AdminTab.Seo])}
             className="px-3.5 py-2 rounded-xl bg-neutral-800 hover:bg-neutral-700 text-primary-400 font-bold text-xs border border-neutral-700 flex items-center gap-1.5"
           >
             <Search className="w-4 h-4" />
             <span>Manage SEO Metadata</span>
           </button>
           <button
-            onClick={() => dispatch(setActiveTab(AdminTab.Storage))}
+            onClick={() => router.push(ADMIN_ROUTES[AdminTab.Storage])}
             className="px-3.5 py-2 rounded-xl bg-primary-700 hover:bg-primary-600 text-white font-bold text-xs flex items-center gap-1.5 shadow"
           >
             <HardDrive className="w-4 h-4" />
@@ -54,7 +57,7 @@ export const DashboardView: React.FC = () => {
             <DollarSign className="w-4 h-4 text-primary-400" />
           </div>
           <div className="text-2xl font-black text-accent-400 font-mono">
-            ${(analytics?.totalRevenue || 0).toLocaleString()}
+            {formatPrice(analytics?.totalRevenue || 0)}
           </div>
           <span className="text-[11px] text-primary-400 block font-medium">↑ +18.4% this month</span>
         </div>
@@ -107,7 +110,7 @@ export const DashboardView: React.FC = () => {
               <span>Recent Bamboo Home Blueprint Inquiries</span>
             </h3>
             <button
-              onClick={() => dispatch(setActiveTab(AdminTab.Homes))}
+              onClick={() => router.push(ADMIN_ROUTES[AdminTab.Homes])}
               className="text-xs text-primary-400 hover:underline flex items-center gap-0.5"
             >
               <span>View All</span>
@@ -130,7 +133,7 @@ export const DashboardView: React.FC = () => {
                       {quote.floorAreaSqFt} sq.ft • {quote.speciesName}
                     </span>
                   </div>
-                  <span className="font-mono font-bold text-accent-400">${quote.estimatedPrice?.toLocaleString()}</span>
+                  <span className="font-mono font-bold text-accent-400">{formatPrice(quote.estimatedPrice || 0)}</span>
                 </div>
               ))
             )}
@@ -145,7 +148,7 @@ export const DashboardView: React.FC = () => {
               <span>Recent Customer Orders</span>
             </h3>
             <button
-              onClick={() => dispatch(setActiveTab(AdminTab.Orders))}
+              onClick={() => router.push(ADMIN_ROUTES[AdminTab.Orders])}
               className="text-xs text-primary-400 hover:underline flex items-center gap-0.5"
             >
               <span>View All</span>
@@ -166,7 +169,7 @@ export const DashboardView: React.FC = () => {
                     <span className="font-bold text-neutral-100 block">{order.customerName} ({order.id})</span>
                     <span className="text-neutral-400 text-[11px]">{order.items?.length || 1} items</span>
                   </div>
-                  <span className="font-mono font-bold text-accent-400">${order.total?.toLocaleString()}</span>
+                  <span className="font-mono font-bold text-accent-400">{formatPrice(order.total || 0)}</span>
                 </div>
               ))
             )}

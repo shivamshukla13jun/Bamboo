@@ -1,9 +1,11 @@
 'use client';
 import React from 'react';
+import Link from 'next/link';
+import { usePathname, useRouter } from 'next/navigation';
 import { useSelector, useDispatch } from 'react-redux';
 import { RootState } from '../../store';
-import { setActiveTab, toggleAdminMode } from '../../store/adminSlice';
-import { AdminTab, NotificationType } from '../../types';
+import { AdminTab } from '../../types';
+import { ADMIN_ROUTES, tabForPath } from '../../lib/admin-routes';
 import { siteConfig } from '../../config/site';
 import { setUser } from '../../store/authSlice';
 import { useLogoutMutation } from '../../services/api';
@@ -27,16 +29,20 @@ interface AdminLayoutProps {
 
 export const AdminLayout: React.FC<AdminLayoutProps> = ({ children }) => {
   const dispatch = useDispatch();
-  const activeTab = useSelector((state: RootState) => state.admin.activeTab);
+  const pathname = usePathname();
+  const router = useRouter();
   const formLogs = useSelector((state: RootState) => state.formErrors.errorLogs);
   const user = useSelector((state: RootState) => state.auth.user);
   const logoutMutation = useLogoutMutation();
+
+  const activeTab = tabForPath(pathname || '');
 
   const handleLogout = () => {
     logoutMutation.mutate(undefined, {
       onSuccess: () => {
         dispatch(setUser(null));
-        dispatch(toggleAdminMode(false));
+        router.push('/');
+        router.refresh();
       }
     });
   };
@@ -80,13 +86,13 @@ export const AdminLayout: React.FC<AdminLayoutProps> = ({ children }) => {
               </div>
             </div>
 
-            <button
-              onClick={() => dispatch(toggleAdminMode(false))}
+            <Link
+              href="/"
               className="p-1.5 rounded-lg bg-neutral-800 hover:bg-neutral-700 text-neutral-400 hover:text-white transition-colors"
               title="Return to Customer Storefront"
             >
               <ArrowLeft className="w-4 h-4" />
-            </button>
+            </Link>
           </div>
 
           {/* Navigation Links */}
@@ -95,9 +101,9 @@ export const AdminLayout: React.FC<AdminLayoutProps> = ({ children }) => {
               const Icon = item.icon;
               const isActive = activeTab === item.tab;
               return (
-                <button
+                <Link
                   key={item.tab}
-                  onClick={() => dispatch(setActiveTab(item.tab))}
+                  href={ADMIN_ROUTES[item.tab]}
                   className={`w-full flex items-center justify-between px-3 py-2.5 rounded-xl text-xs font-semibold transition-all ${
                     isActive
                       ? 'bg-accent-500 text-neutral-950 shadow-md font-bold'
@@ -113,7 +119,7 @@ export const AdminLayout: React.FC<AdminLayoutProps> = ({ children }) => {
                       {item.badge}
                     </span>
                   )}
-                </button>
+                </Link>
               );
             })}
           </nav>
