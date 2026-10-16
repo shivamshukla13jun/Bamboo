@@ -281,6 +281,45 @@ export async function registerApi(input: {
   return data;
 }
 
+export async function fetchAccountSummary(): Promise<{ orders: Order[]; quotes: HomeQuote[] }> {
+  const res = await fetch('/api/account/summary');
+  if (!res.ok) throw new Error('Failed to fetch account data');
+  return res.json();
+}
+
+export function useAccountSummaryQuery(enabled = true) {
+  return useQuery({
+    queryKey: ['accountSummary'],
+    queryFn: fetchAccountSummary,
+    enabled
+  });
+}
+
+export async function updateProfileApi(name: string): Promise<AuthUser> {
+  const res = await fetch('/api/auth/profile', {
+    method: 'PUT',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ name })
+  });
+  const data = await res.json();
+  if (!res.ok) throw new Error(data.message || 'Update failed');
+  return data;
+}
+
+export async function changePasswordApi(input: {
+  currentPassword: string;
+  newPassword: string;
+}): Promise<{ message: string }> {
+  const res = await fetch('/api/auth/change-password', {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify(input)
+  });
+  const data = await res.json();
+  if (!res.ok) throw new Error(data.message || 'Change failed');
+  return data;
+}
+
 export async function forgotPasswordApi(
   email: string
 ): Promise<{ message: string; devResetToken?: string; devResetUrl?: string }> {

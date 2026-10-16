@@ -30,6 +30,7 @@ export const HomeCustomizer: React.FC = () => {
   const dispatch = useDispatch();
   const createQuoteMutation = useCreateHomeQuoteMutation();
   const { currency, currencyRates } = useSelector((state: RootState) => state.cart);
+  const authUser = useSelector((state: RootState) => state.auth.user);
   const cfg = siteConfig.customizer;
 
   // Fetch dynamic Masters data
@@ -84,6 +85,14 @@ export const HomeCustomizer: React.FC = () => {
     if (!watchSpeciesId && speciesList.length > 0) setValue('speciesId', speciesList[0].id);
     if (!watchRoofStyleId && roofStyles.length > 0) setValue('roofStyleId', roofStyles[0].id);
   }, [homeTypes, speciesList, roofStyles]);
+
+  // Prefill identity from the signed-in account so quotes link to it
+  useEffect(() => {
+    if (authUser) {
+      setValue('clientName', authUser.name);
+      setValue('clientEmail', authUser.email);
+    }
+  }, [authUser, setValue]);
 
   const calculatePrice = () => {
     const selectedHomeType = homeTypes.find((h: any) => h.id === watchHomeTypeId || h.code === watchHomeTypeId);

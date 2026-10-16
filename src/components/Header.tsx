@@ -161,10 +161,14 @@ export const Header: React.FC = () => {
           {/* Account / Auth Controls */}
           {user ? (
             <div className="flex items-center gap-2">
-              <span className="hidden sm:flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-neutral-800 border border-neutral-700 text-xs font-semibold text-neutral-200">
+              <Link
+                href="/account"
+                title="My Account"
+                className="hidden sm:flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-neutral-800 hover:bg-neutral-700 border border-neutral-700 text-xs font-semibold text-neutral-200 transition-colors"
+              >
                 <User className="w-3.5 h-3.5 text-primary-400" />
                 <span className="max-w-[110px] truncate">{user.name}</span>
-              </span>
+              </Link>
               <button
                 onClick={() =>
                   logoutMutation.mutate(undefined, { onSuccess: () => dispatch(setUser(null)) })

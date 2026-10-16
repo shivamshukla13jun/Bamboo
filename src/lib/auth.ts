@@ -71,6 +71,18 @@ export async function getSessionUser(request: NextRequest): Promise<AuthUser | n
 }
 
 /**
+ * Guard for logged-in routes. Returns the session when valid, otherwise a
+ * ready-to-return 401 response.
+ */
+export function requireUser(request: NextRequest): { userId: string; role: string } | NextResponse {
+  const session = readSession(request);
+  if (!session) {
+    return NextResponse.json({ message: 'Authentication required' }, { status: 401 });
+  }
+  return session;
+}
+
+/**
  * Guard for admin-only routes. Returns null when the request carries a valid
  * admin session, otherwise a ready-to-return 401/403 response.
  */

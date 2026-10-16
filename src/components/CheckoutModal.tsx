@@ -1,5 +1,5 @@
 'use client';
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { useForm } from 'react-hook-form';
 import { useSelector, useDispatch } from 'react-redux';
 import { RootState } from '../store';
@@ -35,7 +35,7 @@ export const CheckoutModal: React.FC<CheckoutModalProps> = ({ isOpen, onClose, o
     (state: RootState) => state.cart
   );
 
-  const { register, handleSubmit, formState } = useForm<CheckoutInputs>({
+  const { register, handleSubmit, reset, formState } = useForm<CheckoutInputs>({
     mode: 'onChange',
     defaultValues: {
       customerName: '',
@@ -47,6 +47,14 @@ export const CheckoutModal: React.FC<CheckoutModalProps> = ({ isOpen, onClose, o
       paymentMethod: siteConfig.commerce.paymentMethods[0]?.code as PaymentMethod
     }
   });
+
+  const authUser = useSelector((state: RootState) => state.auth.user);
+  // Prefill identity from the signed-in account so orders link to it
+  useEffect(() => {
+    if (isOpen && authUser) {
+      reset({ customerName: authUser.name, customerEmail: authUser.email, paymentMethod: siteConfig.commerce.paymentMethods[0]?.code as PaymentMethod });
+    }
+  }, [isOpen, authUser, reset]);
 
   // Sync React Hook Form errors with Redux store
   useFormReduxSync('checkout-form', formState);
