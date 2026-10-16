@@ -5,9 +5,9 @@ import { useSelector, useDispatch } from 'react-redux';
 import { RootState } from '../store';
 import { toggleCartDrawer, setCurrency } from '../store/cartSlice';
 import { setSearchTerm, setCategory } from '../store/filterSlice';
-import { ShoppingBag, Search, ShieldCheck, Home, Layers, ArrowRight, User, LogOut } from 'lucide-react';
+import { ShoppingBag, Search, Home, Layers, ArrowRight, User, LogOut, LayoutDashboard } from 'lucide-react';
 import { useQuery } from '@tanstack/react-query';
-import { CategoryMaster } from '../types';
+import { CategoryMaster, UserRole } from '../types';
 import { openAuthModal, setUser } from '../store/authSlice';
 import { useLogoutMutation } from '../services/api';
 import { siteConfig, currencyCodes } from '../config/site';
@@ -77,13 +77,17 @@ export const Header: React.FC = () => {
             </div>
           )}
 
-          {/* Admin Panel Link → /admin routes */}
+          {/* Dashboard Link → role-aware target */}
           <Link
-            href="/admin"
-            className="px-3 py-1 rounded-md text-xs font-semibold flex items-center gap-1.5 transition-all shadow-sm bg-primary-600 hover:bg-primary-500 text-white"
+            href={user?.role === UserRole.Admin ? '/admin' : '/account'}
+            className={`px-3 py-1 rounded-md text-xs font-semibold flex items-center gap-1.5 transition-all shadow-sm ${
+              user?.role === UserRole.Admin
+                ? 'bg-accent-500 hover:bg-accent-400 text-neutral-950'
+                : 'bg-primary-600 hover:bg-primary-500 text-white'
+            }`}
           >
-            <ShieldCheck className="w-3.5 h-3.5" />
-            {siteConfig.adminTitle} Panel
+            <LayoutDashboard className="w-3.5 h-3.5" />
+            {user?.role === UserRole.Admin ? 'Admin Dashboard' : user ? 'My Dashboard' : 'Dashboard'}
           </Link>
         </div>
       </div>

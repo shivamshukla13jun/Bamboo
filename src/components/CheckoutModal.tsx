@@ -100,7 +100,7 @@ export const CheckoutModal: React.FC<CheckoutModalProps> = ({ isOpen, onClose, o
 
         <div className="flex items-center gap-2 mb-6">
           <ShieldCheck className="w-6 h-6 text-primary-400" />
-          <h2 className="text-xl font-bold text-neutral-50">Shopify Secure Checkout</h2>
+          <h2 className="text-xl font-bold text-neutral-50">Secure Checkout</h2>
         </div>
 
         <form onSubmit={handleSubmit(onSubmit)} className="space-y-6">

@@ -25,7 +25,7 @@ export const DashboardView: React.FC = () => {
       {/* Top Header */}
       <div className="flex flex-wrap items-center justify-between gap-4">
         <div>
-          <h1 className="text-2xl sm:text-3xl font-black text-neutral-50">Shopify Storefront Overview</h1>
+          <h1 className="text-2xl sm:text-3xl font-black text-neutral-50">Store Overview</h1>
           <p className="text-neutral-400 text-xs sm:text-sm mt-1">
             Real-time analytics for Bamboo Eco-Homes & Product Marketplace.
           </p>
