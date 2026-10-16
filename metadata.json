@@ -1,6 +1,0 @@
-{
-  "name": "Bamboorise - Bamboo Homes & E-Commerce Platform",
-  "description": "Shopify-style e-commerce platform for sustainable bamboo homes, prefabs, furniture, flooring, and eco-products with admin SEO control, storage switcher, Redux, React Hook Form, and TanStack Query.",
-  "requestFramePermissions": [],
-  "majorCapabilities": ["MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"]
-}
