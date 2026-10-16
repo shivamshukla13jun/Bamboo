@@ -55,12 +55,23 @@ export interface HomeTypeMaster {
   description: string;
 }
 
+export enum StorageProvider {
+  Cloudinary = 'cloudinary',
+  Aws = 'aws',
+  Mock = 'mock'
+}
+
+export enum EntityStatus {
+  Active = 'active',
+  Inactive = 'inactive'
+}
+
 export interface StorageProviderMaster {
   id: string;
   name: string;
-  code: StorageProviderType;
+  code: StorageProvider;
   isDefault: boolean;
-  status: 'active' | 'inactive';
+  status: EntityStatus;
   description: string;
 }
 
@@ -110,11 +121,59 @@ export interface HomeQuote {
   interiorFinish: string;
   estimatedPrice: number;
   notes?: string;
-  status?: 'quote_requested' | 'blueprint_drafted' | 'approved' | 'in_construction' | 'completed';
+  status?: QuoteStatus;
   createdAt?: string;
 }
 
+export enum QuoteStatus {
+  QuoteRequested = 'quote_requested',
+  BlueprintDrafted = 'blueprint_drafted',
+  Approved = 'approved',
+  InConstruction = 'in_construction',
+  Completed = 'completed'
+}
+
 export type ProductCategory = string;
+
+export enum AdminTab {
+  Dashboard = 'dashboard',
+  Products = 'products',
+  Inventory = 'inventory',
+  Masters = 'masters',
+  Homes = 'homes',
+  Seo = 'seo',
+  Storage = 'storage',
+  Orders = 'orders',
+  ReduxConsole = 'redux_console'
+}
+
+export enum NotificationType {
+  Success = 'success',
+  Error = 'error',
+  Info = 'info'
+}
+
+export enum SortBy {
+  Featured = 'featured',
+  PriceAsc = 'price_asc',
+  PriceDesc = 'price_desc',
+  Rating = 'rating'
+}
+
+export enum PricePreset {
+  All = 'all',
+  Under25 = 'under_25',
+  Mid25to200 = '25_200',
+  Mid200to2000 = '200_2000',
+  High2000to25000 = '2000_25000',
+  Premium25000Plus = '25000_plus'
+}
+
+export enum StockFilter {
+  All = 'all',
+  Low = 'low',
+  Out = 'out'
+}
 
 export interface CartItem {
   product: Product;
@@ -136,15 +195,41 @@ export interface Order {
   shipping: number;
   discount: number;
   total: number;
-  paymentMethod: 'credit_card' | 'stripe_mock' | 'crypto' | 'bamboo_installments';
-  status: 'pending' | 'processing' | 'shipped' | 'delivered';
+  paymentMethod: PaymentMethod;
+  status: OrderStatus;
   createdAt: string;
 }
 
-export type StorageProviderType = 'cloudinary' | 'aws' | 'mock';
+export enum PaymentMethod {
+  CreditCard = 'credit_card',
+  StripeMock = 'stripe_mock',
+  Crypto = 'crypto',
+  Installments = 'installments'
+}
+
+export enum OrderStatus {
+  Pending = 'pending',
+  Processing = 'processing',
+  Shipped = 'shipped',
+  Delivered = 'delivered'
+}
+
+export enum CouponType {
+  Percentage = 'percentage',
+  Fixed = 'fixed'
+}
+
+export enum MasterEntityType {
+  Category = 'category',
+  Species = 'species',
+  Treatment = 'treatment',
+  RoofStyle = 'roof_style',
+  HomeType = 'home_type',
+  StorageProvider = 'storage_provider'
+}
 
 export interface StorageConfig {
-  activeProvider: StorageProviderType;
+  activeProvider: StorageProvider;
   awsBucket?: string;
   awsRegion?: string;
   cloudinaryCloudName?: string;
@@ -162,7 +247,10 @@ export interface StoragePublicConfig {
   };
 }
 
-export type UserRole = 'admin' | 'customer';
+export enum UserRole {
+  Admin = 'admin',
+  Customer = 'customer'
+}
 
 export interface AuthUser {
   id: string;

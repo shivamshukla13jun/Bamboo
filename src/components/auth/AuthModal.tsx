@@ -5,11 +5,16 @@ import { useDispatch, useSelector } from 'react-redux';
 import { useMutation } from '@tanstack/react-query';
 import { RootState } from '../../store';
 import { setUser, openAuthModal } from '../../store/authSlice';
-import { setNotification } from '../../store/adminSlice';
+import { setNotification, NotificationType } from '../../store/adminSlice';
 import { useFormReduxSync } from '../../hooks/useFormReduxSync';
 import { loginApi, registerApi } from '../../services/api';
 import { X, User, ShieldAlert, Leaf, UserPlus, LogIn } from 'lucide-react';
 import { siteConfig } from '../../config/site';
+
+enum AuthMode {
+  Login = 'login',
+  Register = 'register'
+}
 
 interface AuthInputs {
   name: string;
@@ -21,7 +26,7 @@ interface AuthInputs {
 export const AuthModal: React.FC = () => {
   const dispatch = useDispatch();
   const isOpen = useSelector((state: RootState) => state.auth.isAuthModalOpen);
-  const [mode, setMode] = useState<'login' | 'register'>('login');
+  const [mode, setMode] = useState<AuthMode>(AuthMode.Login);
   const [serverError, setServerError] = useState('');
 
   const loginMutation = useMutation({ mutationFn: loginApi });
@@ -33,7 +38,7 @@ export const AuthModal: React.FC = () => {
     defaultValues: { name: '', email: '', password: '' }
   });
 
-  useFormReduxSync(mode === 'login' ? 'customer-login-form' : 'customer-register-form', formState);
+  useFormReduxSync(mode === AuthMode.Login ? 'customer-login-form' : 'customer-register-form', formState);
 
   if (!isOpen) return null;
 
@@ -50,17 +55,17 @@ export const AuthModal: React.FC = () => {
       dispatch(
         setNotification({
           message:
-            mode === 'register'
+            mode === AuthMode.Register
               ? `Welcome to ${siteConfig.siteName}, ${user.name}! Your account is ready.`
               : `Welcome back, ${user.name}!`,
-          type: 'success'
+          type: NotificationType.Success
         })
       );
       reset();
     };
     const onError = (err: any) => setServerError(err.message || 'Request failed');
 
-    if (mode === 'register') {
+    if (mode === AuthMode.Register) {
       registerMutation.mutate(
         { name: data.name, email: data.email, password: data.password },
         { onSuccess, onError }
@@ -85,7 +90,7 @@ export const AuthModal: React.FC = () => {
             <Leaf className="w-5 h-5" />
           </div>
           <h2 className="text-lg font-black text-neutral-50">
-            {mode === 'login' ? `Sign In to ${siteConfig.siteName}` : 'Create Your Account'}
+            {mode === AuthMode.Login ? `Sign In to ${siteConfig.siteName}` : 'Create Your Account'}
           </h2>
         </div>
         <p className="text-xs text-neutral-400 mb-5">
@@ -96,11 +101,11 @@ export const AuthModal: React.FC = () => {
         <div className="flex bg-neutral-950 p-1 rounded-xl border border-neutral-800 mb-5 text-xs font-bold">
           <button
             onClick={() => {
-              setMode('login');
+              setMode(AuthMode.Login);
               setServerError('');
             }}
             className={`flex-1 py-2 rounded-lg flex items-center justify-center gap-1.5 transition-colors ${
-              mode === 'login' ? 'bg-primary-700 text-white' : 'text-neutral-400 hover:text-neutral-200'
+              mode === AuthMode.Login ? 'bg-primary-700 text-white' : 'text-neutral-400 hover:text-neutral-200'
             }`}
           >
             <LogIn className="w-3.5 h-3.5" />
@@ -108,11 +113,11 @@ export const AuthModal: React.FC = () => {
           </button>
           <button
             onClick={() => {
-              setMode('register');
+              setMode(AuthMode.Register);
               setServerError('');
             }}
             className={`flex-1 py-2 rounded-lg flex items-center justify-center gap-1.5 transition-colors ${
-              mode === 'register' ? 'bg-primary-700 text-white' : 'text-neutral-400 hover:text-neutral-200'
+              mode === AuthMode.Register ? 'bg-primary-700 text-white' : 'text-neutral-400 hover:text-neutral-200'
             }`}
           >
             <UserPlus className="w-3.5 h-3.5" />
@@ -121,7 +126,7 @@ export const AuthModal: React.FC = () => {
         </div>
 
         <form onSubmit={handleSubmit(onSubmit)} className="space-y-4 text-xs">
-          {mode === 'register' && (
+          {mode === AuthMode.Register && (
             <div>
               <label className="block text-neutral-300 font-medium mb-1">
                 Full Name <span className="text-rose-400">*</span>
@@ -130,7 +135,7 @@ export const AuthModal: React.FC = () => {
                 type="text"
                 placeholder="John Doe"
                 {...register('name', {
-                  required: mode === 'register' ? 'Name is required' : false
+                  required: mode === AuthMode.Register ? 'Name is required' : false
                 })}
                 className={`w-full bg-neutral-950 text-neutral-100 border rounded-xl px-3 py-2.5 focus:outline-none ${
                   formState.errors.name ? 'border-rose-500' : 'border-neutral-700'
@@ -168,7 +173,7 @@ export const AuthModal: React.FC = () => {
             </label>
             <input
               type="password"
-              placeholder={mode === 'register' ? 'Min. 6 characters' : '••••••••'}
+              placeholder={mode === AuthMode.Register ? 'Min. 6 characters' : '••••••••'}
               {...register('password', {
                 required: 'Password is required',
                 minLength: { value: 6, message: 'Password must be at least 6 characters' }
@@ -198,7 +203,7 @@ export const AuthModal: React.FC = () => {
             <span>
               {isPending
                 ? 'Please wait...'
-                : mode === 'login'
+                : mode === AuthMode.Login
                   ? 'Sign In'
                   : 'Create Account & Sign In'}
             </span>

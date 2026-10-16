@@ -1,5 +1,5 @@
 import { createSlice, PayloadAction } from '@reduxjs/toolkit';
-import { CartItem, Product } from '../types';
+import { CartItem, Product, CouponType } from '../types';
 import { siteConfig, currencyRates } from '../config/site';
 
 interface CartState {
@@ -7,7 +7,7 @@ interface CartState {
   isOpen: boolean;
   couponCode: string;
   discountAmount: number;
-  discountType: 'percentage' | 'fixed' | null;
+  discountType: CouponType | null;
   shippingCost: number;
   currency: string;
   currencyRates: Record<string, number>;
@@ -66,7 +66,7 @@ export const cartSlice = createSlice({
       const coupon = siteConfig.commerce.coupons[code];
       if (coupon) {
         state.discountAmount = coupon.value;
-        state.discountType = coupon.type;
+        state.discountType = coupon.type as CouponType;
       } else {
         state.discountAmount = 0;
         state.discountType = null;

@@ -1,4 +1,5 @@
 import { currencyRates, currencySymbols, siteConfig } from '../config/site';
+import { CouponType } from '../types';
 
 export function formatPrice(
   amount: number,
@@ -19,10 +20,12 @@ export function formatPrice(
 export function computeDiscount(
   subtotal: number,
   discountAmount: number,
-  discountType: 'percentage' | 'fixed' | null
+  discountType: CouponType | null
 ): number {
   if (!discountType || discountAmount <= 0) return 0;
-  return discountType === 'percentage' ? (subtotal * discountAmount) / 100 : discountAmount;
+  return discountType === CouponType.Percentage
+    ? (subtotal * discountAmount) / 100
+    : discountAmount;
 }
 
 /** Compute freight shipping from site config thresholds */
@@ -31,19 +34,3 @@ export function computeShipping(subtotal: number): number {
   return siteConfig.commerce.shippingCost;
 }
 
-export function getCategoryLabel(category: string): string {
-  switch (category) {
-    case 'homes':
-      return 'Bamboo Homes & Prefabs';
-    case 'furniture':
-      return 'Eco Bamboo Furniture';
-    case 'flooring_beams':
-      return 'Flooring & Beams';
-    case 'decor_kitchen':
-      return 'Kitchenware & Decor';
-    case 'garden_outdoor':
-      return 'Garden & Fencing';
-    default:
-      return 'All Bamboo Products';
-  }
-}

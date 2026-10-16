@@ -2,7 +2,7 @@
 import React from 'react';
 import { useAnalyticsQuery } from '../../services/api';
 import { useDispatch } from 'react-redux';
-import { setActiveTab } from '../../store/adminSlice';
+import { setActiveTab, AdminTab } from '../../store/adminSlice';
 import { DollarSign, Home, Package, HardDrive, Search, ArrowUpRight, ShieldCheck } from 'lucide-react';
 
 export const DashboardView: React.FC = () => {
@@ -30,14 +30,14 @@ export const DashboardView: React.FC = () => {
 
         <div className="flex items-center gap-2">
           <button
-            onClick={() => dispatch(setActiveTab('seo'))}
+            onClick={() => dispatch(setActiveTab(AdminTab.Seo))}
             className="px-3.5 py-2 rounded-xl bg-neutral-800 hover:bg-neutral-700 text-primary-400 font-bold text-xs border border-neutral-700 flex items-center gap-1.5"
           >
             <Search className="w-4 h-4" />
             <span>Manage SEO Metadata</span>
           </button>
           <button
-            onClick={() => dispatch(setActiveTab('storage'))}
+            onClick={() => dispatch(setActiveTab(AdminTab.Storage))}
             className="px-3.5 py-2 rounded-xl bg-primary-700 hover:bg-primary-600 text-white font-bold text-xs flex items-center gap-1.5 shadow"
           >
             <HardDrive className="w-4 h-4" />
@@ -107,7 +107,7 @@ export const DashboardView: React.FC = () => {
               <span>Recent Bamboo Home Blueprint Inquiries</span>
             </h3>
             <button
-              onClick={() => dispatch(setActiveTab('homes'))}
+              onClick={() => dispatch(setActiveTab(AdminTab.Homes))}
               className="text-xs text-primary-400 hover:underline flex items-center gap-0.5"
             >
               <span>View All</span>
@@ -145,7 +145,7 @@ export const DashboardView: React.FC = () => {
               <span>Recent Customer Orders</span>
             </h3>
             <button
-              onClick={() => dispatch(setActiveTab('orders'))}
+              onClick={() => dispatch(setActiveTab(AdminTab.Orders))}
               className="text-xs text-primary-400 hover:underline flex items-center gap-0.5"
             >
               <span>View All</span>

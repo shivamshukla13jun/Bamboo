@@ -2,6 +2,8 @@ import { NextRequest, NextResponse } from 'next/server';
 import { ensureSeeded } from '../../../lib/seed';
 import { HomeQuote, Master, cleanList } from '../../../lib/models';
 import { requireAdmin } from '../../../lib/auth';
+import { siteConfig } from '../../../config/site';
+import { QuoteStatus } from '../../../types';
 
 export async function GET(request: NextRequest) {
   try {
@@ -31,8 +33,8 @@ export async function POST(request: NextRequest) {
     const basePerSqFt = homeType?.basePricePerSqFt ?? 45;
     const roofMultiplier = roofStyle?.priceMultiplier ?? 1.0;
     let estimated = area * basePerSqFt * roofMultiplier;
-    if ((body.stories || 1) > 1) estimated += (body.stories - 1) * 8500;
-    if (body.offGridSolar) estimated += 12500;
+    if ((body.stories || 1) > 1) estimated += (body.stories - 1) * siteConfig.customizer.extraStoryCost;
+    if (body.offGridSolar) estimated += siteConfig.customizer.solarAddonCost;
 
     const quote = {
       ...body,
@@ -41,7 +43,7 @@ export async function POST(request: NextRequest) {
       speciesName: species?.name || body.speciesName,
       roofStyleName: roofStyle?.name || body.roofStyleName,
       estimatedPrice: Math.round(estimated),
-      status: 'quote_requested',
+      status: QuoteStatus.QuoteRequested,
       createdAt: new Date().toISOString()
     };
 

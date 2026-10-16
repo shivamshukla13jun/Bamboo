@@ -8,6 +8,8 @@ import { useFormReduxSync } from '../hooks/useFormReduxSync';
 import { useCreateOrderMutation } from '../services/api';
 import { formatPrice, computeDiscount, computeShipping } from '../utils/formatters';
 import { X, CreditCard, ShieldCheck, CheckCircle2, Truck, ArrowRight, ShieldAlert } from 'lucide-react';
+import { PaymentMethod } from '../types';
+import { siteConfig } from '../config/site';
 
 interface CheckoutInputs {
   customerName: string;
@@ -16,7 +18,7 @@ interface CheckoutInputs {
   city: string;
   postalCode: string;
   country: string;
-  paymentMethod: 'credit_card' | 'stripe_mock' | 'crypto' | 'bamboo_installments';
+  paymentMethod: PaymentMethod;
 }
 
 interface CheckoutModalProps {
@@ -42,7 +44,7 @@ export const CheckoutModal: React.FC<CheckoutModalProps> = ({ isOpen, onClose, o
       city: '',
       postalCode: '',
       country: 'United States',
-      paymentMethod: 'credit_card'
+      paymentMethod: siteConfig.commerce.paymentMethods[0]?.code as PaymentMethod
     }
   });
 
@@ -193,25 +195,20 @@ export const CheckoutModal: React.FC<CheckoutModalProps> = ({ isOpen, onClose, o
               2. Payment Method
             </h3>
             <div className="grid sm:grid-cols-2 gap-3">
-              <label className="flex items-center gap-3 p-3 bg-neutral-950 rounded-xl border border-neutral-800 cursor-pointer hover:border-primary-600">
-                <input
-                  type="radio"
-                  value="credit_card"
-                  {...register('paymentMethod')}
-                  className="accent-primary-500"
-                />
-                <span className="text-xs text-neutral-200 font-medium">Credit Card / Debit Card</span>
-              </label>
-
-              <label className="flex items-center gap-3 p-3 bg-neutral-950 rounded-xl border border-neutral-800 cursor-pointer hover:border-primary-600">
-                <input
-                  type="radio"
-                  value="bamboo_installments"
-                  {...register('paymentMethod')}
-                  className="accent-primary-500"
-                />
-                <span className="text-xs text-neutral-200 font-medium">Bamboo Home Installments (0% APY)</span>
-              </label>
+              {siteConfig.commerce.paymentMethods.map((method) => (
+                <label
+                  key={method.code}
+                  className="flex items-center gap-3 p-3 bg-neutral-950 rounded-xl border border-neutral-800 cursor-pointer hover:border-primary-600"
+                >
+                  <input
+                    type="radio"
+                    value={method.code}
+                    {...register('paymentMethod')}
+                    className="accent-primary-500"
+                  />
+                  <span className="text-xs text-neutral-200 font-medium">{method.label}</span>
+                </label>
+              ))}
             </div>
           </div>
 

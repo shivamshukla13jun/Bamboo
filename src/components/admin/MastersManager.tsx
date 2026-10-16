@@ -3,16 +3,22 @@ import React, { useState } from 'react';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { Database, Plus, Trash2, Edit2, ShieldAlert, CheckCircle, RefreshCw, AlertTriangle, ChevronRight } from 'lucide-react';
 import { useDispatch } from 'react-redux';
-import { setNotification } from '../../store/adminSlice';
+import { setNotification, NotificationType } from '../../store/adminSlice';
 import { ReferenceWarningModal } from './ReferenceWarningModal';
 import { ReferenceCheckResult } from '../../types';
 
-type MasterType = 'categories' | 'species' | 'treatments' | 'roof_styles' | 'home_types';
+enum MasterGroup {
+  Categories = 'categories',
+  Species = 'species',
+  Treatments = 'treatments',
+  RoofStyles = 'roof_styles',
+  HomeTypes = 'home_types'
+}
 
 export const MastersManager: React.FC = () => {
   const dispatch = useDispatch();
   const queryClient = useQueryClient();
-  const [activeMaster, setActiveMaster] = useState<MasterType>('categories');
+  const [activeMaster, setActiveMaster] = useState<MasterGroup>(MasterGroup.Categories);
 
   // Warning Modal State
   const [refCheckResult, setRefCheckResult] = useState<ReferenceCheckResult | null>(null);
@@ -32,7 +38,7 @@ export const MastersManager: React.FC = () => {
   });
 
   const createMasterMutation = useMutation({
-    mutationFn: async ({ type, item }: { type: MasterType; item: any }) => {
+    mutationFn: async ({ type, item }: { type: MasterGroup; item: any }) => {
       const res = await fetch(`/api/masters/${type}`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
@@ -45,12 +51,12 @@ export const MastersManager: React.FC = () => {
       queryClient.invalidateQueries({ queryKey: ['masters'] });
       setIsCreating(false);
       setFormData({});
-      dispatch(setNotification({ message: 'Master record created successfully!', type: 'success' }));
+      dispatch(setNotification({ message: 'Master record created successfully!', type: NotificationType.Success }));
     }
   });
 
   const deleteMasterMutation = useMutation({
-    mutationFn: async ({ type, id }: { type: MasterType; id: string }) => {
+    mutationFn: async ({ type, id }: { type: MasterGroup; id: string }) => {
       const res = await fetch(`/api/masters/${type}/${id}`, {
         method: 'DELETE'
       });
@@ -71,11 +77,11 @@ export const MastersManager: React.FC = () => {
         setIsWarningModalOpen(true);
       } else {
         queryClient.invalidateQueries({ queryKey: ['masters'] });
-        dispatch(setNotification({ message: 'Master record deleted cleanly.', type: 'success' }));
+        dispatch(setNotification({ message: 'Master record deleted cleanly.', type: NotificationType.Success }));
       }
     },
     onError: (err: any) => {
-      dispatch(setNotification({ message: err.message, type: 'error' }));
+      dispatch(setNotification({ message: err.message, type: NotificationType.Error }));
     }
   });
 
@@ -85,9 +91,9 @@ export const MastersManager: React.FC = () => {
   };
 
   const listKey =
-    activeMaster === 'roof_styles'
+    activeMaster === MasterGroup.RoofStyles
       ? 'roofStyles'
-      : activeMaster === 'home_types'
+      : activeMaster === MasterGroup.HomeTypes
       ? 'homeTypes'
       : activeMaster;
   const currentList = masters ? (masters as any)[listKey] || [] : [];
@@ -121,16 +127,16 @@ export const MastersManager: React.FC = () => {
       {/* Master Tabs */}
       <div className="flex border-b border-neutral-800 overflow-x-auto gap-2 scrollbar-none">
         {[
-          { key: 'categories', label: 'Categories Master', count: masters?.categories?.length },
-          { key: 'species', label: 'Bamboo Species Master', count: masters?.species?.length },
-          { key: 'treatments', label: 'Treatment Methods Master', count: masters?.treatments?.length },
-          { key: 'roof_styles', label: 'Roof Architecture Master', count: masters?.roofStyles?.length },
-          { key: 'home_types', label: 'Home Types Master', count: masters?.homeTypes?.length }
+          { key: MasterGroup.Categories, label: 'Categories Master', count: masters?.categories?.length },
+          { key: MasterGroup.Species, label: 'Bamboo Species Master', count: masters?.species?.length },
+          { key: MasterGroup.Treatments, label: 'Treatment Methods Master', count: masters?.treatments?.length },
+          { key: MasterGroup.RoofStyles, label: 'Roof Architecture Master', count: masters?.roofStyles?.length },
+          { key: MasterGroup.HomeTypes, label: 'Home Types Master', count: masters?.homeTypes?.length }
         ].map(tab => (
           <button
             key={tab.key}
             onClick={() => {
-              setActiveMaster(tab.key as MasterType);
+              setActiveMaster(tab.key as MasterGroup);
               setIsCreating(false);
             }}
             className={`px-4 py-3 font-semibold text-xs whitespace-nowrap border-b-2 transition flex items-center space-x-2 ${
@@ -176,7 +182,7 @@ export const MastersManager: React.FC = () => {
               />
             </div>
 
-            {activeMaster === 'categories' && (
+            {activeMaster === MasterGroup.Categories && (
               <>
                 <div>
                   <label className="block text-xs font-semibold text-neutral-300 mb-1">Slug *</label>
@@ -201,7 +207,7 @@ export const MastersManager: React.FC = () => {
               </>
             )}
 
-            {activeMaster === 'species' && (
+            {activeMaster === MasterGroup.Species && (
               <>
                 <div>
                   <label className="block text-xs font-semibold text-neutral-300 mb-1">Scientific Name</label>
@@ -224,7 +230,7 @@ export const MastersManager: React.FC = () => {
               </>
             )}
 
-            {activeMaster === 'treatments' && (
+            {activeMaster === MasterGroup.Treatments && (
               <>
                 <div>
                   <label className="block text-xs font-semibold text-neutral-300 mb-1">Method Type</label>
@@ -249,7 +255,7 @@ export const MastersManager: React.FC = () => {
               </>
             )}
 
-            {activeMaster === 'roof_styles' && (
+            {activeMaster === MasterGroup.RoofStyles && (
               <div>
                 <label className="block text-xs font-semibold text-neutral-300 mb-1">Price Multiplier</label>
                 <input
@@ -262,7 +268,7 @@ export const MastersManager: React.FC = () => {
               </div>
             )}
 
-            {activeMaster === 'home_types' && (
+            {activeMaster === MasterGroup.HomeTypes && (
               <>
                 <div>
                   <label className="block text-xs font-semibold text-neutral-300 mb-1">Code / Identifier</label>

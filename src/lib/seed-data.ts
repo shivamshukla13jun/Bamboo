@@ -8,9 +8,12 @@ import {
   Product,
   HomeQuote,
   Order,
-  SeoConfig
+  SeoConfig,
+  QuoteStatus,
+  PaymentMethod,
+  OrderStatus
 } from '../types';
-import { MasterType } from './models';
+import { MasterType, MasterEntityType } from './models';
 import { siteConfig } from '../config/site';
 
 export const INITIAL_CATEGORIES: CategoryMaster[] = [
@@ -54,12 +57,12 @@ export const INITIAL_STORAGE_PROVIDERS: StorageProviderMaster[] = [];
 
 export function initialMasters(): Array<Record<string, any> & { type: MasterType }> {
   return [
-    ...INITIAL_CATEGORIES.map((m) => ({ ...m, type: 'category' as const })),
-    ...INITIAL_SPECIES.map((m) => ({ ...m, type: 'species' as const })),
-    ...INITIAL_TREATMENTS.map((m) => ({ ...m, type: 'treatment' as const })),
-    ...INITIAL_ROOF_STYLES.map((m) => ({ ...m, type: 'roof_style' as const })),
-    ...INITIAL_HOME_TYPES.map((m) => ({ ...m, type: 'home_type' as const })),
-    ...INITIAL_STORAGE_PROVIDERS.map((m) => ({ ...m, type: 'storage_provider' as const }))
+    ...INITIAL_CATEGORIES.map((m) => ({ ...m, type: MasterEntityType.Category })),
+    ...INITIAL_SPECIES.map((m) => ({ ...m, type: MasterEntityType.Species })),
+    ...INITIAL_TREATMENTS.map((m) => ({ ...m, type: MasterEntityType.Treatment })),
+    ...INITIAL_ROOF_STYLES.map((m) => ({ ...m, type: MasterEntityType.RoofStyle })),
+    ...INITIAL_HOME_TYPES.map((m) => ({ ...m, type: MasterEntityType.HomeType })),
+    ...INITIAL_STORAGE_PROVIDERS.map((m) => ({ ...m, type: MasterEntityType.StorageProvider }))
   ];
 }
 
@@ -311,7 +314,7 @@ export const INITIAL_QUOTES: HomeQuote[] = [
     interiorFinish: 'luxury_teak_bamboo',
     estimatedPrice: 94500,
     notes: 'Looking to build on a coastal slope property in Northern California.',
-    status: 'quote_requested',
+    status: QuoteStatus.QuoteRequested,
     createdAt: new Date().toISOString()
   }
 ];
@@ -334,8 +337,8 @@ export function initialOrders(): Order[] {
       shipping: 150,
       discount: 100,
       total: 2880,
-      paymentMethod: 'credit_card',
-      status: 'processing',
+      paymentMethod: PaymentMethod.CreditCard,
+      status: OrderStatus.Processing,
       createdAt: new Date(Date.now() - 86400000 * 2).toISOString()
     }
   ];

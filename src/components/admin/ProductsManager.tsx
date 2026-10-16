@@ -12,7 +12,7 @@ import {
 } from '../../services/api';
 import { Product, ProductVariant, ReferenceCheckResult } from '../../types';
 import { formatPrice } from '../../utils/formatters';
-import { setNotification } from '../../store/adminSlice';
+import { setNotification, NotificationType } from '../../store/adminSlice';
 import { Plus, Search, Edit2, Trash2, X, Upload, HardDrive, ShieldAlert, Check, Layers } from 'lucide-react';
 import { ReferenceWarningModal } from './ReferenceWarningModal';
 
@@ -121,7 +121,7 @@ export const ProductsManager: React.FC = () => {
 
   const handleAddVariant = () => {
     if (!newVariantSku || !newVariantName) {
-      dispatch(setNotification({ message: 'Please provide SKU and Variant Name', type: 'info' }));
+      dispatch(setNotification({ message: 'Please provide SKU and Variant Name', type: NotificationType.Info }));
       return;
     }
     setVariantsList(prev => [
@@ -156,7 +156,7 @@ export const ProductsManager: React.FC = () => {
             dispatch(
               setNotification({
                 message: 'Image uploaded successfully!',
-                type: 'success'
+                type: NotificationType.Success
               })
             );
           }
@@ -190,7 +190,7 @@ export const ProductsManager: React.FC = () => {
         {
           onSuccess: () => {
             setIsModalOpen(false);
-            dispatch(setNotification({ message: 'Product & Variants updated!', type: 'success' }));
+            dispatch(setNotification({ message: 'Product & Variants updated!', type: NotificationType.Success }));
           }
         }
       );
@@ -198,7 +198,7 @@ export const ProductsManager: React.FC = () => {
       createProductMutation.mutate(payload, {
         onSuccess: () => {
           setIsModalOpen(false);
-          dispatch(setNotification({ message: 'Product & Variants created!', type: 'success' }));
+          dispatch(setNotification({ message: 'Product & Variants created!', type: NotificationType.Success }));
         }
       });
     }
@@ -215,12 +215,12 @@ export const ProductsManager: React.FC = () => {
         setIsWarningModalOpen(true);
       } else if (res.ok) {
         refetch();
-        dispatch(setNotification({ message: 'Product deleted successfully!', type: 'info' }));
+        dispatch(setNotification({ message: 'Product deleted successfully!', type: NotificationType.Info }));
       } else {
-        dispatch(setNotification({ message: data.message || 'Delete failed', type: 'error' }));
+        dispatch(setNotification({ message: data.message || 'Delete failed', type: NotificationType.Error }));
       }
     } catch (err: any) {
-      dispatch(setNotification({ message: err.message, type: 'error' }));
+      dispatch(setNotification({ message: err.message, type: NotificationType.Error }));
     }
   };
 

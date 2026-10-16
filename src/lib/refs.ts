@@ -1,5 +1,5 @@
 import { Product, Master, Order, HomeQuote } from './models';
-import { ReferenceCheckResult } from '../types';
+import { ReferenceCheckResult, MasterEntityType } from '../types';
 
 interface RefEntry {
   entityType: string;
@@ -24,7 +24,7 @@ export async function checkEntityReferences(
   const master = await Master.findOne({ id: entityId }).lean();
 
   switch (entityType) {
-    case 'category': {
+    case MasterEntityType.Category: {
       if (master) entityName = master.name;
       const catSlug = master?.slug;
       const matching = await Product.find({
@@ -42,7 +42,7 @@ export async function checkEntityReferences(
       break;
     }
 
-    case 'species': {
+    case MasterEntityType.Species: {
       if (master) entityName = master.name;
       const matching = await Product.find({ speciesId: entityId }).lean();
       matching.forEach((p) => {
@@ -68,7 +68,7 @@ export async function checkEntityReferences(
       break;
     }
 
-    case 'treatment': {
+    case MasterEntityType.Treatment: {
       if (master) entityName = master.name;
       const matching = await Product.find({ treatmentId: entityId }).lean();
       matching.forEach((p) => {
@@ -83,7 +83,7 @@ export async function checkEntityReferences(
       break;
     }
 
-    case 'roof_style': {
+    case MasterEntityType.RoofStyle: {
       if (master) entityName = master.name;
       const quotes = await HomeQuote.find({ roofStyleId: entityId }).lean();
       quotes.forEach((q) => {
@@ -98,9 +98,9 @@ export async function checkEntityReferences(
       break;
     }
 
-    case 'home_type': {
+    case MasterEntityType.HomeType: {
       const ht =
-        master || (await Master.findOne({ type: 'home_type', code: entityId }).lean());
+        master || (await Master.findOne({ type: MasterEntityType.HomeType, code: entityId }).lean());
       if (ht) entityName = ht.name;
       const quotes = await HomeQuote.find({ homeTypeId: ht?.id || entityId }).lean();
       quotes.forEach((q) => {
@@ -115,7 +115,7 @@ export async function checkEntityReferences(
       break;
     }
 
-    case 'storage_provider': {
+    case MasterEntityType.StorageProvider: {
       if (master) entityName = master.name;
       break;
     }

@@ -1,18 +1,19 @@
 import { createSlice, PayloadAction } from '@reduxjs/toolkit';
+import { AdminTab, NotificationType } from '../types';
 
-export type AdminTab = 'dashboard' | 'products' | 'inventory' | 'masters' | 'homes' | 'seo' | 'storage' | 'orders' | 'redux_console';
+export { AdminTab, NotificationType };
 
 interface AdminState {
   isAdminMode: boolean;
   activeTab: AdminTab;
   editingProductId: string | null;
   isProductModalOpen: boolean;
-  notification: { message: string; type: 'success' | 'error' | 'info' } | null;
+  notification: { message: string; type: NotificationType } | null;
 }
 
 const initialState: AdminState = {
   isAdminMode: false,
-  activeTab: 'dashboard',
+  activeTab: AdminTab.Dashboard,
   editingProductId: null,
   isProductModalOpen: false,
   notification: null
@@ -36,7 +37,10 @@ export const adminSlice = createSlice({
       state.editingProductId = null;
       state.isProductModalOpen = false;
     },
-    setNotification: (state, action: PayloadAction<{ message: string; type: 'success' | 'error' | 'info' } | null>) => {
+    setNotification: (
+      state,
+      action: PayloadAction<{ message: string; type: NotificationType } | null>
+    ) => {
       state.notification = action.payload;
     }
   }

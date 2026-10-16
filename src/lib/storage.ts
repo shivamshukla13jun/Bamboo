@@ -1,16 +1,16 @@
 import { promises as fs } from 'fs';
 import path from 'path';
 import { Setting } from './models';
-import { StorageConfig, StorageProviderType } from '../types';
+import { StorageConfig, StorageProvider } from '../types';
 import { DEFAULT_STORAGE_CONFIG } from './seed';
 
 const UPLOAD_ROOT = path.join(process.cwd(), 'public', 'uploads');
 
-const VALID_PROVIDERS: StorageProviderType[] = ['cloudinary', 'aws', 'mock'];
+const VALID_PROVIDERS = Object.values(StorageProvider);
 
-function envProvider(): StorageProviderType {
-  const p = process.env.STORAGE_PROVIDER as StorageProviderType;
-  return VALID_PROVIDERS.includes(p) ? p : 'mock';
+function envProvider(): StorageProvider {
+  const p = process.env.STORAGE_PROVIDER as StorageProvider;
+  return VALID_PROVIDERS.includes(p) ? p : StorageProvider.Mock;
 }
 
 /**
@@ -70,21 +70,21 @@ export async function handleUpload(
   const filename = `${Date.now()}-${file.name.replace(/[^a-zA-Z0-9.-]/g, '_')}`;
 
   switch (config.activeProvider) {
-    case 'aws': {
+    case StorageProvider.Aws: {
       await bumpUploadStats(file.size);
       return {
         url: `https://${config.awsBucket}.s3.${config.awsRegion}.amazonaws.com/${safeFolder}/${filename}`,
         filename
       };
     }
-    case 'cloudinary': {
+    case StorageProvider.Cloudinary: {
       await bumpUploadStats(file.size);
       return {
         url: `https://res.cloudinary.com/${config.cloudinaryCloudName}/image/upload/v${Math.floor(Date.now() / 1000)}/${safeFolder}/${filename}`,
         filename
       };
     }
-    case 'mock':
+    case StorageProvider.Mock:
     default: {
       const dir = path.join(UPLOAD_ROOT, safeFolder);
       await fs.mkdir(dir, { recursive: true });

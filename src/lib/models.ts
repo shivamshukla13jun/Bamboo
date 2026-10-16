@@ -1,43 +1,38 @@
 import mongoose, { Schema, Model, models } from 'mongoose';
+import { MasterEntityType, UserRole } from '../types';
 
-export const MASTER_TYPES = [
-  'category',
-  'species',
-  'treatment',
-  'roof_style',
-  'home_type',
-  'storage_provider'
-] as const;
+export const MASTER_TYPES: MasterEntityType[] = Object.values(MasterEntityType);
 
-export type MasterType = (typeof MASTER_TYPES)[number];
+export type MasterType = MasterEntityType;
+export { MasterEntityType };
 
 // URL plural key -> stored `type` field (stamped server-side)
-export const MASTER_URL_TO_TYPE: Record<string, MasterType> = {
-  categories: 'category',
-  species: 'species',
-  treatments: 'treatment',
-  roof_styles: 'roof_style',
-  home_types: 'home_type',
-  storage_providers: 'storage_provider'
+export const MASTER_URL_TO_TYPE: Record<string, MasterEntityType> = {
+  categories: MasterEntityType.Category,
+  species: MasterEntityType.Species,
+  treatments: MasterEntityType.Treatment,
+  roof_styles: MasterEntityType.RoofStyle,
+  home_types: MasterEntityType.HomeType,
+  storage_providers: MasterEntityType.StorageProvider
 };
 
-export const MASTER_TYPE_TO_URL: Record<MasterType, string> = {
-  category: 'categories',
-  species: 'species',
-  treatment: 'treatments',
-  roof_style: 'roof_styles',
-  home_type: 'home_types',
-  storage_provider: 'storage_providers'
+export const MASTER_TYPE_TO_URL: Record<MasterEntityType, string> = {
+  [MasterEntityType.Category]: 'categories',
+  [MasterEntityType.Species]: 'species',
+  [MasterEntityType.Treatment]: 'treatments',
+  [MasterEntityType.RoofStyle]: 'roof_styles',
+  [MasterEntityType.HomeType]: 'home_types',
+  [MasterEntityType.StorageProvider]: 'storage_providers'
 };
 
 // Response grouping key for GET /api/masters
-export const MASTER_TYPE_TO_GROUP: Record<MasterType, string> = {
-  category: 'categories',
-  species: 'species',
-  treatment: 'treatments',
-  roof_style: 'roofStyles',
-  home_type: 'homeTypes',
-  storage_provider: 'storageProviders'
+export const MASTER_TYPE_TO_GROUP: Record<MasterEntityType, string> = {
+  [MasterEntityType.Category]: 'categories',
+  [MasterEntityType.Species]: 'species',
+  [MasterEntityType.Treatment]: 'treatments',
+  [MasterEntityType.RoofStyle]: 'roofStyles',
+  [MasterEntityType.HomeType]: 'homeTypes',
+  [MasterEntityType.StorageProvider]: 'storageProviders'
 };
 
 const VariantSchema = new Schema(
@@ -158,7 +153,7 @@ const UserSchema = new Schema(
     name: String,
     email: { type: String, required: true, unique: true, index: true },
     passwordHash: { type: String, required: true },
-    role: { type: String, enum: ['admin', 'customer'], default: 'customer' },
+    role: { type: String, enum: Object.values(UserRole), default: UserRole.Customer },
     createdAt: String
   },
   { strict: false }

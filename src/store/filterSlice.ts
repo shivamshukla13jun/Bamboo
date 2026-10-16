@@ -1,23 +1,30 @@
 import { createSlice, PayloadAction } from '@reduxjs/toolkit';
-import { ProductCategory } from '../types';
+import { ProductCategory, SortBy, PricePreset } from '../types';
+import { siteConfig } from '../config/site';
 
 interface FilterState {
   category: ProductCategory | 'all';
   searchTerm: string;
   minPrice: number;
   maxPrice: number;
-  sortBy: 'featured' | 'price_asc' | 'price_desc' | 'rating';
-  quickPricePreset: 'all' | 'under_25' | '25_200' | '200_2000' | '2000_25000' | '25000_plus';
+  sortBy: SortBy;
+  quickPricePreset: PricePreset;
   selectedSpecies: string;
 }
+
+const DEFAULT_MAX_PRICE = 150000;
+
+/** Price preset ranges are configured in site.config.json -> pricePresets */
+const presetRange = (key: string) =>
+  siteConfig.pricePresets.find((p) => p.key === key) || { min: 0, max: DEFAULT_MAX_PRICE };
 
 const initialState: FilterState = {
   category: 'all',
   searchTerm: '',
   minPrice: 0,
-  maxPrice: 150000,
-  sortBy: 'featured',
-  quickPricePreset: 'all',
+  maxPrice: DEFAULT_MAX_PRICE,
+  sortBy: SortBy.Featured,
+  quickPricePreset: PricePreset.All,
   selectedSpecies: 'all'
 };
 
@@ -27,7 +34,7 @@ export const filterSlice = createSlice({
   reducers: {
     setCategory: (state, action: PayloadAction<ProductCategory | 'all'>) => {
       state.category = action.payload;
-      state.quickPricePreset = 'all';
+      state.quickPricePreset = PricePreset.All;
     },
     setSearchTerm: (state, action: PayloadAction<string>) => {
       state.searchTerm = action.payload;
@@ -36,37 +43,13 @@ export const filterSlice = createSlice({
       state.minPrice = action.payload.min;
       state.maxPrice = action.payload.max;
     },
-    setQuickPricePreset: (state, action: PayloadAction<FilterState['quickPricePreset']>) => {
+    setQuickPricePreset: (state, action: PayloadAction<PricePreset>) => {
       state.quickPricePreset = action.payload;
-      switch (action.payload) {
-        case 'under_25':
-          state.minPrice = 0;
-          state.maxPrice = 25;
-          break;
-        case '25_200':
-          state.minPrice = 25;
-          state.maxPrice = 200;
-          break;
-        case '200_2000':
-          state.minPrice = 200;
-          state.maxPrice = 2000;
-          break;
-        case '2000_25000':
-          state.minPrice = 2000;
-          state.maxPrice = 25000;
-          break;
-        case '25000_plus':
-          state.minPrice = 25000;
-          state.maxPrice = 150000;
-          break;
-        case 'all':
-        default:
-          state.minPrice = 0;
-          state.maxPrice = 150000;
-          break;
-      }
+      const range = presetRange(action.payload);
+      state.minPrice = range.min;
+      state.maxPrice = range.max;
     },
-    setSortBy: (state, action: PayloadAction<FilterState['sortBy']>) => {
+    setSortBy: (state, action: PayloadAction<SortBy>) => {
       state.sortBy = action.payload;
     },
     setSelectedSpecies: (state, action: PayloadAction<string>) => {
@@ -76,9 +59,9 @@ export const filterSlice = createSlice({
       state.category = 'all';
       state.searchTerm = '';
       state.minPrice = 0;
-      state.maxPrice = 150000;
-      state.sortBy = 'featured';
-      state.quickPricePreset = 'all';
+      state.maxPrice = DEFAULT_MAX_PRICE;
+      state.sortBy = SortBy.Featured;
+      state.quickPricePreset = PricePreset.All;
       state.selectedSpecies = 'all';
     }
   }

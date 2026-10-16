@@ -8,7 +8,7 @@ import {
   initialOrders,
   DEFAULT_SEO_CONFIG
 } from './seed-data';
-import { StorageProviderType } from '../types';
+import { StorageProvider, UserRole } from '../types';
 
 declare global {
   // eslint-disable-next-line no-var
@@ -16,7 +16,7 @@ declare global {
 }
 
 export const DEFAULT_STORAGE_CONFIG = {
-  activeProvider: (process.env.STORAGE_PROVIDER || 'mock') as StorageProviderType,
+  activeProvider: (process.env.STORAGE_PROVIDER || StorageProvider.Mock) as StorageProvider,
   awsBucket: process.env.AWS_S3_BUCKET || 'bamboorise-uploads',
   awsRegion: process.env.AWS_REGION || 'us-east-1',
   cloudinaryCloudName: process.env.CLOUDINARY_CLOUD_NAME || 'bamboorise-cloud',
@@ -75,7 +75,7 @@ export async function ensureAdminUser() {
         name: 'Store Administrator',
         email: ADMIN_EMAIL,
         passwordHash: await hashPassword(adminPassword),
-        role: 'admin',
+        role: UserRole.Admin,
         createdAt: new Date().toISOString()
       }
     },

@@ -10,6 +10,7 @@ import { useFormReduxSync } from '../../hooks/useFormReduxSync';
 import { loginApi } from '../../services/api';
 import { ShieldCheck, ArrowLeft, Lock, AlertCircle } from 'lucide-react';
 import { siteConfig } from '../../config/site';
+import { UserRole } from '../../types';
 
 interface AdminLoginInputs {
   email: string;
@@ -35,7 +36,7 @@ export const AdminLogin: React.FC = () => {
     setServerError('');
     loginMutation.mutate(data, {
       onSuccess: (authUser) => {
-        if (authUser.role !== 'admin') {
+        if (authUser.role !== UserRole.Admin) {
           setServerError('This account does not have admin access. Sign in with an admin account.');
           return;
         }
@@ -65,7 +66,7 @@ export const AdminLogin: React.FC = () => {
           </p>
         </div>
 
-        {user && user.role !== 'admin' && (
+        {user && user.role !== UserRole.Admin && (
           <div className="bg-accent-950/50 border border-accent-800/60 text-accent-300 p-3 rounded-xl text-xs text-center">
             Signed in as <strong>{user.email}</strong> (customer). Enter admin credentials below to continue.
           </div>

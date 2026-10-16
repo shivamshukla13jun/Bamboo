@@ -10,12 +10,25 @@ import {
   resetFilters
 } from '../store/filterSlice';
 import { SlidersHorizontal, RotateCcw, DollarSign, Tag } from 'lucide-react';
+import { SortBy } from '../types';
+import { siteConfig } from '../config/site';
+import { formatPrice } from '../utils/formatters';
+
+const SORT_OPTIONS: { value: SortBy; label: string }[] = [
+  { value: SortBy.Featured, label: 'Featured First' },
+  { value: SortBy.PriceAsc, label: 'Price: Low to High' },
+  { value: SortBy.PriceDesc, label: 'Price: High to Low' },
+  { value: SortBy.Rating, label: 'Highest Rated' }
+];
+
+const SLIDER_MAX = Math.max(...siteConfig.pricePresets.map((p) => p.max));
 
 export const PriceRangeSelector: React.FC = () => {
   const dispatch = useDispatch();
   const { category, minPrice, maxPrice, sortBy, quickPricePreset } = useSelector(
     (state: RootState) => state.filter
   );
+  const { currency, currencyRates } = useSelector((state: RootState) => state.cart);
 
   return (
     <div className="bg-neutral-800 border-b border-neutral-700/80 p-4 sm:p-5 rounded-2xl shadow-sm my-6 text-neutral-100">
@@ -43,15 +56,17 @@ export const PriceRangeSelector: React.FC = () => {
           <div className="flex justify-between items-center text-xs font-semibold text-neutral-300">
             <span>Price Range:</span>
             <span className="text-primary-400 font-bold font-mono">
-              ${minPrice.toLocaleString()} – ${maxPrice.toLocaleString()}
+              {formatPrice(minPrice, currency, currencyRates)} – {formatPrice(maxPrice, currency, currencyRates)}
             </span>
           </div>
           <div className="flex items-center gap-3">
-            <span className="text-xs text-neutral-400 font-mono">$0</span>
+            <span className="text-xs text-neutral-400 font-mono">
+              {formatPrice(0, currency, currencyRates)}
+            </span>
             <input
               type="range"
               min="0"
-              max="150000"
+              max={SLIDER_MAX}
               step="50"
               value={maxPrice}
               onChange={(e) =>
@@ -59,7 +74,9 @@ export const PriceRangeSelector: React.FC = () => {
               }
               className="w-full accent-primary-500 cursor-pointer"
             />
-            <span className="text-xs text-neutral-400 font-mono">$150k</span>
+            <span className="text-xs text-neutral-400 font-mono">
+              {formatPrice(SLIDER_MAX, currency, currencyRates)}
+            </span>
           </div>
         </div>
 
@@ -71,13 +88,14 @@ export const PriceRangeSelector: React.FC = () => {
           </label>
           <select
             value={sortBy}
-            onChange={(e) => dispatch(setSortBy(e.target.value as any))}
+            onChange={(e) => dispatch(setSortBy(e.target.value as SortBy))}
             className="bg-neutral-900 text-neutral-100 border border-neutral-700 rounded-lg px-3 py-1.5 text-xs focus:outline-none focus:border-primary-500 cursor-pointer"
           >
-            <option value="featured">Featured First</option>
-            <option value="price_asc">Price: Low to High</option>
-            <option value="price_desc">Price: High to Low</option>
-            <option value="rating">Highest Rated</option>
+            {SORT_OPTIONS.map((opt) => (
+              <option key={opt.value} value={opt.value}>
+                {opt.label}
+              </option>
+            ))}
           </select>
         </div>
       </div>

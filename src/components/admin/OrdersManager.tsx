@@ -1,7 +1,7 @@
 'use client';
 import React from 'react';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
-import { Order } from '../../types';
+import { Order, OrderStatus } from '../../types';
 import { ShoppingBag, Package, Truck, CheckCircle2, Clock, DollarSign } from 'lucide-react';
 
 export const OrdersManager: React.FC = () => {
@@ -88,15 +88,16 @@ export const OrdersManager: React.FC = () => {
                     onChange={(e) =>
                       updateStatusMutation.mutate({
                         id: order.id,
-                        status: e.target.value as any
+                        status: e.target.value as OrderStatus
                       })
                     }
                     className="bg-neutral-950 text-neutral-100 border border-neutral-700 rounded-xl px-3 py-1.5 text-xs focus:outline-none cursor-pointer font-bold capitalize"
                   >
-                    <option value="pending">Pending</option>
-                    <option value="processing">Processing</option>
-                    <option value="shipped">Shipped</option>
-                    <option value="delivered">Delivered</option>
+                    {Object.values(OrderStatus).map((status) => (
+                      <option key={status} value={status}>
+                        {status.replace(/_/g, ' ').replace(/\b\w/g, (c) => c.toUpperCase())}
+                      </option>
+                    ))}
                   </select>
                 </div>
               </div>

@@ -29,6 +29,14 @@ All site-related branding and copy lives in **`site.config.json`** (root). Edit 
 
 `theme.primary` / `theme.accent` / `theme.neutral` hold full 50–950 hex palettes. They're injected as CSS vars server-side (`layout.tsx`) and at runtime (`ThemeSync`) backing the `bg-primary-*`, `text-accent-*`, `bg-neutral-*` Tailwind utilities used throughout — recolor the whole app by editing the JSON. Default: emerald / amber / stone.
 
+### Server-side SEO
+
+`src/app/page.tsx` is an async **server component**: it resolves `generateMetadata()` from the SEO document in MongoDB (managed in Admin → SEO, with `site.config.json` as the default), injects the JSON-LD schema into the HTML, and passes `initialProducts`/`initialSeo` to the client app — so product cards, prices, and all meta/OG/Twitter/canonical tags exist in the page source before hydration (`export const dynamic = 'force-dynamic'`).
+
+### Enums
+
+All domain/status values are TypeScript `enum`s in `src/types.ts` — `UserRole`, `OrderStatus`, `QuoteStatus`, `PaymentMethod`, `CouponType`, `MasterEntityType`, `StorageProvider`, `AdminTab`, `NotificationType`, `SortBy`, `PricePreset`, `StockFilter`. No `'x' | 'y'` string unions.
+
 ### Currency
 
 Currencies come from `commerce.currencies` (currently INR only — `₹`). Add more entries and the header picker reappears automatically; it's hidden when only one currency is configured.

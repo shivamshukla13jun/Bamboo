@@ -2,6 +2,7 @@ import { NextRequest, NextResponse } from 'next/server';
 import { ensureSeeded } from '../../../lib/seed';
 import { Order, cleanList } from '../../../lib/models';
 import { requireAdmin } from '../../../lib/auth';
+import { OrderStatus } from '../../../types';
 
 export async function GET(request: NextRequest) {
   try {
@@ -22,7 +23,7 @@ export async function POST(request: NextRequest) {
     const newOrder = {
       ...body,
       id: `ord-${Math.floor(1000 + Math.random() * 9000)}`,
-      status: 'pending',
+      status: OrderStatus.Pending,
       createdAt: new Date().toISOString()
     };
     const created = await Order.create(newOrder);

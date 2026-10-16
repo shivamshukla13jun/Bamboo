@@ -3,14 +3,14 @@ import React from 'react';
 import { useHomeQuotesQuery } from '../../services/api';
 import { useMutation, useQueryClient } from '@tanstack/react-query';
 import { Home, Phone, Mail } from 'lucide-react';
-import { HomeQuote } from '../../types';
+import { HomeQuote, QuoteStatus } from '../../types';
 
 export const HomeQuotesManager: React.FC = () => {
   const queryClient = useQueryClient();
   const { data: quotes = [], isLoading } = useHomeQuotesQuery();
 
   const updateQuoteMutation = useMutation({
-    mutationFn: async ({ id, status }: { id: string; status: string }) => {
+    mutationFn: async ({ id, status }: { id: string; status: QuoteStatus }) => {
       const res = await fetch(`/api/home-quotes/${id}`, {
         method: 'PUT',
         headers: { 'Content-Type': 'application/json' },
@@ -85,17 +85,17 @@ export const HomeQuotesManager: React.FC = () => {
                   </div>
 
                   <select
-                    value={quote.status || 'quote_requested'}
+                    value={quote.status || QuoteStatus.QuoteRequested}
                     onChange={(e) =>
-                      updateQuoteMutation.mutate({ id: quote.id!, status: e.target.value })
+                      updateQuoteMutation.mutate({ id: quote.id!, status: e.target.value as QuoteStatus })
                     }
                     className="bg-neutral-950 text-neutral-100 border border-neutral-700 rounded-xl px-3 py-1.5 text-xs focus:outline-none cursor-pointer font-bold capitalize"
                   >
-                    <option value="quote_requested">Quote Requested</option>
-                    <option value="blueprint_drafted">Blueprint Drafted</option>
-                    <option value="approved">Approved</option>
-                    <option value="in_construction">In Construction</option>
-                    <option value="completed">Completed</option>
+                    {Object.values(QuoteStatus).map((status) => (
+                      <option key={status} value={status}>
+                        {status.replace(/_/g, ' ').replace(/\b\w/g, (c) => c.toUpperCase())}
+                      </option>
+                    ))}
                   </select>
                 </div>
               </div>

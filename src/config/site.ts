@@ -1,4 +1,5 @@
 import config from '../../site.config.json';
+import { CouponType } from '../types';
 
 export interface CurrencyConfig {
   rate: number;
@@ -7,13 +8,32 @@ export interface CurrencyConfig {
 }
 
 export interface CouponConfig {
-  type: 'percentage' | 'fixed';
+  type: CouponType;
   value: number;
 }
 
 /** Tailwind-style color scale (50–950) for a theme slot */
 export interface ThemePalette {
   [shade: string]: string;
+}
+
+export interface PricePresetConfig {
+  key: string;
+  label: string;
+  min: number;
+  max: number;
+  categorySlug?: string;
+  highlight?: boolean;
+}
+
+export interface PaymentMethodConfig {
+  code: string;
+  label: string;
+}
+
+export interface AdminNavItem {
+  tab: string;
+  label: string;
 }
 
 export interface ThemeConfig {
@@ -82,6 +102,7 @@ export interface SiteConfig {
     freeShippingThreshold: number;
     couponHint: string;
     coupons: Record<string, CouponConfig>;
+    paymentMethods: PaymentMethodConfig[];
   };
   seo: {
     siteTitle: string;
@@ -91,11 +112,37 @@ export interface SiteConfig {
     twitterHandle: string;
     siteType: string;
   };
+  pricePresets: PricePresetConfig[];
   customizer: {
+    badge: string;
+    title: string;
+    subtitle: string;
+    estimatedLabel: string;
+    stepLabels: {
+      homeType: string;
+      species: string;
+      roofStyle: string;
+    };
+    areaLabel: string;
+    areaMin: number;
+    areaMax: number;
+    areaStep: number;
+    defaultArea: number;
+    storiesLabel: string;
+    storiesOptions: { value: number; label: string }[];
+    defaultStories: number;
+    extraStoryCost: number;
+    solarLabel: string;
+    solarDescription: string;
+    solarAddonCost: number;
+    contactTitle: string;
+    submitText: string;
+    pendingText: string;
     successTitle: string;
     successText: string;
     successCta: string;
   };
+  adminNav: AdminNavItem[];
 }
 
 /**

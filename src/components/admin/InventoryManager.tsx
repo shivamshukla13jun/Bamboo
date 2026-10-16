@@ -3,7 +3,8 @@ import React, { useState } from 'react';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { Package, Search, AlertTriangle, CheckCircle, RefreshCw, Save, ArrowUpDown, Filter } from 'lucide-react';
 import { useDispatch } from 'react-redux';
-import { setNotification } from '../../store/adminSlice';
+import { setNotification, NotificationType } from '../../store/adminSlice';
+import { StockFilter } from '../../types';
 
 interface InventoryItem {
   productId: string;
@@ -21,7 +22,7 @@ export const InventoryManager: React.FC = () => {
   const dispatch = useDispatch();
   const queryClient = useQueryClient();
   const [searchTerm, setSearchTerm] = useState('');
-  const [filterType, setFilterType] = useState<'all' | 'low' | 'out'>('all');
+  const [filterType, setFilterType] = useState<StockFilter>(StockFilter.All);
   const [stockEdits, setStockEdits] = useState<Record<string, number>>({});
 
   const { data: inventory = [], isLoading, refetch } = useQuery<InventoryItem[]>({
@@ -54,10 +55,10 @@ export const InventoryManager: React.FC = () => {
         delete next[variables.variantId];
         return next;
       });
-      dispatch(setNotification({ message: data.message || 'Stock level updated!', type: 'success' }));
+      dispatch(setNotification({ message: data.message || 'Stock level updated!', type: NotificationType.Success }));
     },
     onError: (err: any) => {
-      dispatch(setNotification({ message: err.message, type: 'error' }));
+      dispatch(setNotification({ message: err.message, type: NotificationType.Error }));
     }
   });
 
@@ -78,8 +79,8 @@ export const InventoryManager: React.FC = () => {
 
     const currentStock = stockEdits[item.variantId] !== undefined ? stockEdits[item.variantId] : item.stock;
 
-    if (filterType === 'low') return currentStock > 0 && currentStock < 10;
-    if (filterType === 'out') return currentStock === 0;
+    if (filterType === StockFilter.Low) return currentStock > 0 && currentStock < 10;
+    if (filterType === StockFilter.Out) return currentStock === 0;
     return true;
   });
 
@@ -148,25 +149,25 @@ export const InventoryManager: React.FC = () => {
           <Filter className="w-4 h-4 text-neutral-400 hidden sm:block" />
           <div className="flex bg-neutral-800 p-1 rounded-xl w-full sm:w-auto">
             <button
-              onClick={() => setFilterType('all')}
+              onClick={() => setFilterType(StockFilter.All)}
               className={`px-3 py-1.5 text-xs font-semibold rounded-lg transition ${
-                filterType === 'all' ? 'bg-neutral-700 text-neutral-50 shadow-sm' : 'text-neutral-400 hover:text-neutral-50'
+                filterType === StockFilter.All ? 'bg-neutral-700 text-neutral-50 shadow-sm' : 'text-neutral-400 hover:text-neutral-50'
               }`}
             >
               All Variants
             </button>
             <button
-              onClick={() => setFilterType('low')}
+              onClick={() => setFilterType(StockFilter.Low)}
               className={`px-3 py-1.5 text-xs font-semibold rounded-lg transition ${
-                filterType === 'low' ? 'bg-accent-950/400 text-white shadow-sm' : 'text-neutral-400 hover:text-accent-400'
+                filterType === StockFilter.Low ? 'bg-accent-950/400 text-white shadow-sm' : 'text-neutral-400 hover:text-accent-400'
               }`}
             >
               Low Stock (&lt;10)
             </button>
             <button
-              onClick={() => setFilterType('out')}
+              onClick={() => setFilterType(StockFilter.Out)}
               className={`px-3 py-1.5 text-xs font-semibold rounded-lg transition ${
-                filterType === 'out' ? 'bg-rose-500 text-white shadow-sm' : 'text-neutral-400 hover:text-rose-300'
+                filterType === StockFilter.Out ? 'bg-rose-500 text-white shadow-sm' : 'text-neutral-400 hover:text-rose-300'
               }`}
             >
               Out of Stock

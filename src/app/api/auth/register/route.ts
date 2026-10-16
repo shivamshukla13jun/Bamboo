@@ -2,6 +2,7 @@ import { NextRequest, NextResponse } from 'next/server';
 import { ensureSeeded } from '../../../../lib/seed';
 import { User } from '../../../../lib/models';
 import { hashPassword, toPublicUser, createSessionToken, sessionCookieHeader } from '../../../../lib/auth';
+import { UserRole } from '../../../../types';
 
 export async function POST(request: NextRequest) {
   try {
@@ -35,12 +36,12 @@ export async function POST(request: NextRequest) {
       name: String(name).trim(),
       email: normalizedEmail,
       passwordHash: await hashPassword(String(password)),
-      role: 'customer',
+      role: UserRole.Customer,
       createdAt: new Date().toISOString()
     };
     const created = await User.create(doc);
 
-    const token = createSessionToken(doc.id, 'customer');
+    const token = createSessionToken(doc.id, UserRole.Customer);
     const res = NextResponse.json(toPublicUser(created.toObject()), { status: 201 });
     res.headers.set('Set-Cookie', sessionCookieHeader(token));
     return res;

@@ -1,6 +1,7 @@
 import crypto from 'crypto';
 import bcrypt from 'bcryptjs';
 import { NextRequest, NextResponse } from 'next/server';
+import { UserRole } from '../types';
 import { User, clean } from './models';
 import { AuthUser } from '../types';
 
@@ -78,7 +79,7 @@ export async function requireAdmin(request: NextRequest): Promise<NextResponse |
   if (!session) {
     return NextResponse.json({ message: 'Authentication required' }, { status: 401 });
   }
-  if (session.role !== 'admin') {
+  if (session.role !== UserRole.Admin) {
     return NextResponse.json({ message: 'Admin access required' }, { status: 403 });
   }
   return null;

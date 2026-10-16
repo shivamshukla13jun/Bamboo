@@ -2,7 +2,7 @@
 import React, { useState } from 'react';
 import { useDispatch } from 'react-redux';
 import { useStorageConfigQuery, useUploadFileMutation } from '../../services/api';
-import { setNotification } from '../../store/adminSlice';
+import { setNotification, NotificationType } from '../../store/adminSlice';
 import { HardDrive, Upload, Link } from 'lucide-react';
 
 export const StorageManager: React.FC = () => {
@@ -25,12 +25,12 @@ export const StorageManager: React.FC = () => {
             dispatch(
               setNotification({
                 message: 'File uploaded successfully!',
-                type: 'success'
+                type: NotificationType.Success
               })
             );
           },
           onError: (err: any) => {
-            dispatch(setNotification({ message: err.message || 'Upload failed', type: 'error' }));
+            dispatch(setNotification({ message: err.message || 'Upload failed', type: NotificationType.Error }));
           }
         }
       );

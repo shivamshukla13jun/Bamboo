@@ -2,10 +2,11 @@
 import React from 'react';
 import { useSelector, useDispatch } from 'react-redux';
 import { RootState } from '../../store';
-import { setActiveTab, toggleAdminMode, AdminTab } from '../../store/adminSlice';
+import { setActiveTab, toggleAdminMode } from '../../store/adminSlice';
+import { AdminTab, NotificationType } from '../../types';
+import { siteConfig } from '../../config/site';
 import { setUser } from '../../store/authSlice';
 import { useLogoutMutation } from '../../services/api';
-import { siteConfig } from '../../config/site';
 import {
   LayoutDashboard,
   Package,
@@ -40,17 +41,27 @@ export const AdminLayout: React.FC<AdminLayoutProps> = ({ children }) => {
     });
   };
 
-  const navItems: { tab: AdminTab; label: string; icon: any; badge?: number }[] = [
-    { tab: 'dashboard', label: 'Overview Analytics', icon: LayoutDashboard },
-    { tab: 'products', label: 'Products & Variants', icon: Package },
-    { tab: 'inventory', label: 'Dedicated Inventory', icon: Layers },
-    { tab: 'masters', label: 'Everything Masters', icon: Database },
-    { tab: 'homes', label: 'Bamboo Home Inquiries', icon: Home },
-    { tab: 'seo', label: 'SEO & Meta Tags Handle', icon: Search },
-    { tab: 'storage', label: 'File Uploads', icon: HardDrive },
-    { tab: 'orders', label: 'Orders & Deliveries', icon: ShoppingBag },
-    { tab: 'redux_console', label: 'Redux + Form Errors', icon: Code2, badge: formLogs.length }
-  ];
+  const navIcons: Record<AdminTab, any> = {
+    [AdminTab.Dashboard]: LayoutDashboard,
+    [AdminTab.Products]: Package,
+    [AdminTab.Inventory]: Layers,
+    [AdminTab.Masters]: Database,
+    [AdminTab.Homes]: Home,
+    [AdminTab.Seo]: Search,
+    [AdminTab.Storage]: HardDrive,
+    [AdminTab.Orders]: ShoppingBag,
+    [AdminTab.ReduxConsole]: Code2
+  };
+
+  const navItems: { tab: AdminTab; label: string; icon: any; badge?: number }[] =
+    siteConfig.adminNav
+      .filter((item) => item.tab in navIcons)
+      .map((item) => ({
+        tab: item.tab as AdminTab,
+        label: item.label,
+        icon: navIcons[item.tab as AdminTab],
+        badge: item.tab === AdminTab.ReduxConsole ? formLogs.length : undefined
+      }));
 
   return (
     <div className="min-h-screen bg-neutral-950 text-neutral-100 flex flex-col md:flex-row font-sans">

@@ -4,6 +4,7 @@ import { useDispatch } from 'react-redux';
 import { setCategory, setQuickPricePreset } from '../store/filterSlice';
 import { Home, Leaf, CheckCircle2 } from 'lucide-react';
 import { siteConfig } from '../config/site';
+import { PricePreset } from '../types';
 
 export const HeroBanner: React.FC = () => {
   const dispatch = useDispatch();
@@ -39,42 +40,24 @@ export const HeroBanner: React.FC = () => {
               {hero.browseLabel}
             </span>
             <div className="flex flex-wrap gap-2 text-xs font-medium">
-              <button
-                onClick={() => dispatch(setQuickPricePreset('under_25'))}
-                className="px-3 py-1.5 rounded-lg bg-neutral-800 hover:bg-primary-900/60 hover:text-primary-300 text-neutral-200 border border-neutral-700 transition-all"
-              >
-                Under $25 (Kitchenware)
-              </button>
-              <button
-                onClick={() => dispatch(setQuickPricePreset('25_200'))}
-                className="px-3 py-1.5 rounded-lg bg-neutral-800 hover:bg-primary-900/60 hover:text-primary-300 text-neutral-200 border border-neutral-700 transition-all"
-              >
-                $25 - $200 (Decor & Panels)
-              </button>
-              <button
-                onClick={() => dispatch(setQuickPricePreset('200_2000'))}
-                className="px-3 py-1.5 rounded-lg bg-neutral-800 hover:bg-primary-900/60 hover:text-primary-300 text-neutral-200 border border-neutral-700 transition-all"
-              >
-                $200 - $2,000 (Beams & Flooring)
-              </button>
-              <button
-                onClick={() => {
-                  dispatch(setCategory('homes'));
-                  dispatch(setQuickPricePreset('2000_25000'));
-                }}
-                className="px-3 py-1.5 rounded-lg bg-neutral-800 hover:bg-primary-900/60 hover:text-primary-300 text-neutral-200 border border-neutral-700 transition-all"
-              >
-                $2k - $25k (Prefab Cabins)
-              </button>
-              <button
-                onClick={() => {
-                  dispatch(setCategory('homes'));
-                  dispatch(setQuickPricePreset('25000_plus'));
-                }}
-                className="px-3 py-1.5 rounded-lg bg-primary-700 hover:bg-primary-600 text-white font-bold transition-all shadow"
-              >
-                $25k+ (Custom Bamboo Homes)
-              </button>
+              {siteConfig.pricePresets
+                .filter((p) => p.key !== 'all')
+                .map((preset) => (
+                  <button
+                    key={preset.key}
+                    onClick={() => {
+                      if (preset.categorySlug) dispatch(setCategory(preset.categorySlug));
+                      dispatch(setQuickPricePreset(preset.key as PricePreset));
+                    }}
+                    className={
+                      preset.highlight
+                        ? 'px-3 py-1.5 rounded-lg bg-primary-700 hover:bg-primary-600 text-white font-bold transition-all shadow'
+                        : 'px-3 py-1.5 rounded-lg bg-neutral-800 hover:bg-primary-900/60 hover:text-primary-300 text-neutral-200 border border-neutral-700 transition-all'
+                    }
+                  >
+                    {preset.label}
+                  </button>
+                ))}
             </div>
           </div>
 

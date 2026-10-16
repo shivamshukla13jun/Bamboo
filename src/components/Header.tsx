@@ -3,7 +3,7 @@ import React, { useState } from 'react';
 import { useSelector, useDispatch } from 'react-redux';
 import { RootState } from '../store';
 import { toggleCartDrawer, setCurrency } from '../store/cartSlice';
-import { toggleAdminMode, setActiveTab } from '../store/adminSlice';
+import { toggleAdminMode, setActiveTab, AdminTab } from '../store/adminSlice';
 import { setSearchTerm, setCategory } from '../store/filterSlice';
 import { ShoppingBag, Search, ShieldCheck, Home, Layers, ArrowRight, User, LogOut } from 'lucide-react';
 import { useQuery } from '@tanstack/react-query';
@@ -66,7 +66,7 @@ export const Header: React.FC = () => {
               <span className="text-neutral-400 text-[10px]">Currency:</span>
               <select
                 value={currency}
-                onChange={(e) => dispatch(setCurrency(e.target.value as any))}
+                onChange={(e) => dispatch(setCurrency(e.target.value))}
                 className="bg-transparent text-neutral-100 font-bold focus:outline-none cursor-pointer text-xs"
               >
                 {currencyCodes.map((code) => (
@@ -155,7 +155,7 @@ export const Header: React.FC = () => {
             <button
               onClick={() => {
                 dispatch(toggleAdminMode(true));
-                dispatch(setActiveTab('redux_console'));
+                dispatch(setActiveTab(AdminTab.ReduxConsole));
               }}
               className="bg-rose-900/60 hover:bg-rose-900 text-rose-300 border border-rose-700/60 text-xs px-2.5 py-1.5 rounded-lg flex items-center gap-1 font-mono"
               title="Click to view Redux Form Error Logs"

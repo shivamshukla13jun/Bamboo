@@ -1,14 +1,13 @@
 'use client';
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import { useForm } from 'react-hook-form';
-import { useDispatch } from 'react-redux';
+import { useDispatch, useSelector } from 'react-redux';
 import { useQuery } from '@tanstack/react-query';
 import { useFormReduxSync } from '../hooks/useFormReduxSync';
-import { useSelector } from 'react-redux';
 import { RootState } from '../store';
 import { useCreateHomeQuoteMutation } from '../services/api';
 import { HomeQuote } from '../types';
-import { setNotification } from '../store/adminSlice';
+import { setNotification, NotificationType } from '../store/adminSlice';
 import { Home, Calculator, ArrowRight, ShieldAlert } from 'lucide-react';
 import { siteConfig } from '../config/site';
 import { formatPrice } from '../utils/formatters';
@@ -31,6 +30,7 @@ export const HomeCustomizer: React.FC = () => {
   const dispatch = useDispatch();
   const createQuoteMutation = useCreateHomeQuoteMutation();
   const { currency, currencyRates } = useSelector((state: RootState) => state.cart);
+  const cfg = siteConfig.customizer;
 
   // Fetch dynamic Masters data
   const { data: masters } = useQuery({
@@ -50,6 +50,7 @@ export const HomeCustomizer: React.FC = () => {
     register,
     handleSubmit,
     watch,
+    setValue,
     formState
   } = useForm<CustomizerInputs>({
     mode: 'onChange',
@@ -57,36 +58,43 @@ export const HomeCustomizer: React.FC = () => {
       clientName: '',
       clientEmail: '',
       clientPhone: '',
-      homeTypeId: 'ht-villa',
-      speciesId: 'spec-petung',
-      floorAreaSqFt: 1200,
-      stories: 2,
-      roofStyleId: 'roof-hyperbolic',
+      homeTypeId: '',
+      speciesId: '',
+      floorAreaSqFt: cfg.defaultArea,
+      stories: cfg.defaultStories,
+      roofStyleId: '',
       offGridSolar: true,
-      interiorFinish: 'luxury_teak_bamboo',
+      interiorFinish: '',
       notes: ''
     }
   });
 
   useFormReduxSync('home-estimator', formState);
 
-  const watchArea = watch('floorAreaSqFt') || 1200;
-  const watchStories = watch('stories') || 1;
   const watchHomeTypeId = watch('homeTypeId');
   const watchSpeciesId = watch('speciesId');
   const watchRoofStyleId = watch('roofStyleId');
+  const watchArea = watch('floorAreaSqFt') || cfg.defaultArea;
+  const watchStories = watch('stories') || 1;
   const watchSolar = watch('offGridSolar');
+
+  // Select the first available master once data loads (no hardcoded ids)
+  useEffect(() => {
+    if (!watchHomeTypeId && homeTypes.length > 0) setValue('homeTypeId', homeTypes[0].id);
+    if (!watchSpeciesId && speciesList.length > 0) setValue('speciesId', speciesList[0].id);
+    if (!watchRoofStyleId && roofStyles.length > 0) setValue('roofStyleId', roofStyles[0].id);
+  }, [homeTypes, speciesList, roofStyles]);
 
   const calculatePrice = () => {
     const selectedHomeType = homeTypes.find((h: any) => h.id === watchHomeTypeId || h.code === watchHomeTypeId);
     const selectedRoof = roofStyles.find((r: any) => r.id === watchRoofStyleId);
 
-    const basePerSqFt = selectedHomeType?.basePricePerSqFt || 45;
+    const basePerSqFt = selectedHomeType?.basePricePerSqFt || 0;
     const roofMultiplier = selectedRoof?.priceMultiplier || 1.0;
 
     let subtotal = watchArea * basePerSqFt * roofMultiplier;
-    if (watchStories > 1) subtotal += (watchStories - 1) * 8500;
-    if (watchSolar) subtotal += 12500;
+    if (watchStories > 1) subtotal += (watchStories - 1) * cfg.extraStoryCost;
+    if (watchSolar) subtotal += cfg.solarAddonCost;
 
     return Math.round(subtotal);
   };
@@ -101,9 +109,9 @@ export const HomeCustomizer: React.FC = () => {
 
     const quotePayload: Partial<HomeQuote> = {
       ...data,
-      homeTypeName: selectedHomeType?.name || 'Bamboo Villa',
-      speciesName: selectedSpecies?.name || 'Petung Bamboo',
-      roofStyleName: selectedRoof?.name || 'Hyperbolic Roof',
+      homeTypeName: selectedHomeType?.name || '',
+      speciesName: selectedSpecies?.name || '',
+      roofStyleName: selectedRoof?.name || '',
       estimatedPrice
     };
 
@@ -112,8 +120,8 @@ export const HomeCustomizer: React.FC = () => {
         setSubmittedSuccess(true);
         dispatch(
           setNotification({
-            message: '🎉 Custom Bamboo Home Quote request received! Our architectural team will contact you.',
-            type: 'success'
+            message: '🎉 Home quote request received! Our team will contact you shortly.',
+            type: NotificationType.Success
           })
         );
       }
@@ -127,18 +135,18 @@ export const HomeCustomizer: React.FC = () => {
         <div>
           <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-primary-950 text-primary-400 border border-primary-800 text-xs font-semibold">
             <Calculator className="w-3.5 h-3.5" />
-            <span>Interactive Eco Architecture Studio</span>
+            <span>{cfg.badge}</span>
           </span>
           <h2 className="text-2xl sm:text-3xl font-black text-neutral-50 mt-2">
-            Configure Your Custom Bamboo Home
+            {cfg.title}
           </h2>
           <p className="text-neutral-300 text-xs sm:text-sm mt-1">
-            Real-time price estimator & structural blueprint proposal generator (Dynamic Masters Engine).
+            {cfg.subtitle}
           </p>
         </div>
 
         <div className="bg-neutral-950 px-5 py-3 rounded-2xl border border-neutral-800 text-right">
-          <span className="text-neutral-400 text-xs block font-medium">Estimated Project Cost</span>
+          <span className="text-neutral-400 text-xs block font-medium">{cfg.estimatedLabel}</span>
           <span className="text-2xl sm:text-3xl font-black text-accent-400 font-mono">
             {formatPrice(estimatedPrice, currency, currencyRates)}
           </span>
@@ -150,25 +158,25 @@ export const HomeCustomizer: React.FC = () => {
           <div className="w-16 h-16 rounded-full bg-primary-600/20 text-primary-400 border border-primary-500 flex items-center justify-center mx-auto text-3xl">
             ✓
           </div>
-          <h3 className="text-2xl font-bold text-primary-300">{siteConfig.customizer.successTitle}</h3>
+          <h3 className="text-2xl font-bold text-primary-300">{cfg.successTitle}</h3>
           <p className="text-neutral-300 max-w-lg mx-auto text-sm">
-            {siteConfig.customizer.successText} Estimated building cost: <strong className="text-accent-400">{formatPrice(estimatedPrice, currency, currencyRates)}</strong>.
+            {cfg.successText} Estimated building cost: <strong className="text-accent-400">{formatPrice(estimatedPrice, currency, currencyRates)}</strong>.
           </p>
           <button
             onClick={() => setSubmittedSuccess(false)}
             className="px-6 py-2.5 rounded-xl bg-primary-600 hover:bg-primary-500 text-white font-bold text-xs"
           >
-            {siteConfig.customizer.successCta}
+            {cfg.successCta}
           </button>
         </div>
       ) : (
         <form onSubmit={handleSubmit(onSubmit)} className="mt-8 space-y-8">
           {/* Step 1: Structure & Specs */}
           <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-6">
-            {/* Home Style Master */}
+            {/* Home Type Master */}
             <div>
               <label className="block text-xs font-bold text-neutral-300 uppercase tracking-wider mb-2">
-                1. Architectural Type Master
+                {cfg.stepLabels.homeType}
               </label>
               <select
                 {...register('homeTypeId')}
@@ -176,16 +184,16 @@ export const HomeCustomizer: React.FC = () => {
               >
                 {homeTypes.map((ht: any) => (
                   <option key={ht.id} value={ht.id}>
-                    {ht.name} (${ht.basePricePerSqFt}/sq.ft)
+                    {ht.name} ({formatPrice(ht.basePricePerSqFt, currency, currencyRates)}/sq.ft)
                   </option>
                 ))}
               </select>
             </div>
 
-            {/* Bamboo Species Master */}
+            {/* Species Master */}
             <div>
               <label className="block text-xs font-bold text-neutral-300 uppercase tracking-wider mb-2">
-                2. Bamboo Culm Species Master
+                {cfg.stepLabels.species}
               </label>
               <select
                 {...register('speciesId')}
@@ -202,7 +210,7 @@ export const HomeCustomizer: React.FC = () => {
             {/* Roof Style Master */}
             <div>
               <label className="block text-xs font-bold text-neutral-300 uppercase tracking-wider mb-2">
-                3. Roof Architecture Master
+                {cfg.stepLabels.roofStyle}
               </label>
               <select
                 {...register('roofStyleId')}
@@ -221,7 +229,7 @@ export const HomeCustomizer: React.FC = () => {
           <div className="bg-neutral-950 p-5 rounded-2xl border border-neutral-800 space-y-4">
             <div className="flex justify-between items-center">
               <label className="text-xs font-bold text-neutral-300 uppercase tracking-wider">
-                Total Interior Living Area
+                {cfg.areaLabel}
               </label>
               <span className="text-primary-400 font-bold font-mono text-sm">
                 {watchArea} sq. ft ({Math.round(watchArea * 0.0929)} m²)
@@ -229,9 +237,9 @@ export const HomeCustomizer: React.FC = () => {
             </div>
             <input
               type="range"
-              min="300"
-              max="4500"
-              step="50"
+              min={cfg.areaMin}
+              max={cfg.areaMax}
+              step={cfg.areaStep}
               {...register('floorAreaSqFt', { valueAsNumber: true })}
               className="w-full accent-primary-500 cursor-pointer"
             />
@@ -244,22 +252,26 @@ export const HomeCustomizer: React.FC = () => {
                   className="w-4 h-4 accent-primary-500 rounded"
                 />
                 <div>
-                  <span className="text-xs font-bold text-neutral-100 block">Off-Grid Solar & Battery Package</span>
-                  <span className="text-[11px] text-neutral-400">10kW Solar Arrays + Lithium Storage (+$12,500)</span>
+                  <span className="text-xs font-bold text-neutral-100 block">{cfg.solarLabel}</span>
+                  <span className="text-[11px] text-neutral-400">
+                    {cfg.solarDescription} (+{formatPrice(cfg.solarAddonCost, currency, currencyRates)})
+                  </span>
                 </div>
               </label>
 
               <div>
                 <label className="block text-[11px] font-bold text-neutral-400 uppercase mb-1">
-                  Stories & Levels
+                  {cfg.storiesLabel}
                 </label>
                 <select
                   {...register('stories', { valueAsNumber: true })}
                   className="w-full bg-neutral-900 text-neutral-100 border border-neutral-800 rounded-xl px-3 py-2 text-xs"
                 >
-                  <option value={1}>1 Story (Single Floor)</option>
-                  <option value={2}>2 Stories (Mezzanine Loft)</option>
-                  <option value={3}>3 Stories (Grand Pavilion)</option>
+                  {cfg.storiesOptions.map((opt) => (
+                    <option key={opt.value} value={opt.value}>
+                      {opt.label}
+                    </option>
+                  ))}
                 </select>
               </div>
             </div>
@@ -268,7 +280,7 @@ export const HomeCustomizer: React.FC = () => {
           {/* Contact Details Form */}
           <div className="space-y-4 pt-2 border-t border-neutral-800">
             <h3 className="text-sm font-bold text-neutral-200 uppercase tracking-wider">
-              Client Contact & Location Details
+              {cfg.contactTitle}
             </h3>
 
             <div className="grid sm:grid-cols-3 gap-4">
@@ -300,7 +312,7 @@ export const HomeCustomizer: React.FC = () => {
                 <label className="block text-xs text-neutral-300 font-medium mb-1">Phone Number</label>
                 <input
                   type="tel"
-                  placeholder="+1 (555) 000-0000"
+                  placeholder="+91 00000 00000"
                   {...register('clientPhone')}
                   className="w-full bg-neutral-950 text-neutral-100 border border-neutral-700 rounded-xl px-3 py-2 text-xs focus:outline-none"
                 />
@@ -327,7 +339,7 @@ export const HomeCustomizer: React.FC = () => {
             >
               <Home className="w-4 h-4" />
               <span>
-                {createQuoteMutation.isPending ? 'Calculating...' : 'Submit Bamboo Home Quote Request'}
+                {createQuoteMutation.isPending ? cfg.pendingText : cfg.submitText}
               </span>
               <ArrowRight className="w-4 h-4" />
             </button>

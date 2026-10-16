@@ -7,7 +7,7 @@ import { setSeoConfig } from '../../store/seoSlice';
 import { useFormReduxSync } from '../../hooks/useFormReduxSync';
 import { useSeoQuery, useUpdateSeoMutation } from '../../services/api';
 import { SeoConfig } from '../../types';
-import { setNotification } from '../../store/adminSlice';
+import { setNotification, NotificationType } from '../../store/adminSlice';
 import { Search, Globe, Share2, Code, Save, Eye, CheckCircle2, ShieldAlert } from 'lucide-react';
 import { siteConfig } from '../../config/site';
 
@@ -43,7 +43,7 @@ export const SeoManager: React.FC = () => {
         dispatch(
           setNotification({
             message: '🎉 SEO metadata updated successfully & live injected into DOM head!',
-            type: 'success'
+            type: NotificationType.Success
           })
         );
       }

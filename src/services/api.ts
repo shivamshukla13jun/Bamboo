@@ -122,10 +122,14 @@ export async function fetchAnalytics(): Promise<any> {
 }
 
 // TanStack Query Hooks
-export function useProductsQuery(params?: { category?: string; search?: string; minPrice?: number; maxPrice?: number; sort?: string }) {
+export function useProductsQuery(
+  params?: { category?: string; search?: string; minPrice?: number; maxPrice?: number; sort?: string },
+  initialData?: Product[]
+) {
   return useQuery({
     queryKey: ['products', params],
-    queryFn: () => fetchProducts(params)
+    queryFn: () => fetchProducts(params),
+    initialData
   });
 }
 
@@ -187,10 +191,11 @@ export function useCreateHomeQuoteMutation() {
   });
 }
 
-export function useSeoQuery() {
+export function useSeoQuery(initialData?: SeoConfig) {
   return useQuery({
     queryKey: ['seo'],
-    queryFn: fetchSeoConfig
+    queryFn: fetchSeoConfig,
+    initialData
   });
 }
 
