@@ -1,0 +1,261 @@
+'use client';
+import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
+import { Product, BambooHomeConfig, Order, SeoConfig, StorageConfig, StorageProviderType } from '../types';
+
+// API Fetchers
+export async function fetchProducts(params?: {
+  category?: string;
+  search?: string;
+  minPrice?: number;
+  maxPrice?: number;
+  sort?: string;
+}): Promise<Product[]> {
+  const query = new URLSearchParams();
+  if (params?.category && params.category !== 'all') query.append('category', params.category);
+  if (params?.search) query.append('search', params.search);
+  if (params?.minPrice !== undefined) query.append('minPrice', String(params.minPrice));
+  if (params?.maxPrice !== undefined) query.append('maxPrice', String(params.maxPrice));
+  if (params?.sort) query.append('sort', params.sort);
+
+  const res = await fetch(`/api/products?${query.toString()}`);
+  if (!res.ok) throw new Error('Failed to fetch products');
+  return res.json();
+}
+
+export async function fetchProductById(id: string): Promise<Product> {
+  const res = await fetch(`/api/products/${id}`);
+  if (!res.ok) throw new Error('Product not found');
+  return res.json();
+}
+
+export async function createProductApi(product: Partial<Product>): Promise<Product> {
+  const res = await fetch('/api/products', {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify(product)
+  });
+  if (!res.ok) throw new Error('Failed to create product');
+  return res.json();
+}
+
+export async function updateProductApi({ id, data }: { id: string; data: Partial<Product> }): Promise<Product> {
+  const res = await fetch(`/api/products/${id}`, {
+    method: 'PUT',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify(data)
+  });
+  if (!res.ok) throw new Error('Failed to update product');
+  return res.json();
+}
+
+export async function deleteProductApi(id: string): Promise<{ success: boolean }> {
+  const res = await fetch(`/api/products/${id}`, { method: 'DELETE' });
+  if (!res.ok) throw new Error('Failed to delete product');
+  return res.json();
+}
+
+export async function fetchHomeQuotes(): Promise<BambooHomeConfig[]> {
+  const res = await fetch('/api/bamboo-homes/quotes');
+  if (!res.ok) throw new Error('Failed to fetch home quotes');
+  return res.json();
+}
+
+export async function createHomeQuoteApi(quote: Partial<BambooHomeConfig>): Promise<BambooHomeConfig> {
+  const res = await fetch('/api/bamboo-homes/quote', {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify(quote)
+  });
+  if (!res.ok) throw new Error('Failed to submit home quote request');
+  return res.json();
+}
+
+export async function fetchSeoConfig(): Promise<SeoConfig> {
+  const res = await fetch('/api/seo');
+  if (!res.ok) throw new Error('Failed to fetch SEO config');
+  return res.json();
+}
+
+export async function updateSeoConfigApi(seo: Partial<SeoConfig>): Promise<SeoConfig> {
+  const res = await fetch('/api/seo', {
+    method: 'PUT',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify(seo)
+  });
+  if (!res.ok) throw new Error('Failed to update SEO config');
+  return res.json();
+}
+
+export async function fetchStorageConfig(): Promise<StorageConfig> {
+  const res = await fetch('/api/storage');
+  if (!res.ok) throw new Error('Failed to fetch storage config');
+  return res.json();
+}
+
+export async function updateStorageProviderApi(provider: StorageProviderType): Promise<StorageConfig> {
+  const res = await fetch('/api/storage/provider', {
+    method: 'PUT',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ provider })
+  });
+  if (!res.ok) throw new Error('Failed to update storage provider');
+  return res.json();
+}
+
+export async function uploadFileApi(file: File, folder = 'products'): Promise<{ url: string; provider: string; filename: string }> {
+  const formData = new FormData();
+  formData.append('file', file);
+  formData.append('folder', folder);
+
+  const res = await fetch('/api/storage/upload', {
+    method: 'POST',
+    body: formData
+  });
+  if (!res.ok) throw new Error('File upload failed');
+  return res.json();
+}
+
+export async function createOrderApi(order: Partial<Order>): Promise<Order> {
+  const res = await fetch('/api/orders', {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify(order)
+  });
+  if (!res.ok) throw new Error('Failed to create order');
+  return res.json();
+}
+
+export async function fetchAnalytics(): Promise<any> {
+  const res = await fetch('/api/analytics');
+  if (!res.ok) throw new Error('Failed to fetch analytics');
+  return res.json();
+}
+
+// TanStack Query Hooks
+export function useProductsQuery(params?: { category?: string; search?: string; minPrice?: number; maxPrice?: number; sort?: string }) {
+  return useQuery({
+    queryKey: ['products', params],
+    queryFn: () => fetchProducts(params)
+  });
+}
+
+export function useProductDetailQuery(id: string | null) {
+  return useQuery({
+    queryKey: ['product', id],
+    queryFn: () => fetchProductById(id!),
+    enabled: !!id
+  });
+}
+
+export function useCreateProductMutation() {
+  const queryClient = useQueryClient();
+  return useMutation({
+    mutationFn: createProductApi,
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['products'] });
+      queryClient.invalidateQueries({ queryKey: ['analytics'] });
+    }
+  });
+}
+
+export function useUpdateProductMutation() {
+  const queryClient = useQueryClient();
+  return useMutation({
+    mutationFn: updateProductApi,
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['products'] });
+    }
+  });
+}
+
+export function useDeleteProductMutation() {
+  const queryClient = useQueryClient();
+  return useMutation({
+    mutationFn: deleteProductApi,
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['products'] });
+      queryClient.invalidateQueries({ queryKey: ['analytics'] });
+    }
+  });
+}
+
+export function useHomeQuotesQuery() {
+  return useQuery({
+    queryKey: ['homeQuotes'],
+    queryFn: fetchHomeQuotes
+  });
+}
+
+export function useCreateHomeQuoteMutation() {
+  const queryClient = useQueryClient();
+  return useMutation({
+    mutationFn: createHomeQuoteApi,
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['homeQuotes'] });
+      queryClient.invalidateQueries({ queryKey: ['analytics'] });
+    }
+  });
+}
+
+export function useSeoQuery() {
+  return useQuery({
+    queryKey: ['seo'],
+    queryFn: fetchSeoConfig
+  });
+}
+
+export function useUpdateSeoMutation() {
+  const queryClient = useQueryClient();
+  return useMutation({
+    mutationFn: updateSeoConfigApi,
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['seo'] });
+    }
+  });
+}
+
+export function useStorageConfigQuery() {
+  return useQuery({
+    queryKey: ['storageConfig'],
+    queryFn: fetchStorageConfig
+  });
+}
+
+export function useUpdateStorageProviderMutation() {
+  const queryClient = useQueryClient();
+  return useMutation({
+    mutationFn: updateStorageProviderApi,
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['storageConfig'] });
+      queryClient.invalidateQueries({ queryKey: ['analytics'] });
+    }
+  });
+}
+
+export function useUploadFileMutation() {
+  const queryClient = useQueryClient();
+  return useMutation({
+    mutationFn: ({ file, folder }: { file: File; folder?: string }) => uploadFileApi(file, folder),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['storageConfig'] });
+    }
+  });
+}
+
+export function useCreateOrderMutation() {
+  const queryClient = useQueryClient();
+  return useMutation({
+    mutationFn: createOrderApi,
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['orders'] });
+      queryClient.invalidateQueries({ queryKey: ['analytics'] });
+    }
+  });
+}
+
+export function useAnalyticsQuery() {
+  return useQuery({
+    queryKey: ['analytics'],
+    queryFn: fetchAnalytics
+  });
+}
