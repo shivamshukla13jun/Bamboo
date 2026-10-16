@@ -18,6 +18,8 @@ export const ProductCard: React.FC<ProductCardProps> = ({ product, onOpenDetail 
   const currencyRates = useSelector((state: RootState) => state.cart.currencyRates);
 
   const isHome = product.isCustomHome || product.categorySlug === 'homes';
+  const defaultVariant = product.variants?.find((v) => v.isDefault) || product.variants?.[0];
+  const displayImage = defaultVariant?.image || product.images[0];
 
   return (
     <div className="bg-neutral-800 border border-neutral-700/80 rounded-2xl overflow-hidden flex flex-col justify-between group hover:border-primary-600/80 transition-all duration-300 shadow-sm hover:shadow-xl">
@@ -25,7 +27,7 @@ export const ProductCard: React.FC<ProductCardProps> = ({ product, onOpenDetail 
         {/* Image Container */}
         <div className="relative aspect-4/3 bg-neutral-900 overflow-hidden cursor-pointer" onClick={() => onOpenDetail(product)}>
           <img
-            src={product.images[0]}
+            src={displayImage}
             alt={product.name}
             className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
             loading="lazy"

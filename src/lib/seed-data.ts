@@ -88,8 +88,8 @@ export const INITIAL_PRODUCTS: Product[] = [
     description: 'Ultra-luxurious 3-bedroom curved bamboo eco-mansion constructed with Grade-A Petung Structural Bamboo poles.',
     dimensions: '2,400 sq. ft (2 Levels)',
     variants: [
-      { id: 'var-101', productId: 'prod-1', sku: 'AURA-2400-PET', name: '2,400 sq.ft / Petung Giant Culm', price: 115000, originalPrice: 130000, stock: 5, attributes: { size: '2,400 sq.ft', species: 'Petung', solar: 'Standard Grid' }, isDefault: true },
-      { id: 'var-102', productId: 'prod-1', sku: 'AURA-3200-SOLAR', name: '3,200 sq.ft / Off-Grid Solar Package', price: 142000, originalPrice: 160000, stock: 3, attributes: { size: '3,200 sq.ft', species: 'Petung', solar: '10kW Off-Grid' }, isDefault: false }
+      { id: 'var-101', productId: 'prod-1', sku: 'AURA-2400-PET', name: '2,400 sq.ft / Petung Giant Culm', price: 115000, originalPrice: 130000, stock: 5, attributes: { size: '2,400 sq.ft', species: 'Petung', solar: 'Standard Grid' }, image: 'https://images.unsplash.com/photo-1540555700478-4be289fbecef?auto=format&fit=crop&w=800&q=80', isDefault: true },
+      { id: 'var-102', productId: 'prod-1', sku: 'AURA-3200-SOLAR', name: '3,200 sq.ft / Off-Grid Solar Package', price: 142000, originalPrice: 160000, stock: 3, attributes: { size: '3,200 sq.ft', species: 'Petung', solar: '10kW Off-Grid' }, image: 'https://images.unsplash.com/photo-1512917774080-9991f1c4c750?auto=format&fit=crop&w=800&q=80', isDefault: false }
     ],
     seoTitle: 'Aura Eco-Villa Bamboo Home - Luxury Sustainable Prefab Living',
     seoDescription: 'Discover the Aura Eco-Villa bamboo home. Crafted from structural Petung bamboo.',
@@ -116,8 +116,8 @@ export const INITIAL_PRODUCTS: Product[] = [
     description: 'Minimalist guest cabin or studio office built with Guadua bamboo columns and insulated bamboo ply walls.',
     dimensions: '450 sq. ft',
     variants: [
-      { id: 'var-201', productId: 'prod-2', sku: 'ZEN-450-STD', name: '450 sq.ft / Single Floor Studio', price: 28500, originalPrice: 32000, stock: 12, attributes: { size: '450 sq.ft', layout: 'Studio Loft' }, isDefault: true },
-      { id: 'var-202', productId: 'prod-2', sku: 'ZEN-600-SUITE', name: '600 sq.ft / 1-Bed Guest Suite', price: 36000, originalPrice: 41000, stock: 6, attributes: { size: '600 sq.ft', layout: '1-Bedroom Suite' }, isDefault: false }
+      { id: 'var-201', productId: 'prod-2', sku: 'ZEN-450-STD', name: '450 sq.ft / Single Floor Studio', price: 28500, originalPrice: 32000, stock: 12, attributes: { size: '450 sq.ft', layout: 'Studio Loft' }, image: 'https://images.unsplash.com/photo-1587061949409-02df41d5e562?auto=format&fit=crop&w=800&q=80', isDefault: true },
+      { id: 'var-202', productId: 'prod-2', sku: 'ZEN-600-SUITE', name: '600 sq.ft / 1-Bed Guest Suite', price: 36000, originalPrice: 41000, stock: 6, attributes: { size: '600 sq.ft', layout: '1-Bedroom Suite' }, image: 'https://images.unsplash.com/photo-1520250497591-112f2f40a3f4?auto=format&fit=crop&w=800&q=80', isDefault: false }
     ],
     seoTitle: 'Zenith Prefab Bamboo Cabin - Modern Eco Studio',
     seoDescription: 'Modular 450 sq ft prefab bamboo cabin kit for guest suite or office.',

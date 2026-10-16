@@ -27,7 +27,10 @@ export const CartDrawer: React.FC<CartDrawerProps> = ({ onOpenCheckout }) => {
 
   if (!isOpen) return null;
 
-  const rawSubtotal = items.reduce((sum, item) => sum + item.product.price * item.quantity, 0);
+  const rawSubtotal = items.reduce(
+    (sum, item) => sum + (item.variant?.price ?? item.product.price) * item.quantity,
+    0
+  );
   const discountVal = computeDiscount(rawSubtotal, discountAmount, discountType);
   const shippingVal = computeShipping(rawSubtotal);
   const grandTotal = Math.max(0, rawSubtotal - discountVal + shippingVal);
@@ -82,21 +85,32 @@ export const CartDrawer: React.FC<CartDrawerProps> = ({ onOpenCheckout }) => {
               </button>
             </div>
           ) : (
-            items.map((item, idx) => (
+            items.map((item, idx) => {
+              const variant =
+                item.variant ||
+                item.product.variants?.find((v) => v.id === item.selectedOption);
+              const linePrice = variant?.price ?? item.product.price;
+              const lineImage = variant?.image || item.product.images[0];
+              return (
               <div
                 key={idx}
                 className="bg-neutral-950 p-3 rounded-2xl border border-neutral-800 flex gap-3 items-center group"
               >
                 <img
-                  src={item.product.images[0]}
+                  src={lineImage}
                   alt={item.product.name}
                   className="w-16 h-16 object-cover rounded-xl bg-neutral-900 border border-neutral-800 shrink-0"
                 />
 
                 <div className="flex-1 min-w-0 space-y-1">
                   <h4 className="text-xs font-bold text-neutral-100 truncate">{item.product.name}</h4>
+                  {variant && (
+                    <span className="text-[10px] text-primary-400 font-semibold block truncate">
+                      {variant.name} · {variant.sku}
+                    </span>
+                  )}
                   <span className="text-xs font-mono font-bold text-accent-400 block">
-                    {formatPrice(item.product.price, currency, currencyRates)}
+                    {formatPrice(linePrice, currency, currencyRates)}
                   </span>
 
                   {/* Quantity Controls */}
@@ -107,7 +121,8 @@ export const CartDrawer: React.FC<CartDrawerProps> = ({ onOpenCheckout }) => {
                           dispatch(
                             updateQuantity({
                               productId: item.product.id,
-                              quantity: item.quantity - 1
+                              quantity: item.quantity - 1,
+                              selectedOption: item.selectedOption
                             })
                           )
                         }
@@ -121,7 +136,8 @@ export const CartDrawer: React.FC<CartDrawerProps> = ({ onOpenCheckout }) => {
                           dispatch(
                             updateQuantity({
                               productId: item.product.id,
-                              quantity: item.quantity + 1
+                              quantity: item.quantity + 1,
+                              selectedOption: item.selectedOption
                             })
                           )
                         }
@@ -132,7 +148,7 @@ export const CartDrawer: React.FC<CartDrawerProps> = ({ onOpenCheckout }) => {
                     </div>
 
                     <button
-                      onClick={() => dispatch(removeFromCart({ productId: item.product.id }))}
+                      onClick={() => dispatch(removeFromCart({ productId: item.product.id, selectedOption: item.selectedOption }))}
                       className="text-neutral-500 hover:text-rose-400 p-1"
                       title="Remove item"
                     >
@@ -141,7 +157,8 @@ export const CartDrawer: React.FC<CartDrawerProps> = ({ onOpenCheckout }) => {
                   </div>
                 </div>
               </div>
-            ))
+              );
+            })
           )}
         </div>
 

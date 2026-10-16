@@ -1,5 +1,5 @@
 import { createSlice, PayloadAction } from '@reduxjs/toolkit';
-import { CartItem, Product, CouponType } from '../types';
+import { CartItem, Product, ProductVariant, CouponType } from '../types';
 import { siteConfig, currencyRates } from '../config/site';
 
 interface CartState {
@@ -28,15 +28,16 @@ export const cartSlice = createSlice({
   name: 'cart',
   initialState,
   reducers: {
-    addToCart: (state, action: PayloadAction<{ product: Product; quantity?: number; selectedOption?: string }>) => {
-      const { product, quantity = 1, selectedOption } = action.payload;
+    addToCart: (state, action: PayloadAction<{ product: Product; variant?: ProductVariant; quantity?: number; selectedOption?: string }>) => {
+      const { product, variant, quantity = 1, selectedOption } = action.payload;
+      const optionId = variant?.id || selectedOption;
       const existing = state.items.find(
-        item => item.product.id === product.id && item.selectedOption === selectedOption
+        item => item.product.id === product.id && item.selectedOption === optionId
       );
       if (existing) {
         existing.quantity += quantity;
       } else {
-        state.items.push({ product, quantity, selectedOption });
+        state.items.push({ product, variant, quantity, selectedOption: optionId });
       }
       state.isOpen = true;
     },

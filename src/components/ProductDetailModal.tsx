@@ -1,5 +1,5 @@
 'use client';
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
 import { RootState } from '../store';
 import { addToCart } from '../store/cartSlice';
@@ -19,13 +19,28 @@ export const ProductDetailModal: React.FC<ProductDetailModalProps> = ({ product,
   const currencyRates = useSelector((state: RootState) => state.cart.currencyRates);
 
   const [activeImageIndex, setActiveImageIndex] = useState(0);
+  const [selectedVariantId, setSelectedVariantId] = useState<string | null>(null);
   const [quantity, setQuantity] = useState(1);
   const [addedSuccess, setAddedSuccess] = useState(false);
 
+  // Reset selection whenever a different product is opened
+  useEffect(() => {
+    const def = product?.variants?.find((v) => v.isDefault) || product?.variants?.[0];
+    setSelectedVariantId(def?.id || null);
+    setActiveImageIndex(0);
+    setQuantity(1);
+  }, [product?.id]);
+
   if (!product) return null;
 
+  const selectedVariant = product.variants?.find((v) => v.id === selectedVariantId) || null;
+  const mainImage =
+    selectedVariant?.image || product.images[activeImageIndex] || product.images[0];
+  const displayPrice = selectedVariant?.price ?? product.price;
+  const displayStock = selectedVariant?.stock ?? product.stock;
+
   const handleAddToCart = () => {
-    dispatch(addToCart({ product, quantity }));
+    dispatch(addToCart({ product, variant: selectedVariant || undefined, quantity }));
     setAddedSuccess(true);
     setTimeout(() => setAddedSuccess(false), 2000);
   };
@@ -46,12 +61,12 @@ export const ProductDetailModal: React.FC<ProductDetailModalProps> = ({ product,
           <div className="space-y-3">
             <div className="aspect-4/3 rounded-2xl bg-neutral-950 overflow-hidden border border-neutral-800">
               <img
-                src={product.images[activeImageIndex] || product.images[0]}
+                src={mainImage}
                 alt={product.name}
                 className="w-full h-full object-cover"
               />
             </div>
-            {product.images.length > 1 && (
+            {product.images.length > 1 && !selectedVariant?.image && (
               <div className="flex gap-2">
                 {product.images.map((img, idx) => (
                   <button
@@ -108,16 +123,67 @@ export const ProductDetailModal: React.FC<ProductDetailModalProps> = ({ product,
               </div>
             </div>
 
+            {/* Variant Selector — swaps image, price & stock */}
+            {product.variants && product.variants.length > 1 && (
+              <div className="space-y-2">
+                <span className="text-xs font-bold text-neutral-300 uppercase tracking-wider block">
+                  Select Option
+                </span>
+                <div className="grid grid-cols-2 gap-2">
+                  {product.variants.map((v) => (
+                    <button
+                      key={v.id}
+                      onClick={() => setSelectedVariantId(v.id)}
+                      className={`flex items-center gap-2 p-2 rounded-xl border text-left transition-all ${
+                        v.id === selectedVariantId
+                          ? 'border-primary-500 bg-primary-950/60 ring-1 ring-primary-500/40'
+                          : 'border-neutral-800 bg-neutral-950 hover:border-neutral-600'
+                      }`}
+                    >
+                      {v.image ? (
+                        <img
+                          src={v.image}
+                          alt={v.name}
+                          className="w-9 h-9 rounded-lg object-cover bg-neutral-900 border border-neutral-800 shrink-0"
+                        />
+                      ) : (
+                        <span className="w-9 h-9 rounded-lg bg-neutral-800 flex items-center justify-center text-neutral-500 text-[9px] font-mono shrink-0">
+                          {v.sku.slice(0, 4)}
+                        </span>
+                      )}
+                      <span className="min-w-0">
+                        <span className="block text-[11px] font-bold text-neutral-100 truncate">
+                          {v.name}
+                        </span>
+                        <span className="block text-[10px] font-mono text-accent-400">
+                          {formatPrice(v.price, currency, currencyRates)}
+                          {v.stock === 0 && (
+                            <span className="text-rose-400 ml-1">(out)</span>
+                          )}
+                        </span>
+                      </span>
+                    </button>
+                  ))}
+                </div>
+              </div>
+            )}
+
             {/* Pricing */}
             <div className="bg-neutral-950 p-4 rounded-2xl border border-neutral-800 flex justify-between items-center">
               <div>
-                <span className="text-xs text-neutral-400 block">Selling Price</span>
+                <span className="text-xs text-neutral-400 block">
+                  {selectedVariant ? `${selectedVariant.name} Price` : 'Selling Price'}
+                </span>
                 <span className="text-2xl font-black text-accent-400 font-mono">
-                  {formatPrice(product.price, currency, currencyRates)}
+                  {formatPrice(displayPrice, currency, currencyRates)}
                 </span>
               </div>
-              <span className="text-xs text-primary-400 font-bold bg-primary-950/80 px-3 py-1 rounded-full border border-primary-800">
-                In Stock: {product.stock} units
+              <span className={`text-xs font-bold px-3 py-1 rounded-full border ${
+                displayStock > 0
+                  ? 'text-primary-400 bg-primary-950/80 border-primary-800'
+                  : 'text-rose-400 bg-rose-950/80 border-rose-800'
+              }`}>
+                {displayStock > 0 ? `In Stock: ${displayStock} units` : 'Out of Stock'}
               </span>
             </div>
 
@@ -178,13 +244,18 @@ export const ProductDetailModal: React.FC<ProductDetailModalProps> = ({ product,
 
               <button
                 onClick={handleAddToCart}
+                disabled={displayStock === 0}
                 className={`w-full py-3.5 rounded-xl font-black text-sm flex items-center justify-center gap-2 transition-all shadow-lg ${
-                  addedSuccess
-                    ? 'bg-primary-500 text-neutral-950'
-                    : 'bg-primary-600 hover:bg-primary-500 text-white'
+                  displayStock === 0
+                    ? 'bg-neutral-800 text-neutral-500 cursor-not-allowed'
+                    : addedSuccess
+                      ? 'bg-primary-500 text-neutral-950'
+                      : 'bg-primary-600 hover:bg-primary-500 text-white'
                 }`}
               >
-                {addedSuccess ? (
+                {displayStock === 0 ? (
+                  <span>Out of Stock</span>
+                ) : addedSuccess ? (
                   <>
                     <Check className="w-5 h-5" />
                     <span>Added to Shopping Bag!</span>

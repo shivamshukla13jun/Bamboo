@@ -44,6 +44,7 @@ export const ProductsManager: React.FC = () => {
   const [newVariantName, setNewVariantName] = useState('');
   const [newVariantPrice, setNewVariantPrice] = useState(100);
   const [newVariantStock, setNewVariantStock] = useState(10);
+  const [newVariantImage, setNewVariantImage] = useState('');
 
   // Reference warning modal state
   const [refCheckResult, setRefCheckResult] = useState<ReferenceCheckResult | null>(null);
@@ -132,6 +133,7 @@ export const ProductsManager: React.FC = () => {
         name: newVariantName,
         price: newVariantPrice,
         stock: newVariantStock,
+        image: newVariantImage || undefined,
         isDefault: prev.length === 0
       }
     ]);
@@ -139,6 +141,27 @@ export const ProductsManager: React.FC = () => {
     setNewVariantName('');
     setNewVariantPrice(100);
     setNewVariantStock(10);
+    setNewVariantImage('');
+  };
+
+  const handleSetVariantImage = (idx: number, url: string) => {
+    setVariantsList(prev => prev.map((v, i) => (i === idx ? { ...v, image: url || undefined } : v)));
+  };
+
+  const handleVariantFileUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (file) {
+      uploadFileMutation.mutate(
+        { file, folder: 'products' },
+        {
+          onSuccess: (data) => {
+            setNewVariantImage(data.url);
+            dispatch(setNotification({ message: 'Variant image uploaded!', type: NotificationType.Success }));
+          }
+        }
+      );
+    }
+    e.target.value = '';
   };
 
   const handleRemoveVariant = (idx: number) => {
@@ -465,57 +488,93 @@ export const ProductsManager: React.FC = () => {
                 {/* Variants List */}
                 <div className="space-y-2">
                   {variantsList.map((v, idx) => (
-                    <div key={idx} className="flex items-center justify-between p-2.5 bg-neutral-900 rounded-xl border border-neutral-800 text-xs">
-                      <div>
-                        <span className="font-mono font-bold text-primary-400">{v.sku}</span>
-                        <span className="text-neutral-200 ml-2 font-medium">{v.name}</span>
+                    <div key={idx} className="p-2.5 bg-neutral-900 rounded-xl border border-neutral-800 text-xs space-y-2">
+                      <div className="flex items-center justify-between">
+                        <div className="flex items-center gap-2 min-w-0">
+                          {v.image ? (
+                            <img
+                              src={v.image}
+                              alt={v.name}
+                              className="w-8 h-8 rounded-lg object-cover bg-neutral-800 border border-neutral-700 shrink-0"
+                            />
+                          ) : (
+                            <span className="w-8 h-8 rounded-lg bg-neutral-800 border border-dashed border-neutral-700 flex items-center justify-center text-neutral-600 shrink-0">
+                              <Upload className="w-3 h-3" />
+                            </span>
+                          )}
+                          <div className="min-w-0">
+                            <span className="font-mono font-bold text-primary-400">{v.sku}</span>
+                            <span className="text-neutral-200 ml-2 font-medium">{v.name}</span>
+                          </div>
+                        </div>
+                        <div className="flex items-center space-x-3">
+                          <span className="font-mono text-neutral-300">{formatPrice(v.price || 0)}</span>
+                          <span className="bg-neutral-800 px-2 py-0.5 rounded font-mono text-[10px] text-neutral-300">Stock: {v.stock}</span>
+                          <button
+                            type="button"
+                            onClick={() => handleRemoveVariant(idx)}
+                            className="text-rose-400 hover:text-rose-300 p-1"
+                          >
+                            <X className="w-3.5 h-3.5" />
+                          </button>
+                        </div>
                       </div>
-                      <div className="flex items-center space-x-3">
-                        <span className="font-mono text-neutral-300">${v.price}</span>
-                        <span className="bg-neutral-800 px-2 py-0.5 rounded font-mono text-[10px] text-neutral-300">Stock: {v.stock}</span>
-                        <button
-                          type="button"
-                          onClick={() => handleRemoveVariant(idx)}
-                          className="text-rose-400 hover:text-rose-300 p-1"
-                        >
-                          <X className="w-3.5 h-3.5" />
-                        </button>
-                      </div>
+                      <input
+                        type="text"
+                        placeholder="Variant image URL (optional)"
+                        value={v.image || ''}
+                        onChange={e => handleSetVariantImage(idx, e.target.value)}
+                        className="w-full bg-neutral-950 border border-neutral-800 rounded-lg px-2.5 py-1.5 text-[11px] text-neutral-300 font-mono"
+                      />
                     </div>
                   ))}
                 </div>
 
                 {/* Add Variant Sub-Form */}
-                <div className="grid grid-cols-2 sm:grid-cols-4 gap-2 pt-2 border-t border-neutral-800">
-                  <input
-                    type="text"
-                    placeholder="SKU (e.g. SK-2400)"
-                    value={newVariantSku}
-                    onChange={e => setNewVariantSku(e.target.value)}
-                    className="bg-neutral-900 border border-neutral-800 rounded-lg px-2.5 py-1.5 text-xs text-neutral-100"
-                  />
-                  <input
-                    type="text"
-                    placeholder="Variant Name"
-                    value={newVariantName}
-                    onChange={e => setNewVariantName(e.target.value)}
-                    className="bg-neutral-900 border border-neutral-800 rounded-lg px-2.5 py-1.5 text-xs text-neutral-100"
-                  />
-                  <input
-                    type="number"
-                    placeholder="Price ($)"
-                    value={newVariantPrice}
-                    onChange={e => setNewVariantPrice(parseFloat(e.target.value) || 0)}
-                    className="bg-neutral-900 border border-neutral-800 rounded-lg px-2.5 py-1.5 text-xs text-neutral-100 font-mono"
-                  />
-                  <div className="flex gap-2">
+                <div className="space-y-2 pt-2 border-t border-neutral-800">
+                  <div className="grid grid-cols-2 sm:grid-cols-4 gap-2">
+                    <input
+                      type="text"
+                      placeholder="SKU (e.g. SK-2400)"
+                      value={newVariantSku}
+                      onChange={e => setNewVariantSku(e.target.value)}
+                      className="bg-neutral-900 border border-neutral-800 rounded-lg px-2.5 py-1.5 text-xs text-neutral-100"
+                    />
+                    <input
+                      type="text"
+                      placeholder="Variant Name"
+                      value={newVariantName}
+                      onChange={e => setNewVariantName(e.target.value)}
+                      className="bg-neutral-900 border border-neutral-800 rounded-lg px-2.5 py-1.5 text-xs text-neutral-100"
+                    />
+                    <input
+                      type="number"
+                      placeholder="Price"
+                      value={newVariantPrice}
+                      onChange={e => setNewVariantPrice(parseFloat(e.target.value) || 0)}
+                      className="bg-neutral-900 border border-neutral-800 rounded-lg px-2.5 py-1.5 text-xs text-neutral-100 font-mono"
+                    />
                     <input
                       type="number"
                       placeholder="Stock"
                       value={newVariantStock}
                       onChange={e => setNewVariantStock(parseInt(e.target.value) || 0)}
-                      className="bg-neutral-900 border border-neutral-800 rounded-lg px-2.5 py-1.5 text-xs text-neutral-100 font-mono w-full"
+                      className="bg-neutral-900 border border-neutral-800 rounded-lg px-2.5 py-1.5 text-xs text-neutral-100 font-mono"
                     />
+                  </div>
+                  <div className="flex gap-2">
+                    <input
+                      type="text"
+                      placeholder="Variant image URL (optional)"
+                      value={newVariantImage}
+                      onChange={e => setNewVariantImage(e.target.value)}
+                      className="flex-1 bg-neutral-900 border border-neutral-800 rounded-lg px-2.5 py-1.5 text-xs text-neutral-100 font-mono"
+                    />
+                    <label className="px-3 py-1.5 bg-neutral-800 hover:bg-neutral-700 text-neutral-200 rounded-lg border border-neutral-700 cursor-pointer flex items-center gap-1.5 text-xs shrink-0">
+                      <Upload className="w-3 h-3 text-primary-400" />
+                      <span>Upload</span>
+                      <input type="file" accept="image/*" onChange={handleVariantFileUpload} className="hidden" />
+                    </label>
                     <button
                       type="button"
                       onClick={handleAddVariant}
@@ -524,6 +583,14 @@ export const ProductsManager: React.FC = () => {
                       + Add
                     </button>
                   </div>
+                  {newVariantImage && (
+                    <div className="flex items-center gap-2">
+                      <img src={newVariantImage} alt="" className="w-8 h-8 rounded-lg object-cover border border-neutral-700" />
+                      <span className="text-primary-400 text-[10px] font-mono truncate max-w-xs">
+                        ✓ Variant image set: {newVariantImage.substring(0, 45)}...
+                      </span>
+                    </div>
+                  )}
                 </div>
               </div>
 

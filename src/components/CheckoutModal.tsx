@@ -51,7 +51,10 @@ export const CheckoutModal: React.FC<CheckoutModalProps> = ({ isOpen, onClose, o
   // Sync React Hook Form errors with Redux store
   useFormReduxSync('checkout-form', formState);
 
-  const rawSubtotal = items.reduce((sum, item) => sum + item.product.price * item.quantity, 0);
+  const rawSubtotal = items.reduce(
+    (sum, item) => sum + (item.variant?.price ?? item.product.price) * item.quantity,
+    0
+  );
   const discountVal = computeDiscount(rawSubtotal, discountAmount, discountType);
   const shippingVal = computeShipping(rawSubtotal);
   const grandTotal = Math.max(0, rawSubtotal - discountVal + shippingVal);
