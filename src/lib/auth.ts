@@ -4,7 +4,7 @@ import { NextRequest, NextResponse } from 'next/server';
 import { User, clean } from './models';
 import { AuthUser } from '../types';
 
-export const SESSION_COOKIE = 'bamboo_session';
+export const SESSION_COOKIE = 'store_session';
 const SESSION_MAX_AGE_SEC = 60 * 60 * 24 * 7; // 7 days
 
 function secret(): string {

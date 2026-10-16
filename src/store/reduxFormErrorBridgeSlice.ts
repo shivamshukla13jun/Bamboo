@@ -1,7 +1,7 @@
 import { createSlice, PayloadAction } from '@reduxjs/toolkit';
 
 export interface FormErrorPayload {
-  formId: string; // e.g., 'product-add-form', 'bamboo-home-estimator', 'checkout-form', 'seo-manager-form'
+  formId: string; // e.g., 'product-add-form', 'home-estimator', 'checkout-form', 'seo-manager-form'
   fieldErrors: Record<string, { type: string; message: string }>;
   isSubmitted: boolean;
   isValid: boolean;

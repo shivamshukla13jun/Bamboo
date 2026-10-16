@@ -6,7 +6,7 @@ import {
   HomeTypeMaster,
   StorageProviderMaster,
   Product,
-  BambooHomeConfig,
+  HomeQuote,
   Order,
   SeoConfig
 } from '../types';
@@ -293,7 +293,7 @@ export const DEFAULT_SEO_CONFIG: SeoConfig = {
   )
 };
 
-export const INITIAL_QUOTES: BambooHomeConfig[] = [
+export const INITIAL_QUOTES: HomeQuote[] = [
   {
     id: 'quote-101',
     clientName: 'Sarah Jenkins',

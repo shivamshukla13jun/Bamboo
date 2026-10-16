@@ -93,7 +93,7 @@ export interface Product {
   seoKeywords?: string[];
 }
 
-export interface BambooHomeConfig {
+export interface HomeQuote {
   id?: string;
   clientName: string;
   clientEmail: string;

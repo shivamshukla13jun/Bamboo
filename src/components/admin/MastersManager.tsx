@@ -97,11 +97,11 @@ export const MastersManager: React.FC = () => {
       {/* Top Header */}
       <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-4">
         <div>
-          <h2 className="text-2xl font-bold text-stone-50 flex items-center space-x-2">
-            <Database className="w-7 h-7 text-emerald-600" />
+          <h2 className="text-2xl font-bold text-neutral-50 flex items-center space-x-2">
+            <Database className="w-7 h-7 text-primary-600" />
             <span>Everything Masters Engine (Dynamic Data)</span>
           </h2>
-          <p className="text-sm text-stone-400">
+          <p className="text-sm text-neutral-400">
             Zero hardcoded options. Manage global Bamboo species, treatment methods, categories, roof styles, and home types.
           </p>
         </div>
@@ -111,7 +111,7 @@ export const MastersManager: React.FC = () => {
             setIsCreating(true);
             setFormData({});
           }}
-          className="inline-flex items-center space-x-2 px-4 py-2 bg-emerald-700 text-white rounded-xl hover:bg-emerald-800 transition shadow-sm font-medium text-sm self-start"
+          className="inline-flex items-center space-x-2 px-4 py-2 bg-primary-700 text-white rounded-xl hover:bg-primary-800 transition shadow-sm font-medium text-sm self-start"
         >
           <Plus className="w-4 h-4" />
           <span>Add New Master Record</span>
@@ -119,7 +119,7 @@ export const MastersManager: React.FC = () => {
       </div>
 
       {/* Master Tabs */}
-      <div className="flex border-b border-stone-800 overflow-x-auto gap-2 scrollbar-none">
+      <div className="flex border-b border-neutral-800 overflow-x-auto gap-2 scrollbar-none">
         {[
           { key: 'categories', label: 'Categories Master', count: masters?.categories?.length },
           { key: 'species', label: 'Bamboo Species Master', count: masters?.species?.length },
@@ -135,12 +135,12 @@ export const MastersManager: React.FC = () => {
             }}
             className={`px-4 py-3 font-semibold text-xs whitespace-nowrap border-b-2 transition flex items-center space-x-2 ${
               activeMaster === tab.key
-                ? 'border-amber-500 text-amber-400 bg-stone-900'
-                : 'border-transparent text-stone-400 hover:text-stone-100'
+                ? 'border-accent-500 text-accent-400 bg-neutral-900'
+                : 'border-transparent text-neutral-400 hover:text-neutral-100'
             }`}
           >
             <span>{tab.label}</span>
-            <span className="px-1.5 py-0.5 rounded-full text-[10px] bg-stone-800 text-stone-300">
+            <span className="px-1.5 py-0.5 rounded-full text-[10px] bg-neutral-800 text-neutral-300">
               {tab.count || 0}
             </span>
           </button>
@@ -149,15 +149,15 @@ export const MastersManager: React.FC = () => {
 
       {/* Inline Create Form */}
       {isCreating && (
-        <form onSubmit={handleCreateSubmit} className="bg-emerald-950/60 p-5 rounded-2xl border border-emerald-900 space-y-4">
-          <div className="flex justify-between items-center pb-2 border-b border-emerald-900">
-            <h3 className="font-bold text-emerald-300 text-sm uppercase tracking-wider">
+        <form onSubmit={handleCreateSubmit} className="bg-primary-950/60 p-5 rounded-2xl border border-primary-900 space-y-4">
+          <div className="flex justify-between items-center pb-2 border-b border-primary-900">
+            <h3 className="font-bold text-primary-300 text-sm uppercase tracking-wider">
               Add New {activeMaster.replace('_', ' ').toUpperCase()} Entry
             </h3>
             <button
               type="button"
               onClick={() => setIsCreating(false)}
-              className="text-xs font-semibold text-stone-400 hover:text-stone-100"
+              className="text-xs font-semibold text-neutral-400 hover:text-neutral-100"
             >
               Cancel
             </button>
@@ -165,13 +165,13 @@ export const MastersManager: React.FC = () => {
 
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 text-sm">
             <div>
-              <label className="block text-xs font-semibold text-stone-300 mb-1">Name / Title *</label>
+              <label className="block text-xs font-semibold text-neutral-300 mb-1">Name / Title *</label>
               <input
                 type="text"
                 required
                 value={formData.name || ''}
                 onChange={e => setFormData({ ...formData, name: e.target.value })}
-                className="w-full px-3 py-2 bg-stone-900 border border-stone-800 rounded-xl"
+                className="w-full px-3 py-2 bg-neutral-900 border border-neutral-800 rounded-xl"
                 placeholder="Name"
               />
             </div>
@@ -179,23 +179,23 @@ export const MastersManager: React.FC = () => {
             {activeMaster === 'categories' && (
               <>
                 <div>
-                  <label className="block text-xs font-semibold text-stone-300 mb-1">Slug *</label>
+                  <label className="block text-xs font-semibold text-neutral-300 mb-1">Slug *</label>
                   <input
                     type="text"
                     required
                     value={formData.slug || ''}
                     onChange={e => setFormData({ ...formData, slug: e.target.value })}
-                    className="w-full px-3 py-2 bg-stone-900 border border-stone-800 rounded-xl"
+                    className="w-full px-3 py-2 bg-neutral-900 border border-neutral-800 rounded-xl"
                     placeholder="e.g. homes"
                   />
                 </div>
                 <div>
-                  <label className="block text-xs font-semibold text-stone-300 mb-1">Icon Emoji</label>
+                  <label className="block text-xs font-semibold text-neutral-300 mb-1">Icon Emoji</label>
                   <input
                     type="text"
                     value={formData.icon || '🌿'}
                     onChange={e => setFormData({ ...formData, icon: e.target.value })}
-                    className="w-full px-3 py-2 bg-stone-900 border border-stone-800 rounded-xl"
+                    className="w-full px-3 py-2 bg-neutral-900 border border-neutral-800 rounded-xl"
                   />
                 </div>
               </>
@@ -204,21 +204,21 @@ export const MastersManager: React.FC = () => {
             {activeMaster === 'species' && (
               <>
                 <div>
-                  <label className="block text-xs font-semibold text-stone-300 mb-1">Scientific Name</label>
+                  <label className="block text-xs font-semibold text-neutral-300 mb-1">Scientific Name</label>
                   <input
                     type="text"
                     value={formData.scientificName || ''}
                     onChange={e => setFormData({ ...formData, scientificName: e.target.value })}
-                    className="w-full px-3 py-2 bg-stone-900 border border-stone-800 rounded-xl"
+                    className="w-full px-3 py-2 bg-neutral-900 border border-neutral-800 rounded-xl"
                   />
                 </div>
                 <div>
-                  <label className="block text-xs font-semibold text-stone-300 mb-1">Tensile Strength Grade</label>
+                  <label className="block text-xs font-semibold text-neutral-300 mb-1">Tensile Strength Grade</label>
                   <input
                     type="text"
                     value={formData.tensileGrade || 'Grade A'}
                     onChange={e => setFormData({ ...formData, tensileGrade: e.target.value })}
-                    className="w-full px-3 py-2 bg-stone-900 border border-stone-800 rounded-xl"
+                    className="w-full px-3 py-2 bg-neutral-900 border border-neutral-800 rounded-xl"
                   />
                 </div>
               </>
@@ -227,22 +227,22 @@ export const MastersManager: React.FC = () => {
             {activeMaster === 'treatments' && (
               <>
                 <div>
-                  <label className="block text-xs font-semibold text-stone-300 mb-1">Method Type</label>
+                  <label className="block text-xs font-semibold text-neutral-300 mb-1">Method Type</label>
                   <input
                     type="text"
                     value={formData.methodType || ''}
                     onChange={e => setFormData({ ...formData, methodType: e.target.value })}
-                    className="w-full px-3 py-2 bg-stone-900 border border-stone-800 rounded-xl"
+                    className="w-full px-3 py-2 bg-neutral-900 border border-neutral-800 rounded-xl"
                     placeholder="e.g. Boron-Borax Salt Dip"
                   />
                 </div>
                 <div>
-                  <label className="block text-xs font-semibold text-stone-300 mb-1">Lifespan (Years)</label>
+                  <label className="block text-xs font-semibold text-neutral-300 mb-1">Lifespan (Years)</label>
                   <input
                     type="number"
                     value={formData.lifespanYears || 50}
                     onChange={e => setFormData({ ...formData, lifespanYears: parseInt(e.target.value) || 0 })}
-                    className="w-full px-3 py-2 bg-stone-900 border border-stone-800 rounded-xl"
+                    className="w-full px-3 py-2 bg-neutral-900 border border-neutral-800 rounded-xl"
                     placeholder="e.g. 50"
                   />
                 </div>
@@ -251,13 +251,13 @@ export const MastersManager: React.FC = () => {
 
             {activeMaster === 'roof_styles' && (
               <div>
-                <label className="block text-xs font-semibold text-stone-300 mb-1">Price Multiplier</label>
+                <label className="block text-xs font-semibold text-neutral-300 mb-1">Price Multiplier</label>
                 <input
                   type="number"
                   step="0.05"
                   value={formData.priceMultiplier || 1.0}
                   onChange={e => setFormData({ ...formData, priceMultiplier: parseFloat(e.target.value) })}
-                  className="w-full px-3 py-2 bg-stone-900 border border-stone-800 rounded-xl"
+                  className="w-full px-3 py-2 bg-neutral-900 border border-neutral-800 rounded-xl"
                 />
               </div>
             )}
@@ -265,22 +265,22 @@ export const MastersManager: React.FC = () => {
             {activeMaster === 'home_types' && (
               <>
                 <div>
-                  <label className="block text-xs font-semibold text-stone-300 mb-1">Code / Identifier</label>
+                  <label className="block text-xs font-semibold text-neutral-300 mb-1">Code / Identifier</label>
                   <input
                     type="text"
                     value={formData.code || ''}
                     onChange={e => setFormData({ ...formData, code: e.target.value })}
-                    className="w-full px-3 py-2 bg-stone-900 border border-stone-800 rounded-xl"
+                    className="w-full px-3 py-2 bg-neutral-900 border border-neutral-800 rounded-xl"
                     placeholder="e.g. villa, cabin, dome"
                   />
                 </div>
                 <div>
-                  <label className="block text-xs font-semibold text-stone-300 mb-1">Base Price Per Sq. Ft ($)</label>
+                  <label className="block text-xs font-semibold text-neutral-300 mb-1">Base Price Per Sq. Ft ($)</label>
                   <input
                     type="number"
                     value={formData.basePricePerSqFt || 50}
                     onChange={e => setFormData({ ...formData, basePricePerSqFt: parseFloat(e.target.value) || 0 })}
-                    className="w-full px-3 py-2 bg-stone-900 border border-stone-800 rounded-xl"
+                    className="w-full px-3 py-2 bg-neutral-900 border border-neutral-800 rounded-xl"
                     placeholder="e.g. 55"
                   />
                 </div>
@@ -288,12 +288,12 @@ export const MastersManager: React.FC = () => {
             )}
 
             <div className="sm:col-span-2">
-              <label className="block text-xs font-semibold text-stone-300 mb-1">Description</label>
+              <label className="block text-xs font-semibold text-neutral-300 mb-1">Description</label>
               <textarea
                 rows={2}
                 value={formData.description || ''}
                 onChange={e => setFormData({ ...formData, description: e.target.value })}
-                className="w-full px-3 py-2 bg-stone-900 border border-stone-800 rounded-xl"
+                className="w-full px-3 py-2 bg-neutral-900 border border-neutral-800 rounded-xl"
                 placeholder="Description..."
               />
             </div>
@@ -303,7 +303,7 @@ export const MastersManager: React.FC = () => {
             <button
               type="submit"
               disabled={createMasterMutation.isPending}
-              className="px-5 py-2 bg-emerald-700 text-white rounded-xl text-xs font-bold hover:bg-emerald-800 transition"
+              className="px-5 py-2 bg-primary-700 text-white rounded-xl text-xs font-bold hover:bg-primary-800 transition"
             >
               Save Master Item
             </button>
@@ -312,17 +312,17 @@ export const MastersManager: React.FC = () => {
       )}
 
       {/* List Table */}
-      <div className="bg-stone-900 rounded-2xl border border-stone-800 shadow-sm overflow-hidden">
+      <div className="bg-neutral-900 rounded-2xl border border-neutral-800 shadow-sm overflow-hidden">
         {isLoading ? (
-          <div className="p-8 text-center text-stone-400">
-            <RefreshCw className="w-5 h-5 animate-spin mx-auto mb-2 text-emerald-600" />
+          <div className="p-8 text-center text-neutral-400">
+            <RefreshCw className="w-5 h-5 animate-spin mx-auto mb-2 text-primary-600" />
             Loading master list...
           </div>
         ) : (
           <div className="overflow-x-auto">
             <table className="w-full text-left border-collapse text-sm">
               <thead>
-                <tr className="bg-stone-950 border-b border-stone-800 text-stone-400 text-xs font-semibold uppercase">
+                <tr className="bg-neutral-950 border-b border-neutral-800 text-neutral-400 text-xs font-semibold uppercase">
                   <th className="py-3 px-4">ID</th>
                   <th className="py-3 px-4">Name</th>
                   <th className="py-3 px-4">Details / Parameters</th>
@@ -330,28 +330,28 @@ export const MastersManager: React.FC = () => {
                   <th className="py-3 px-4 text-right">Delete Action</th>
                 </tr>
               </thead>
-              <tbody className="divide-y divide-stone-800">
+              <tbody className="divide-y divide-neutral-800">
                 {currentList.map((item: any) => (
-                  <tr key={item.id} className="hover:bg-stone-950 transition">
-                    <td className="py-3 px-4 font-mono text-xs text-stone-400 font-semibold">
+                  <tr key={item.id} className="hover:bg-neutral-950 transition">
+                    <td className="py-3 px-4 font-mono text-xs text-neutral-400 font-semibold">
                       {item.id}
                     </td>
-                    <td className="py-3 px-4 font-bold text-stone-50">
+                    <td className="py-3 px-4 font-bold text-neutral-50">
                       {item.icon && <span className="mr-2">{item.icon}</span>}
                       {item.name}
                     </td>
-                    <td className="py-3 px-4 text-xs text-stone-400 font-medium">
-                      {item.scientificName && <span className="italic block text-stone-200">{item.scientificName}</span>}
-                      {item.tensileGrade && <span className="text-emerald-400 font-semibold block">{item.tensileGrade}</span>}
-                      {item.methodType && <span className="text-amber-400 block">Method: {item.methodType}</span>}
+                    <td className="py-3 px-4 text-xs text-neutral-400 font-medium">
+                      {item.scientificName && <span className="italic block text-neutral-200">{item.scientificName}</span>}
+                      {item.tensileGrade && <span className="text-primary-400 font-semibold block">{item.tensileGrade}</span>}
+                      {item.methodType && <span className="text-accent-400 block">Method: {item.methodType}</span>}
                       {item.priceMultiplier && <span>Price x{item.priceMultiplier}</span>}
-                      {item.basePricePerSqFt && <span className="text-emerald-400 font-bold block">${item.basePricePerSqFt}/sq.ft</span>}
+                      {item.basePricePerSqFt && <span className="text-primary-400 font-bold block">${item.basePricePerSqFt}/sq.ft</span>}
                       {item.lifespanYears && <span>Lifespan: {item.lifespanYears} Yrs</span>}
-                      {item.code && <span className="font-mono text-stone-400 block">code: {item.code}</span>}
-                      {item.status && <span className="font-mono text-xs px-2 py-0.5 rounded bg-emerald-900/50 text-emerald-300 inline-block mt-0.5">{item.status}</span>}
-                      {item.slug && <span className="font-mono text-stone-400 block">slug: {item.slug}</span>}
+                      {item.code && <span className="font-mono text-neutral-400 block">code: {item.code}</span>}
+                      {item.status && <span className="font-mono text-xs px-2 py-0.5 rounded bg-primary-900/50 text-primary-300 inline-block mt-0.5">{item.status}</span>}
+                      {item.slug && <span className="font-mono text-neutral-400 block">slug: {item.slug}</span>}
                     </td>
-                    <td className="py-3 px-4 text-xs text-stone-400 max-w-xs truncate">
+                    <td className="py-3 px-4 text-xs text-neutral-400 max-w-xs truncate">
                       {item.description || '—'}
                     </td>
                     <td className="py-3 px-4 text-right">

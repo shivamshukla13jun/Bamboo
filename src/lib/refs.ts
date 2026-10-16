@@ -58,7 +58,7 @@ export async function checkEntityReferences(
       const quotes = await HomeQuote.find({ speciesId: entityId }).lean();
       quotes.forEach((q) => {
         references.push({
-          entityType: 'Bamboo Home Inquiry',
+          entityType: 'Home Quote',
           id: q.id,
           name: `Quote for ${q.clientName}`,
           detail: `Inquiry by ${q.clientName} specifies Species "${entityName}".`
@@ -88,7 +88,7 @@ export async function checkEntityReferences(
       const quotes = await HomeQuote.find({ roofStyleId: entityId }).lean();
       quotes.forEach((q) => {
         references.push({
-          entityType: 'Bamboo Home Inquiry',
+          entityType: 'Home Quote',
           id: q.id,
           name: `Quote for ${q.clientName}`,
           detail: `Inquiry by ${q.clientName} uses Roof Style "${entityName}".`
@@ -105,7 +105,7 @@ export async function checkEntityReferences(
       const quotes = await HomeQuote.find({ homeTypeId: ht?.id || entityId }).lean();
       quotes.forEach((q) => {
         references.push({
-          entityType: 'Bamboo Home Inquiry',
+          entityType: 'Home Quote',
           id: q.id,
           name: `Quote for ${q.clientName}`,
           detail: `Inquiry by ${q.clientName} relies on Home Type "${entityName}".`

@@ -35,50 +35,50 @@ export const OrdersManager: React.FC = () => {
     <div className="space-y-6">
       <div className="flex flex-wrap items-center justify-between gap-4">
         <div>
-          <h1 className="text-2xl font-black text-stone-50">Orders & Fulfillment</h1>
-          <p className="text-stone-400 text-xs mt-0.5">
+          <h1 className="text-2xl font-black text-neutral-50">Orders & Fulfillment</h1>
+          <p className="text-neutral-400 text-xs mt-0.5">
             Manage customer purchases, payment methods, and delivery logistics.
           </p>
         </div>
 
-        <div className="bg-stone-900 border border-stone-800 px-4 py-2 rounded-xl text-xs font-mono text-emerald-400 font-bold">
+        <div className="bg-neutral-900 border border-neutral-800 px-4 py-2 rounded-xl text-xs font-mono text-primary-400 font-bold">
           Total Orders: {orders.length}
         </div>
       </div>
 
       <div className="space-y-4">
         {isLoading ? (
-          <div className="p-8 text-center text-stone-500 font-mono">Loading orders...</div>
+          <div className="p-8 text-center text-neutral-500 font-mono">Loading orders...</div>
         ) : orders.length === 0 ? (
-          <div className="p-8 bg-stone-900 rounded-2xl border border-stone-800 text-center text-stone-400 text-xs">
+          <div className="p-8 bg-neutral-900 rounded-2xl border border-neutral-800 text-center text-neutral-400 text-xs">
             No customer orders placed yet.
           </div>
         ) : (
           orders.map((order) => (
             <div
               key={order.id}
-              className="bg-stone-900 border border-stone-800 rounded-2xl p-5 space-y-4 shadow-sm"
+              className="bg-neutral-900 border border-neutral-800 rounded-2xl p-5 space-y-4 shadow-sm"
             >
-              <div className="flex flex-wrap items-center justify-between gap-2 border-b border-stone-800 pb-3">
+              <div className="flex flex-wrap items-center justify-between gap-2 border-b border-neutral-800 pb-3">
                 <div className="flex items-center gap-3">
-                  <div className="w-10 h-10 rounded-xl bg-emerald-950 border border-emerald-800 flex items-center justify-center text-emerald-400 font-bold text-sm">
+                  <div className="w-10 h-10 rounded-xl bg-primary-950 border border-primary-800 flex items-center justify-center text-primary-400 font-bold text-sm">
                     📦
                   </div>
                   <div>
                     <div className="flex items-center gap-2">
-                      <h3 className="text-sm font-bold text-stone-100">{order.customerName}</h3>
-                      <span className="text-[10px] font-mono bg-stone-950 px-2 py-0.5 rounded text-amber-400 font-bold">
+                      <h3 className="text-sm font-bold text-neutral-100">{order.customerName}</h3>
+                      <span className="text-[10px] font-mono bg-neutral-950 px-2 py-0.5 rounded text-accent-400 font-bold">
                         {order.id}
                       </span>
                     </div>
-                    <span className="text-xs text-stone-400">{order.customerEmail} • {order.address}, {order.city}</span>
+                    <span className="text-xs text-neutral-400">{order.customerEmail} • {order.address}, {order.city}</span>
                   </div>
                 </div>
 
                 <div className="flex items-center gap-4">
                   <div className="text-right">
-                    <span className="text-[10px] text-stone-400 block uppercase font-bold">Total Amount</span>
-                    <span className="text-lg font-black text-amber-400 font-mono">
+                    <span className="text-[10px] text-neutral-400 block uppercase font-bold">Total Amount</span>
+                    <span className="text-lg font-black text-accent-400 font-mono">
                       ${order.total.toLocaleString()}
                     </span>
                   </div>
@@ -91,7 +91,7 @@ export const OrdersManager: React.FC = () => {
                         status: e.target.value as any
                       })
                     }
-                    className="bg-stone-950 text-stone-100 border border-stone-700 rounded-xl px-3 py-1.5 text-xs focus:outline-none cursor-pointer font-bold capitalize"
+                    className="bg-neutral-950 text-neutral-100 border border-neutral-700 rounded-xl px-3 py-1.5 text-xs focus:outline-none cursor-pointer font-bold capitalize"
                   >
                     <option value="pending">Pending</option>
                     <option value="processing">Processing</option>
@@ -103,12 +103,12 @@ export const OrdersManager: React.FC = () => {
 
               {/* Items List */}
               <div className="space-y-2">
-                <span className="text-[10px] font-bold text-stone-400 uppercase tracking-wider">Purchased Bamboo Products</span>
+                <span className="text-[10px] font-bold text-neutral-400 uppercase tracking-wider">Purchased Bamboo Products</span>
                 <div className="grid sm:grid-cols-2 gap-2 text-xs">
                   {order.items?.map((item, idx) => (
-                    <div key={idx} className="bg-stone-950 p-2.5 rounded-xl border border-stone-800 flex items-center justify-between">
-                      <span className="text-stone-200 font-medium truncate">{item.product?.name || 'Bamboo Item'}</span>
-                      <span className="font-mono text-amber-300 font-bold ml-2">
+                    <div key={idx} className="bg-neutral-950 p-2.5 rounded-xl border border-neutral-800 flex items-center justify-between">
+                      <span className="text-neutral-200 font-medium truncate">{item.product?.name || 'Bamboo Item'}</span>
+                      <span className="font-mono text-accent-300 font-bold ml-2">
                         x{item.quantity} (${(item.product?.price || 0) * item.quantity})
                       </span>
                     </div>

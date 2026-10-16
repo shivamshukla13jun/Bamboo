@@ -1,5 +1,5 @@
-import { BambooriseApp } from '../components/BambooriseApp';
+import { StorefrontApp } from '../components/StorefrontApp';
 
 export default function HomePage() {
-  return <BambooriseApp />;
+  return <StorefrontApp />;
 }

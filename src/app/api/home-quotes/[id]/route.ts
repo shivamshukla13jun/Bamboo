@@ -1,7 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { ensureSeeded } from '../../../../../lib/seed';
-import { HomeQuote, clean } from '../../../../../lib/models';
-import { requireAdmin } from '../../../../../lib/auth';
+import { ensureSeeded } from '../../../../lib/seed';
+import { HomeQuote, clean } from '../../../../lib/models';
+import { requireAdmin } from '../../../../lib/auth';
 
 type Ctx = { params: Promise<{ id: string }> };
 

@@ -25,6 +25,18 @@ npm run dev                  # http://localhost:3000
 
 All site-related branding and copy lives in **`site.config.json`** (root). Edit it to re-skin the entire app — site name, tagline, logo emoji, admin panel title, contact info, topbar promo, hero copy + featured card, footer sections, copyright, currencies (+rates/symbols), shipping threshold/cost, coupon codes, SEO defaults, and the customizer success message. Consumed via `src/config/site.ts` (`siteConfig`, `currencyRates`, `currencySymbols`, `currencyCodes`).
 
+### Theme (`theme` key)
+
+`theme.primary` / `theme.accent` / `theme.neutral` hold full 50–950 hex palettes. They're injected as CSS vars server-side (`layout.tsx`) and at runtime (`ThemeSync`) backing the `bg-primary-*`, `text-accent-*`, `bg-neutral-*` Tailwind utilities used throughout — recolor the whole app by editing the JSON. Default: emerald / amber / stone.
+
+### Currency
+
+Currencies come from `commerce.currencies` (currently INR only — `₹`). Add more entries and the header picker reappears automatically; it's hidden when only one currency is configured.
+
+## Naming
+
+The codebase uses product-agnostic names so the storefront can be repurposed: `StorefrontApp`, `HomeCustomizer`, `HomeQuotesManager`, `HomeQuote` type, `/api/home-quotes` routes, `#home-builder` anchor, `store_session` cookie.
+
 ## Auth
 
 - **Customers**: Sign In / Register from the header (`POST /api/auth/register` creates a `customer` role user and signs in).
@@ -47,8 +59,7 @@ GET       /api/masters             GET/POST       /api/masters/[type]
                                    PUT/DELETE     /api/masters/[type]/[id]
 GET       /api/inventory           PUT            /api/inventory/variants/[variantId]/stock
 GET/POST  /api/orders              PUT            /api/orders/[id]/status
-GET       /api/bamboo-homes/quotes POST           /api/bamboo-homes/quote
-                                   PUT            /api/bamboo-homes/quotes/[id]
+GET/POST  /api/home-quotes         PUT            /api/home-quotes/[id]
 GET/PUT   /api/seo                 GET            /api/storage (upload stats only)
 POST      /api/storage/upload      multipart — returns { url, filename } only
 GET       /api/analytics           GET            /api/health

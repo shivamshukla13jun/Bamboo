@@ -60,7 +60,12 @@ export async function seedDatabase() {
     { upsert: true }
   );
 
-  // Seed the admin account (password comes from ADMIN_PASSWORD env, default: admin123)
+  await ensureAdminUser();
+}
+
+/** Idempotent admin upsert — also called by the login route for self-healing. */
+export async function ensureAdminUser() {
+  await connectDb();
   const adminPassword = process.env.ADMIN_PASSWORD || 'admin123';
   await User.findOneAndUpdate(
     { email: ADMIN_EMAIL },

@@ -1,6 +1,6 @@
 'use client';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
-import { Product, BambooHomeConfig, Order, SeoConfig, StoragePublicConfig, AuthUser } from '../types';
+import { Product, HomeQuote, Order, SeoConfig, StoragePublicConfig, AuthUser } from '../types';
 
 // API Fetchers
 export async function fetchProducts(params?: {
@@ -54,14 +54,14 @@ export async function deleteProductApi(id: string): Promise<{ success: boolean }
   return res.json();
 }
 
-export async function fetchHomeQuotes(): Promise<BambooHomeConfig[]> {
-  const res = await fetch('/api/bamboo-homes/quotes');
+export async function fetchHomeQuotes(): Promise<HomeQuote[]> {
+  const res = await fetch('/api/home-quotes');
   if (!res.ok) throw new Error('Failed to fetch home quotes');
   return res.json();
 }
 
-export async function createHomeQuoteApi(quote: Partial<BambooHomeConfig>): Promise<BambooHomeConfig> {
-  const res = await fetch('/api/bamboo-homes/quote', {
+export async function createHomeQuoteApi(quote: Partial<HomeQuote>): Promise<HomeQuote> {
+  const res = await fetch('/api/home-quotes', {
     method: 'POST',
     headers: { 'Content-Type': 'application/json' },
     body: JSON.stringify(quote)

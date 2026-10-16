@@ -1,5 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { ensureSeeded } from '../../../../lib/seed';
+import { ensureSeeded, ensureAdminUser, ADMIN_EMAIL } from '../../../../lib/seed';
 import { User } from '../../../../lib/models';
 import { verifyPassword, toPublicUser, createSessionToken, sessionCookieHeader } from '../../../../lib/auth';
 
@@ -12,7 +12,11 @@ export async function POST(request: NextRequest) {
       return NextResponse.json({ message: 'Email and password are required' }, { status: 400 });
     }
 
-    const user = await User.findOne({ email: String(email).trim().toLowerCase() }).lean();
+    const normalizedEmail = String(email).trim().toLowerCase();
+    if (normalizedEmail === ADMIN_EMAIL) {
+      await ensureAdminUser(); // self-heal if the users collection was reset
+    }
+    const user = await User.findOne({ email: normalizedEmail }).lean();
     if (!user || !(await verifyPassword(String(password), user.passwordHash))) {
       return NextResponse.json({ message: 'Invalid email or password' }, { status: 401 });
     }

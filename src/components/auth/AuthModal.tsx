@@ -71,36 +71,36 @@ export const AuthModal: React.FC = () => {
   };
 
   return (
-    <div className="fixed inset-0 z-50 bg-stone-950/80 backdrop-blur-sm flex items-center justify-center p-4">
-      <div className="bg-stone-900 border border-stone-700 rounded-3xl max-w-md w-full text-stone-100 shadow-2xl relative p-6 sm:p-8">
+    <div className="fixed inset-0 z-50 bg-neutral-950/80 backdrop-blur-sm flex items-center justify-center p-4">
+      <div className="bg-neutral-900 border border-neutral-700 rounded-3xl max-w-md w-full text-neutral-100 shadow-2xl relative p-6 sm:p-8">
         <button
           onClick={close}
-          className="absolute top-4 right-4 p-2 rounded-full bg-stone-800 hover:bg-stone-700 text-stone-300 hover:text-white transition-colors"
+          className="absolute top-4 right-4 p-2 rounded-full bg-neutral-800 hover:bg-neutral-700 text-neutral-300 hover:text-white transition-colors"
         >
           <X className="w-5 h-5" />
         </button>
 
         <div className="flex items-center gap-2 mb-1">
-          <div className="w-9 h-9 rounded-xl bg-emerald-700 flex items-center justify-center text-emerald-200">
+          <div className="w-9 h-9 rounded-xl bg-primary-700 flex items-center justify-center text-primary-200">
             <Leaf className="w-5 h-5" />
           </div>
-          <h2 className="text-lg font-black text-stone-50">
+          <h2 className="text-lg font-black text-neutral-50">
             {mode === 'login' ? `Sign In to ${siteConfig.siteName}` : 'Create Your Account'}
           </h2>
         </div>
-        <p className="text-xs text-stone-400 mb-5">
+        <p className="text-xs text-neutral-400 mb-5">
           Save eco-products, track bamboo home quotes, and check out faster.
         </p>
 
         {/* Mode Tabs */}
-        <div className="flex bg-stone-950 p-1 rounded-xl border border-stone-800 mb-5 text-xs font-bold">
+        <div className="flex bg-neutral-950 p-1 rounded-xl border border-neutral-800 mb-5 text-xs font-bold">
           <button
             onClick={() => {
               setMode('login');
               setServerError('');
             }}
             className={`flex-1 py-2 rounded-lg flex items-center justify-center gap-1.5 transition-colors ${
-              mode === 'login' ? 'bg-emerald-700 text-white' : 'text-stone-400 hover:text-stone-200'
+              mode === 'login' ? 'bg-primary-700 text-white' : 'text-neutral-400 hover:text-neutral-200'
             }`}
           >
             <LogIn className="w-3.5 h-3.5" />
@@ -112,7 +112,7 @@ export const AuthModal: React.FC = () => {
               setServerError('');
             }}
             className={`flex-1 py-2 rounded-lg flex items-center justify-center gap-1.5 transition-colors ${
-              mode === 'register' ? 'bg-emerald-700 text-white' : 'text-stone-400 hover:text-stone-200'
+              mode === 'register' ? 'bg-primary-700 text-white' : 'text-neutral-400 hover:text-neutral-200'
             }`}
           >
             <UserPlus className="w-3.5 h-3.5" />
@@ -123,7 +123,7 @@ export const AuthModal: React.FC = () => {
         <form onSubmit={handleSubmit(onSubmit)} className="space-y-4 text-xs">
           {mode === 'register' && (
             <div>
-              <label className="block text-stone-300 font-medium mb-1">
+              <label className="block text-neutral-300 font-medium mb-1">
                 Full Name <span className="text-rose-400">*</span>
               </label>
               <input
@@ -132,8 +132,8 @@ export const AuthModal: React.FC = () => {
                 {...register('name', {
                   required: mode === 'register' ? 'Name is required' : false
                 })}
-                className={`w-full bg-stone-950 text-stone-100 border rounded-xl px-3 py-2.5 focus:outline-none ${
-                  formState.errors.name ? 'border-rose-500' : 'border-stone-700'
+                className={`w-full bg-neutral-950 text-neutral-100 border rounded-xl px-3 py-2.5 focus:outline-none ${
+                  formState.errors.name ? 'border-rose-500' : 'border-neutral-700'
                 }`}
               />
               {formState.errors.name && (
@@ -143,7 +143,7 @@ export const AuthModal: React.FC = () => {
           )}
 
           <div>
-            <label className="block text-stone-300 font-medium mb-1">
+            <label className="block text-neutral-300 font-medium mb-1">
               Email Address <span className="text-rose-400">*</span>
             </label>
             <input
@@ -153,8 +153,8 @@ export const AuthModal: React.FC = () => {
                 required: 'Email is required',
                 pattern: { value: /^[A-Z0-9._%+-]+@[A-Z0-9.-]+\.[A-Z]{2,}$/i, message: 'Invalid email' }
               })}
-              className={`w-full bg-stone-950 text-stone-100 border rounded-xl px-3 py-2.5 focus:outline-none ${
-                formState.errors.email ? 'border-rose-500' : 'border-stone-700'
+              className={`w-full bg-neutral-950 text-neutral-100 border rounded-xl px-3 py-2.5 focus:outline-none ${
+                formState.errors.email ? 'border-rose-500' : 'border-neutral-700'
               }`}
             />
             {formState.errors.email && (
@@ -163,7 +163,7 @@ export const AuthModal: React.FC = () => {
           </div>
 
           <div>
-            <label className="block text-stone-300 font-medium mb-1">
+            <label className="block text-neutral-300 font-medium mb-1">
               Password <span className="text-rose-400">*</span>
             </label>
             <input
@@ -173,8 +173,8 @@ export const AuthModal: React.FC = () => {
                 required: 'Password is required',
                 minLength: { value: 6, message: 'Password must be at least 6 characters' }
               })}
-              className={`w-full bg-stone-950 text-stone-100 border rounded-xl px-3 py-2.5 focus:outline-none ${
-                formState.errors.password ? 'border-rose-500' : 'border-stone-700'
+              className={`w-full bg-neutral-950 text-neutral-100 border rounded-xl px-3 py-2.5 focus:outline-none ${
+                formState.errors.password ? 'border-rose-500' : 'border-neutral-700'
               }`}
             />
             {formState.errors.password && (
@@ -192,7 +192,7 @@ export const AuthModal: React.FC = () => {
           <button
             type="submit"
             disabled={isPending}
-            className="w-full py-3 rounded-xl bg-emerald-600 hover:bg-emerald-500 text-white font-black text-sm flex items-center justify-center gap-2 transition-colors shadow-lg"
+            className="w-full py-3 rounded-xl bg-primary-600 hover:bg-primary-500 text-white font-black text-sm flex items-center justify-center gap-2 transition-colors shadow-lg"
           >
             <User className="w-4 h-4" />
             <span>

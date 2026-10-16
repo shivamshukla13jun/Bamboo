@@ -11,6 +11,20 @@ export interface CouponConfig {
   value: number;
 }
 
+/** Tailwind-style color scale (50–950) for a theme slot */
+export interface ThemePalette {
+  [shade: string]: string;
+}
+
+export interface ThemeConfig {
+  /** Main brand/action color (was emerald) */
+  primary: ThemePalette;
+  /** Highlight/CTA color (was amber) */
+  accent: ThemePalette;
+  /** Dark background + text tones (was stone) */
+  neutral: ThemePalette;
+}
+
 export interface SiteConfig {
   siteName: string;
   tagline: string;
@@ -31,6 +45,7 @@ export interface SiteConfig {
     promoText: string;
     rightText: string;
   };
+  theme: ThemeConfig;
   searchPlaceholder: string;
   customizerLinkText: string;
   hero: {
