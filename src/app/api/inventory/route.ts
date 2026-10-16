@@ -1,10 +1,14 @@
-import { NextResponse } from 'next/server';
+import { NextRequest, NextResponse } from 'next/server';
 import { ensureSeeded } from '../../../lib/seed';
 import { getEnrichedProducts } from '../../../lib/products';
+import { requireAdmin } from '../../../lib/auth';
 
-export async function GET() {
+export async function GET(request: NextRequest) {
   try {
     await ensureSeeded();
+    const denied = await requireAdmin(request);
+    if (denied) return denied;
+
     const products = await getEnrichedProducts();
     const inventoryList = products.flatMap((p) =>
       (p.variants || []).map((v: any) => ({

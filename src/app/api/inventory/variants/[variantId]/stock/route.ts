@@ -2,12 +2,15 @@ import { NextRequest, NextResponse } from 'next/server';
 import { ensureSeeded } from '../../../../../../lib/seed';
 import { Product } from '../../../../../../lib/models';
 import { aggregateStock } from '../../../../../../lib/products';
+import { requireAdmin } from '../../../../../../lib/auth';
 
 type Ctx = { params: Promise<{ variantId: string }> };
 
 export async function PUT(request: NextRequest, ctx: Ctx) {
   try {
     await ensureSeeded();
+    const denied = await requireAdmin(request);
+    if (denied) return denied;
     const { variantId } = await ctx.params;
     const { stock } = await request.json();
 

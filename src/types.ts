@@ -141,19 +141,35 @@ export interface Order {
   createdAt: string;
 }
 
-export type StorageProviderType = 'cloudinary' | 'aws' | 'minio' | 'mock';
+export type StorageProviderType = 'cloudinary' | 'aws' | 'mock';
 
 export interface StorageConfig {
   activeProvider: StorageProviderType;
   awsBucket?: string;
   awsRegion?: string;
   cloudinaryCloudName?: string;
-  minioEndpoint?: string;
-  minioBucket?: string;
   uploadStats: {
     totalFiles: number;
     totalSizeBytes: number;
   };
+}
+
+/** Public shape of /api/storage — provider internals are never exposed to the app */
+export interface StoragePublicConfig {
+  uploadStats: {
+    totalFiles: number;
+    totalSizeBytes: number;
+  };
+}
+
+export type UserRole = 'admin' | 'customer';
+
+export interface AuthUser {
+  id: string;
+  name: string;
+  email: string;
+  role: UserRole;
+  createdAt?: string;
 }
 
 export interface ReferenceCheckResult {

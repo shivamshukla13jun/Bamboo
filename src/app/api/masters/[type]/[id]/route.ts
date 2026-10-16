@@ -2,12 +2,15 @@ import { NextRequest, NextResponse } from 'next/server';
 import { ensureSeeded } from '../../../../../lib/seed';
 import { Master, clean, MASTER_URL_TO_TYPE } from '../../../../../lib/models';
 import { checkEntityReferences } from '../../../../../lib/refs';
+import { requireAdmin } from '../../../../../lib/auth';
 
 type Ctx = { params: Promise<{ type: string; id: string }> };
 
 export async function PUT(request: NextRequest, ctx: Ctx) {
   try {
     await ensureSeeded();
+    const denied = await requireAdmin(request);
+    if (denied) return denied;
     const { type, id } = await ctx.params;
     const masterType = MASTER_URL_TO_TYPE[type];
     if (!masterType) {
@@ -32,9 +35,11 @@ export async function PUT(request: NextRequest, ctx: Ctx) {
   }
 }
 
-export async function DELETE(_request: NextRequest, ctx: Ctx) {
+export async function DELETE(request: NextRequest, ctx: Ctx) {
   try {
     await ensureSeeded();
+    const denied = await requireAdmin(request);
+    if (denied) return denied;
     const { type, id } = await ctx.params;
     const masterType = MASTER_URL_TO_TYPE[type];
     if (!masterType) {

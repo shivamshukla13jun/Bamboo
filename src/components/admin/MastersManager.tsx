@@ -7,7 +7,7 @@ import { setNotification } from '../../store/adminSlice';
 import { ReferenceWarningModal } from './ReferenceWarningModal';
 import { ReferenceCheckResult } from '../../types';
 
-type MasterType = 'categories' | 'species' | 'treatments' | 'roof_styles' | 'home_types' | 'storage_providers';
+type MasterType = 'categories' | 'species' | 'treatments' | 'roof_styles' | 'home_types';
 
 export const MastersManager: React.FC = () => {
   const dispatch = useDispatch();
@@ -89,8 +89,6 @@ export const MastersManager: React.FC = () => {
       ? 'roofStyles'
       : activeMaster === 'home_types'
       ? 'homeTypes'
-      : activeMaster === 'storage_providers'
-      ? 'storageProviders'
       : activeMaster;
   const currentList = masters ? (masters as any)[listKey] || [] : [];
 
@@ -127,8 +125,7 @@ export const MastersManager: React.FC = () => {
           { key: 'species', label: 'Bamboo Species Master', count: masters?.species?.length },
           { key: 'treatments', label: 'Treatment Methods Master', count: masters?.treatments?.length },
           { key: 'roof_styles', label: 'Roof Architecture Master', count: masters?.roofStyles?.length },
-          { key: 'home_types', label: 'Home Types Master', count: masters?.homeTypes?.length },
-          { key: 'storage_providers', label: 'Storage Providers Master', count: masters?.storageProviders?.length }
+          { key: 'home_types', label: 'Home Types Master', count: masters?.homeTypes?.length }
         ].map(tab => (
           <button
             key={tab.key}
@@ -286,33 +283,6 @@ export const MastersManager: React.FC = () => {
                     className="w-full px-3 py-2 bg-stone-900 border border-stone-800 rounded-xl"
                     placeholder="e.g. 55"
                   />
-                </div>
-              </>
-            )}
-
-            {activeMaster === 'storage_providers' && (
-              <>
-                <div>
-                  <label className="block text-xs font-semibold text-stone-300 mb-1">Provider Code</label>
-                  <input
-                    type="text"
-                    value={formData.code || ''}
-                    onChange={e => setFormData({ ...formData, code: e.target.value })}
-                    className="w-full px-3 py-2 bg-stone-900 border border-stone-800 rounded-xl"
-                    placeholder="e.g. cloudinary, aws, minio"
-                  />
-                </div>
-                <div>
-                  <label className="block text-xs font-semibold text-stone-300 mb-1">Status</label>
-                  <select
-                    value={formData.status || 'ready'}
-                    onChange={e => setFormData({ ...formData, status: e.target.value })}
-                    className="w-full px-3 py-2 bg-stone-900 border border-stone-800 rounded-xl"
-                  >
-                    <option value="ready">Ready</option>
-                    <option value="active">Active</option>
-                    <option value="standby">Standby</option>
-                  </select>
                 </div>
               </>
             )}

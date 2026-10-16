@@ -3,6 +3,8 @@ import React from 'react';
 import { useSelector, useDispatch } from 'react-redux';
 import { RootState } from '../../store';
 import { setActiveTab, toggleAdminMode, AdminTab } from '../../store/adminSlice';
+import { setUser } from '../../store/authSlice';
+import { useLogoutMutation } from '../../services/api';
 import {
   LayoutDashboard,
   Package,
@@ -13,7 +15,8 @@ import {
   HardDrive,
   ShoppingBag,
   Code2,
-  ArrowLeft
+  ArrowLeft,
+  LogOut
 } from 'lucide-react';
 
 interface AdminLayoutProps {
@@ -24,6 +27,17 @@ export const AdminLayout: React.FC<AdminLayoutProps> = ({ children }) => {
   const dispatch = useDispatch();
   const activeTab = useSelector((state: RootState) => state.admin.activeTab);
   const formLogs = useSelector((state: RootState) => state.formErrors.errorLogs);
+  const user = useSelector((state: RootState) => state.auth.user);
+  const logoutMutation = useLogoutMutation();
+
+  const handleLogout = () => {
+    logoutMutation.mutate(undefined, {
+      onSuccess: () => {
+        dispatch(setUser(null));
+        dispatch(toggleAdminMode(false));
+      }
+    });
+  };
 
   const navItems: { tab: AdminTab; label: string; icon: any; badge?: number }[] = [
     { tab: 'dashboard', label: 'Overview Analytics', icon: LayoutDashboard },
@@ -32,7 +46,7 @@ export const AdminLayout: React.FC<AdminLayoutProps> = ({ children }) => {
     { tab: 'masters', label: 'Everything Masters', icon: Database },
     { tab: 'homes', label: 'Bamboo Home Inquiries', icon: Home },
     { tab: 'seo', label: 'SEO & Meta Tags Handle', icon: Search },
-    { tab: 'storage', label: 'Cloudinary Storage Switcher', icon: HardDrive },
+    { tab: 'storage', label: 'File Uploads', icon: HardDrive },
     { tab: 'orders', label: 'Orders & Deliveries', icon: ShoppingBag },
     { tab: 'redux_console', label: 'Redux + Form Errors', icon: Code2, badge: formLogs.length }
   ];
@@ -94,19 +108,20 @@ export const AdminLayout: React.FC<AdminLayoutProps> = ({ children }) => {
         </div>
 
         {/* Footer info box */}
-        <div className="pt-4 border-t border-stone-800 text-[11px] text-stone-400 space-y-1">
-          <div className="flex justify-between">
-            <span>Server:</span>
-            <span className="text-emerald-400 font-mono">Node TS Express</span>
+        <div className="pt-4 border-t border-stone-800 text-[11px] text-stone-400 space-y-1.5">
+          <div className="flex items-center justify-between gap-2">
+            <span className="text-stone-500">Signed in:</span>
+            <span className="text-emerald-400 font-mono truncate max-w-[130px]" title={user?.email}>
+              {user?.name || 'Admin'}
+            </span>
           </div>
-          <div className="flex justify-between">
-            <span>Database:</span>
-            <span className="text-emerald-400 font-mono">MongoDB</span>
-          </div>
-          <div className="flex justify-between">
-            <span>Storage:</span>
-            <span className="text-amber-400 font-mono uppercase">Switchable</span>
-          </div>
+          <button
+            onClick={handleLogout}
+            className="w-full mt-1 px-3 py-2 rounded-xl bg-stone-800 hover:bg-rose-950/60 text-stone-300 hover:text-rose-300 border border-stone-700 text-xs font-bold flex items-center justify-center gap-1.5 transition-colors"
+          >
+            <LogOut className="w-3.5 h-3.5" />
+            <span>Sign Out</span>
+          </button>
         </div>
       </aside>
 

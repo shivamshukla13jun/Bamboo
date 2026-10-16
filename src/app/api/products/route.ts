@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { ensureSeeded } from '../../../lib/seed';
 import { Product, Master, clean } from '../../../lib/models';
+import { requireAdmin } from '../../../lib/auth';
 import {
   getEnrichedProducts,
   enrichProduct,
@@ -81,6 +82,8 @@ export async function GET(request: NextRequest) {
 export async function POST(request: NextRequest) {
   try {
     await ensureSeeded();
+    const denied = await requireAdmin(request);
+    if (denied) return denied;
     const body = await request.json();
     const prodId = `prod-${Date.now()}`;
 

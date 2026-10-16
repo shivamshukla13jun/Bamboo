@@ -3,9 +3,10 @@
 import React, { useState, useEffect } from 'react';
 import { useSelector, useDispatch } from 'react-redux';
 import { RootState } from '../store';
-import { useProductsQuery, useSeoQuery } from '../services/api';
+import { useProductsQuery, useSeoQuery, useMeQuery } from '../services/api';
 import { setSeoConfig } from '../store/seoSlice';
 import { setNotification } from '../store/adminSlice';
+import { setUser } from '../store/authSlice';
 import { Header } from './Header';
 import { HeroBanner } from './HeroBanner';
 import { PriceRangeSelector } from './PriceRangeSelector';
@@ -28,6 +29,8 @@ import { SeoManager } from './admin/SeoManager';
 import { StorageManager } from './admin/StorageManager';
 import { OrdersManager } from './admin/OrdersManager';
 import { ReduxFormConsole } from './admin/ReduxFormConsole';
+import { AdminLogin } from './auth/AdminLogin';
+import { AuthModal } from './auth/AuthModal';
 import { CheckCircle2, Info, X } from 'lucide-react';
 
 export const BambooriseApp: React.FC = () => {
@@ -40,12 +43,22 @@ export const BambooriseApp: React.FC = () => {
     (state: RootState) => state.filter
   );
 
+  const user = useSelector((state: RootState) => state.auth.user);
+
   const { data: serverSeo } = useSeoQuery();
   useEffect(() => {
     if (serverSeo) {
       dispatch(setSeoConfig(serverSeo));
     }
   }, [serverSeo, dispatch]);
+
+  // Hydrate session from the httpOnly cookie on first load
+  const { data: me } = useMeQuery();
+  useEffect(() => {
+    if (me !== undefined) {
+      dispatch(setUser(me));
+    }
+  }, [me, dispatch]);
 
   const { data: products = [], isLoading } = useProductsQuery({
     category,
@@ -82,7 +95,10 @@ export const BambooriseApp: React.FC = () => {
         </div>
       )}
 
-      {isAdminMode ? (
+      {isAdminMode && user?.role !== 'admin' ? (
+        /* Admin Login Gate */
+        <AdminLogin />
+      ) : isAdminMode ? (
         /* Shopify Admin Panel Mode */
         <AdminLayout>
           {activeTab === 'dashboard' && <DashboardView />}
@@ -157,6 +173,9 @@ export const BambooriseApp: React.FC = () => {
           </main>
 
           <Footer />
+
+          {/* Account Auth Modal */}
+          <AuthModal />
 
           {/* Cart Drawer */}
           <CartDrawer onOpenCheckout={() => setIsCheckoutOpen(true)} />

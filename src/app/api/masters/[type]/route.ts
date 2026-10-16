@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { ensureSeeded } from '../../../../lib/seed';
 import { Master, clean, cleanList, MASTER_URL_TO_TYPE } from '../../../../lib/models';
+import { requireAdmin } from '../../../../lib/auth';
 
 type Ctx = { params: Promise<{ type: string }> };
 
@@ -22,6 +23,8 @@ export async function GET(_request: NextRequest, ctx: Ctx) {
 export async function POST(request: NextRequest, ctx: Ctx) {
   try {
     await ensureSeeded();
+    const denied = await requireAdmin(request);
+    if (denied) return denied;
     const { type } = await ctx.params;
     const masterType = MASTER_URL_TO_TYPE[type];
     if (!masterType) {

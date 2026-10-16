@@ -6,56 +6,60 @@ import { DEFAULT_STORAGE_CONFIG } from './seed';
 
 const UPLOAD_ROOT = path.join(process.cwd(), 'public', 'uploads');
 
-export async function getStorageConfig(): Promise<StorageConfig> {
+const VALID_PROVIDERS: StorageProviderType[] = ['cloudinary', 'aws', 'mock'];
+
+function envProvider(): StorageProviderType {
+  const p = process.env.STORAGE_PROVIDER as StorageProviderType;
+  return VALID_PROVIDERS.includes(p) ? p : 'mock';
+}
+
+/**
+ * Internal storage config. The active provider is configured exclusively via
+ * the STORAGE_PROVIDER env var and is never exposed to the app UI or API.
+ */
+async function getStorageConfig(): Promise<StorageConfig> {
   const doc = await Setting.findOne({ key: 'storage' }).lean();
   const value = (doc as any)?.value || {};
   return {
     ...DEFAULT_STORAGE_CONFIG,
     ...value,
-    activeProvider:
-      (value.activeProvider as StorageProviderType) ||
-      (process.env.STORAGE_PROVIDER as StorageProviderType) ||
-      'mock'
+    activeProvider: envProvider()
   };
 }
 
-export async function setStorageProvider(provider: StorageProviderType): Promise<StorageConfig> {
-  const current = await getStorageConfig();
-  const next = { ...current, activeProvider: provider };
-  await Setting.findOneAndUpdate(
-    { key: 'storage' },
-    { $set: { key: 'storage', value: next } },
-    { upsert: true }
-  );
-  return next;
+export async function getUploadStats() {
+  const doc = await Setting.findOne({ key: 'storage' }).lean();
+  const stats = (doc as any)?.value?.uploadStats;
+  return {
+    totalFiles: stats?.totalFiles || 0,
+    totalSizeBytes: stats?.totalSizeBytes || 0
+  };
 }
 
 async function bumpUploadStats(sizeBytes: number) {
-  const current = await getStorageConfig();
-  const next = {
-    ...current,
-    uploadStats: {
-      totalFiles: (current.uploadStats?.totalFiles || 0) + 1,
-      totalSizeBytes: (current.uploadStats?.totalSizeBytes || 0) + sizeBytes
-    }
-  };
+  const stats = await getUploadStats();
   await Setting.findOneAndUpdate(
     { key: 'storage' },
-    { $set: { key: 'storage', value: next } },
+    {
+      $set: {
+        key: 'storage',
+        'value.uploadStats.totalFiles': stats.totalFiles + 1,
+        'value.uploadStats.totalSizeBytes': stats.totalSizeBytes + sizeBytes
+      }
+    },
     { upsert: true }
   );
 }
 
 export interface UploadResult {
   url: string;
-  provider: StorageProviderType;
   filename: string;
 }
 
 /**
- * Upload pipeline.
- * - mock: writes the file to public/uploads/<folder>/ and serves it at /uploads/*
- * - aws / cloudinary / minio: simulated URLs (no real network calls)
+ * Upload pipeline driven by STORAGE_PROVIDER env.
+ * - mock: writes the file to public/uploads/<folder>/, served at /uploads/*
+ * - aws / cloudinary: simulated URLs (no real network calls)
  */
 export async function handleUpload(
   file: { name: string; type: string; size: number; bytes: Uint8Array },
@@ -67,19 +71,18 @@ export async function handleUpload(
 
   switch (config.activeProvider) {
     case 'aws': {
-      const url = `https://${config.awsBucket}.s3.${config.awsRegion}.amazonaws.com/${safeFolder}/${filename}`;
       await bumpUploadStats(file.size);
-      return { url, provider: 'aws', filename };
+      return {
+        url: `https://${config.awsBucket}.s3.${config.awsRegion}.amazonaws.com/${safeFolder}/${filename}`,
+        filename
+      };
     }
     case 'cloudinary': {
-      const url = `https://res.cloudinary.com/${config.cloudinaryCloudName}/image/upload/v${Math.floor(Date.now() / 1000)}/${safeFolder}/${filename}`;
       await bumpUploadStats(file.size);
-      return { url, provider: 'cloudinary', filename };
-    }
-    case 'minio': {
-      const url = `http://${config.minioEndpoint}/${config.minioBucket}/${safeFolder}/${filename}`;
-      await bumpUploadStats(file.size);
-      return { url, provider: 'minio', filename };
+      return {
+        url: `https://res.cloudinary.com/${config.cloudinaryCloudName}/image/upload/v${Math.floor(Date.now() / 1000)}/${safeFolder}/${filename}`,
+        filename
+      };
     }
     case 'mock':
     default: {
@@ -87,7 +90,7 @@ export async function handleUpload(
       await fs.mkdir(dir, { recursive: true });
       await fs.writeFile(path.join(dir, filename), Buffer.from(file.bytes));
       await bumpUploadStats(file.size);
-      return { url: `/uploads/${safeFolder}/${filename}`, provider: 'mock', filename };
+      return { url: `/uploads/${safeFolder}/${filename}`, filename };
     }
   }
 }

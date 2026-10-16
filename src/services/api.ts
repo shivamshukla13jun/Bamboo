@@ -1,6 +1,6 @@
 'use client';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
-import { Product, BambooHomeConfig, Order, SeoConfig, StorageConfig, StorageProviderType } from '../types';
+import { Product, BambooHomeConfig, Order, SeoConfig, StoragePublicConfig, AuthUser } from '../types';
 
 // API Fetchers
 export async function fetchProducts(params?: {
@@ -86,23 +86,13 @@ export async function updateSeoConfigApi(seo: Partial<SeoConfig>): Promise<SeoCo
   return res.json();
 }
 
-export async function fetchStorageConfig(): Promise<StorageConfig> {
+export async function fetchStorageConfig(): Promise<StoragePublicConfig> {
   const res = await fetch('/api/storage');
   if (!res.ok) throw new Error('Failed to fetch storage config');
   return res.json();
 }
 
-export async function updateStorageProviderApi(provider: StorageProviderType): Promise<StorageConfig> {
-  const res = await fetch('/api/storage/provider', {
-    method: 'PUT',
-    headers: { 'Content-Type': 'application/json' },
-    body: JSON.stringify({ provider })
-  });
-  if (!res.ok) throw new Error('Failed to update storage provider');
-  return res.json();
-}
-
-export async function uploadFileApi(file: File, folder = 'products'): Promise<{ url: string; provider: string; filename: string }> {
+export async function uploadFileApi(file: File, folder = 'products'): Promise<{ url: string; filename: string }> {
   const formData = new FormData();
   formData.append('file', file);
   formData.append('folder', folder);
@@ -221,17 +211,6 @@ export function useStorageConfigQuery() {
   });
 }
 
-export function useUpdateStorageProviderMutation() {
-  const queryClient = useQueryClient();
-  return useMutation({
-    mutationFn: updateStorageProviderApi,
-    onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ['storageConfig'] });
-      queryClient.invalidateQueries({ queryKey: ['analytics'] });
-    }
-  });
-}
-
 export function useUploadFileMutation() {
   const queryClient = useQueryClient();
   return useMutation({
@@ -257,5 +236,84 @@ export function useAnalyticsQuery() {
   return useQuery({
     queryKey: ['analytics'],
     queryFn: fetchAnalytics
+  });
+}
+
+// ==========================================
+// Authentication
+// ==========================================
+
+export async function fetchMe(): Promise<AuthUser | null> {
+  const res = await fetch('/api/auth/me');
+  if (!res.ok) return null;
+  const data = await res.json();
+  return data.user || null;
+}
+
+export async function loginApi(input: { email: string; password: string }): Promise<AuthUser> {
+  const res = await fetch('/api/auth/login', {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify(input)
+  });
+  const data = await res.json();
+  if (!res.ok) throw new Error(data.message || 'Login failed');
+  return data;
+}
+
+export async function registerApi(input: {
+  name: string;
+  email: string;
+  password: string;
+}): Promise<AuthUser> {
+  const res = await fetch('/api/auth/register', {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify(input)
+  });
+  const data = await res.json();
+  if (!res.ok) throw new Error(data.message || 'Registration failed');
+  return data;
+}
+
+export async function logoutApi(): Promise<void> {
+  await fetch('/api/auth/logout', { method: 'POST' });
+}
+
+export function useMeQuery() {
+  return useQuery({
+    queryKey: ['me'],
+    queryFn: fetchMe,
+    staleTime: 5 * 60 * 1000
+  });
+}
+
+export function useLoginMutation() {
+  const queryClient = useQueryClient();
+  return useMutation({
+    mutationFn: loginApi,
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['me'] });
+    }
+  });
+}
+
+export function useRegisterMutation() {
+  const queryClient = useQueryClient();
+  return useMutation({
+    mutationFn: registerApi,
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['me'] });
+    }
+  });
+}
+
+export function useLogoutMutation() {
+  const queryClient = useQueryClient();
+  return useMutation({
+    mutationFn: logoutApi,
+    onSuccess: () => {
+      queryClient.clear();
+    }
   });
 }

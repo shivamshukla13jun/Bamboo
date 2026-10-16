@@ -41,7 +41,7 @@ export const DashboardView: React.FC = () => {
             className="px-3.5 py-2 rounded-xl bg-emerald-700 hover:bg-emerald-600 text-white font-bold text-xs flex items-center gap-1.5 shadow"
           >
             <HardDrive className="w-4 h-4" />
-            <span>Switch Storage Provider</span>
+            <span>Manage File Uploads</span>
           </button>
         </div>
       </div>
@@ -85,13 +85,15 @@ export const DashboardView: React.FC = () => {
 
         <div className="bg-stone-900 border border-stone-800 p-5 rounded-2xl space-y-2">
           <div className="flex justify-between items-center text-stone-400 text-xs font-bold uppercase tracking-wider">
-            <span>File Storage Engine</span>
+            <span>Files Uploaded</span>
             <HardDrive className="w-4 h-4 text-emerald-400" />
           </div>
-          <div className="text-xl font-black text-emerald-300 font-mono uppercase">
-            {analytics?.activeProvider || 'Mock'}
+          <div className="text-2xl font-black text-stone-100 font-mono">
+            {analytics?.uploadStats?.totalFiles || 0}
           </div>
-          <span className="text-[11px] text-stone-400 block">AWS / Cloudinary / MinIO Ready</span>
+          <span className="text-[11px] text-stone-400 block">
+            {((analytics?.uploadStats?.totalSizeBytes || 0) / 1048576).toFixed(1)} MB stored
+          </span>
         </div>
       </div>
 

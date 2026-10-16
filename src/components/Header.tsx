@@ -5,9 +5,11 @@ import { RootState } from '../store';
 import { toggleCartDrawer, setCurrency } from '../store/cartSlice';
 import { toggleAdminMode, setActiveTab } from '../store/adminSlice';
 import { setSearchTerm, setCategory } from '../store/filterSlice';
-import { ShoppingBag, Search, ShieldCheck, Home, Layers, ArrowRight } from 'lucide-react';
+import { ShoppingBag, Search, ShieldCheck, Home, Layers, ArrowRight, User, LogOut } from 'lucide-react';
 import { useQuery } from '@tanstack/react-query';
 import { CategoryMaster } from '../types';
+import { openAuthModal, setUser } from '../store/authSlice';
+import { useLogoutMutation } from '../services/api';
 
 export const Header: React.FC = () => {
   const dispatch = useDispatch();
@@ -17,6 +19,8 @@ export const Header: React.FC = () => {
   const currentCategory = useSelector((state: RootState) => state.filter.category);
   const searchTerm = useSelector((state: RootState) => state.filter.searchTerm);
   const formLogs = useSelector((state: RootState) => state.formErrors.errorLogs);
+  const user = useSelector((state: RootState) => state.auth.user);
+  const logoutMutation = useLogoutMutation();
 
   const [localSearch, setLocalSearch] = useState(searchTerm);
 
@@ -53,7 +57,7 @@ export const Header: React.FC = () => {
         </div>
 
         <div className="flex items-center gap-4 text-xs mx-auto sm:mx-0 mt-1 sm:mt-0">
-          <span className="text-stone-300 hidden md:inline">Storage: AWS | Cloudinary | MinIO Switchable</span>
+          <span className="text-stone-300 hidden md:inline">Carbon-Negative Bamboo Marketplace</span>
           
           {/* Currency Picker */}
           <div className="flex items-center gap-1 bg-stone-800 px-2 py-0.5 rounded border border-stone-700">
@@ -154,6 +158,34 @@ export const Header: React.FC = () => {
             >
               <span className="w-2 h-2 rounded-full bg-rose-500 animate-pulse"></span>
               <span>Redux Errors ({formLogs.length})</span>
+            </button>
+          )}
+
+          {/* Account / Auth Controls */}
+          {user ? (
+            <div className="flex items-center gap-2">
+              <span className="hidden sm:flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-stone-800 border border-stone-700 text-xs font-semibold text-stone-200">
+                <User className="w-3.5 h-3.5 text-emerald-400" />
+                <span className="max-w-[110px] truncate">{user.name}</span>
+              </span>
+              <button
+                onClick={() =>
+                  logoutMutation.mutate(undefined, { onSuccess: () => dispatch(setUser(null)) })
+                }
+                className="p-2 rounded-lg bg-stone-800 hover:bg-stone-700 text-stone-400 hover:text-rose-400 border border-stone-700 transition-colors"
+                title="Sign Out"
+              >
+                <LogOut className="w-4 h-4" />
+              </button>
+            </div>
+          ) : (
+            <button
+              onClick={() => dispatch(openAuthModal(true))}
+              className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-stone-800 hover:bg-stone-700 text-stone-200 border border-stone-700 text-xs font-semibold transition-colors"
+            >
+              <User className="w-3.5 h-3.5 text-emerald-400" />
+              <span className="hidden sm:inline">Sign In / Register</span>
+              <span className="sm:hidden">Account</span>
             </button>
           )}
 

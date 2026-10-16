@@ -1,16 +1,20 @@
-import { NextResponse } from 'next/server';
+import { NextRequest, NextResponse } from 'next/server';
 import { ensureSeeded } from '../../../lib/seed';
 import { Product, Order, HomeQuote, cleanList } from '../../../lib/models';
-import { getStorageConfig } from '../../../lib/storage';
+import { getUploadStats } from '../../../lib/storage';
+import { requireAdmin } from '../../../lib/auth';
 
-export async function GET() {
+export async function GET(request: NextRequest) {
   try {
     await ensureSeeded();
-    const [orders, quotes, products, storage] = await Promise.all([
+    const denied = await requireAdmin(request);
+    if (denied) return denied;
+
+    const [orders, quotes, products, uploadStats] = await Promise.all([
       Order.find().sort({ _id: -1 }).lean(),
       HomeQuote.find().sort({ _id: -1 }).lean(),
       Product.find().lean(),
-      getStorageConfig()
+      getUploadStats()
     ]);
 
     const totalRevenue = orders.reduce((acc, o: any) => acc + (o.total || 0), 0);
@@ -24,7 +28,7 @@ export async function GET() {
       totalHomeQuotes: quotes.length,
       totalProducts: products.length,
       lowStockCount,
-      activeProvider: storage.activeProvider,
+      uploadStats,
       recentQuotes: cleanList(quotes.slice(0, 5)),
       recentOrders: cleanList(orders.slice(0, 5))
     });

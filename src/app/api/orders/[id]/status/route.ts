@@ -1,12 +1,15 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { ensureSeeded } from '../../../../../lib/seed';
 import { Order, clean } from '../../../../../lib/models';
+import { requireAdmin } from '../../../../../lib/auth';
 
 type Ctx = { params: Promise<{ id: string }> };
 
 export async function PUT(request: NextRequest, ctx: Ctx) {
   try {
     await ensureSeeded();
+    const denied = await requireAdmin(request);
+    if (denied) return denied;
     const { id } = await ctx.params;
     const { status } = await request.json();
 

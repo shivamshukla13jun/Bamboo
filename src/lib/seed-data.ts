@@ -47,12 +47,9 @@ export const INITIAL_HOME_TYPES: HomeTypeMaster[] = [
   { id: 'ht-studio', name: 'Bamboo Gazebo Work Studio', code: 'gazebo_studio', basePricePerSqFt: 32.0, description: 'Compact backyard pavilion or creative sanctuary.' }
 ];
 
-export const INITIAL_STORAGE_PROVIDERS: StorageProviderMaster[] = [
-  { id: 'sp-cloudinary', name: 'Cloudinary CDN (Default)', code: 'cloudinary', isDefault: true, status: 'active', description: 'High-speed cloud image optimization CDN.' },
-  { id: 'sp-aws', name: 'AWS S3 Bucket', code: 'aws', isDefault: false, status: 'active', description: 'Amazon Web Services S3 object storage.' },
-  { id: 'sp-minio', name: 'MinIO S3-Compatible Storage', code: 'minio', isDefault: false, status: 'active', description: 'Self-hosted high performance object storage endpoint.' },
-  { id: 'sp-mock', name: 'Local File Upload Engine', code: 'mock', isDefault: false, status: 'active', description: 'Writes uploads to public/uploads and serves them at /uploads/*.' }
-];
+// Storage providers are managed via the STORAGE_PROVIDER env var and are
+// intentionally not seeded/exposed as master data in the app.
+export const INITIAL_STORAGE_PROVIDERS: StorageProviderMaster[] = [];
 
 export function initialMasters(): Array<Record<string, any> & { type: MasterType }> {
   return [

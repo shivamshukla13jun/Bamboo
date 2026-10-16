@@ -8,8 +8,7 @@ import {
   useProductsQuery,
   useCreateProductMutation,
   useUpdateProductMutation,
-  useUploadFileMutation,
-  useStorageConfigQuery
+  useUploadFileMutation
 } from '../../services/api';
 import { Product, ProductVariant, ReferenceCheckResult } from '../../types';
 import { formatPrice } from '../../utils/formatters';
@@ -69,7 +68,6 @@ export const ProductsManager: React.FC = () => {
     category: categoryFilter
   });
 
-  const { data: storageConfig } = useStorageConfigQuery();
   const createProductMutation = useCreateProductMutation();
   const updateProductMutation = useUpdateProductMutation();
   const uploadFileMutation = useUploadFileMutation();
@@ -157,7 +155,7 @@ export const ProductsManager: React.FC = () => {
             setUploadedImageUrl(data.url);
             dispatch(
               setNotification({
-                message: `Uploaded image via ${data.provider.toUpperCase()} provider!`,
+                message: 'Image uploaded successfully!',
                 type: 'success'
               })
             );
@@ -233,7 +231,7 @@ export const ProductsManager: React.FC = () => {
         <div>
           <h1 className="text-2xl font-black text-stone-50">Products & Variant Builder</h1>
           <p className="text-stone-400 text-xs mt-0.5">
-            Default Storage Engine: <strong className="text-emerald-400 font-mono uppercase">{storageConfig?.activeProvider || 'Cloudinary'}</strong>
+            Every product requires at least one variant. Stock aggregates across all variant SKUs.
           </p>
         </div>
 
@@ -532,7 +530,7 @@ export const ProductsManager: React.FC = () => {
               {/* Image Upload */}
               <div className="bg-stone-950 p-4 rounded-2xl border border-stone-800 space-y-2">
                 <div className="flex justify-between items-center text-[11px] text-stone-400 font-bold uppercase">
-                  <span>Default Image Upload ({storageConfig?.activeProvider.toUpperCase()})</span>
+                  <span>Product Image Upload</span>
                   <HardDrive className="w-3.5 h-3.5 text-emerald-400" />
                 </div>
                 <div className="flex gap-3 items-center">

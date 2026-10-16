@@ -1,5 +1,6 @@
 import { connectDb } from './db';
-import { Product, Master, Order, HomeQuote, Setting } from './models';
+import { Product, Master, Order, HomeQuote, Setting, User } from './models';
+import { hashPassword } from './auth';
 import {
   initialMasters,
   INITIAL_PRODUCTS,
@@ -19,10 +20,10 @@ export const DEFAULT_STORAGE_CONFIG = {
   awsBucket: process.env.AWS_S3_BUCKET || 'bamboorise-uploads',
   awsRegion: process.env.AWS_REGION || 'us-east-1',
   cloudinaryCloudName: process.env.CLOUDINARY_CLOUD_NAME || 'bamboorise-cloud',
-  minioEndpoint: process.env.MINIO_ENDPOINT || 'play.min.io:9000',
-  minioBucket: process.env.MINIO_BUCKET || 'bamboorise-bucket',
   uploadStats: { totalFiles: 0, totalSizeBytes: 0 }
 };
+
+export const ADMIN_EMAIL = (process.env.ADMIN_EMAIL || 'admin@bamboorise.com').toLowerCase();
 
 export async function seedDatabase() {
   await connectDb();
@@ -56,6 +57,23 @@ export async function seedDatabase() {
   await Setting.findOneAndUpdate(
     { key: 'storage' },
     { $setOnInsert: { key: 'storage', value: DEFAULT_STORAGE_CONFIG } },
+    { upsert: true }
+  );
+
+  // Seed the admin account (password comes from ADMIN_PASSWORD env, default: admin123)
+  const adminPassword = process.env.ADMIN_PASSWORD || 'admin123';
+  await User.findOneAndUpdate(
+    { email: ADMIN_EMAIL },
+    {
+      $setOnInsert: {
+        id: 'user-admin',
+        name: 'Store Administrator',
+        email: ADMIN_EMAIL,
+        passwordHash: await hashPassword(adminPassword),
+        role: 'admin',
+        createdAt: new Date().toISOString()
+      }
+    },
     { upsert: true }
   );
 }

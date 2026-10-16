@@ -152,6 +152,18 @@ const HomeQuoteSchema = new Schema(
   { strict: false }
 );
 
+const UserSchema = new Schema(
+  {
+    id: { type: String, required: true, unique: true, index: true },
+    name: String,
+    email: { type: String, required: true, unique: true, index: true },
+    passwordHash: { type: String, required: true },
+    role: { type: String, enum: ['admin', 'customer'], default: 'customer' },
+    createdAt: String
+  },
+  { strict: false }
+);
+
 // Generic key/value store for singleton configs: 'seo', 'storage'
 const SettingSchema = new Schema(
   {
@@ -167,6 +179,7 @@ export const Order: Model<any> = models.Order || mongoose.model('Order', OrderSc
 export const HomeQuote: Model<any> =
   models.HomeQuote || mongoose.model('HomeQuote', HomeQuoteSchema);
 export const Setting: Model<any> = models.Setting || mongoose.model('Setting', SettingSchema);
+export const User: Model<any> = models.User || mongoose.model('User', UserSchema);
 
 /** Strip mongoose internals from lean docs */
 export function clean<T = any>(doc: any): T {

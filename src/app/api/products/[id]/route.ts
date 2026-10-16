@@ -3,6 +3,7 @@ import { ensureSeeded } from '../../../../lib/seed';
 import { Product } from '../../../../lib/models';
 import { getEnrichedProduct, normalizeVariants, aggregateStock } from '../../../../lib/products';
 import { checkEntityReferences } from '../../../../lib/refs';
+import { requireAdmin } from '../../../../lib/auth';
 
 type Ctx = { params: Promise<{ id: string }> };
 
@@ -23,6 +24,8 @@ export async function GET(_request: NextRequest, ctx: Ctx) {
 export async function PUT(request: NextRequest, ctx: Ctx) {
   try {
     await ensureSeeded();
+    const denied = await requireAdmin(request);
+    if (denied) return denied;
     const { id } = await ctx.params;
     const body = await request.json();
 
@@ -50,9 +53,11 @@ export async function PUT(request: NextRequest, ctx: Ctx) {
   }
 }
 
-export async function DELETE(_request: NextRequest, ctx: Ctx) {
+export async function DELETE(request: NextRequest, ctx: Ctx) {
   try {
     await ensureSeeded();
+    const denied = await requireAdmin(request);
+    if (denied) return denied;
     const { id } = await ctx.params;
 
     const refCheck = await checkEntityReferences('product', id);

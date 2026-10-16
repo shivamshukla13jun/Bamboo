@@ -3,6 +3,7 @@ import { ensureSeeded } from '../../../lib/seed';
 import { Setting } from '../../../lib/models';
 import { DEFAULT_SEO_CONFIG } from '../../../lib/seed-data';
 import { SeoConfig } from '../../../types';
+import { requireAdmin } from '../../../lib/auth';
 
 export async function GET() {
   try {
@@ -18,6 +19,8 @@ export async function GET() {
 export async function PUT(request: NextRequest) {
   try {
     await ensureSeeded();
+    const denied = await requireAdmin(request);
+    if (denied) return denied;
     const body = await request.json();
     const current = await Setting.findOne({ key: 'seo' }).lean();
     const merged = { ...DEFAULT_SEO_CONFIG, ...((current as any)?.value || {}), ...body };

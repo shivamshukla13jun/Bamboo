@@ -2,10 +2,13 @@ import { NextRequest, NextResponse } from 'next/server';
 import { ensureSeeded } from '../../../lib/seed';
 import { checkEntityReferences } from '../../../lib/refs';
 import { MASTER_URL_TO_TYPE } from '../../../lib/models';
+import { requireAdmin } from '../../../lib/auth';
 
 export async function GET(request: NextRequest) {
   try {
     await ensureSeeded();
+    const denied = await requireAdmin(request);
+    if (denied) return denied;
     const { searchParams } = new URL(request.url);
     const type = searchParams.get('type');
     const id = searchParams.get('id');

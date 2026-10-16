@@ -1,10 +1,13 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { ensureSeeded } from '../../../lib/seed';
 import { Order, cleanList } from '../../../lib/models';
+import { requireAdmin } from '../../../lib/auth';
 
-export async function GET() {
+export async function GET(request: NextRequest) {
   try {
     await ensureSeeded();
+    const denied = await requireAdmin(request);
+    if (denied) return denied;
     const orders = await Order.find().sort({ _id: -1 }).lean();
     return NextResponse.json(cleanList(orders));
   } catch (err: any) {

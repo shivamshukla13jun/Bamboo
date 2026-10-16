@@ -49,7 +49,7 @@ export const Footer: React.FC = () => {
             </li>
             <li className="flex items-center gap-1.5">
               <span className="w-1.5 h-1.5 rounded-full bg-emerald-400"></span>
-              <span>Storage: AWS | Cloudinary | MinIO</span>
+              <span>Storage: Managed Object Storage</span>
             </li>
           </ul>
         </div>
