@@ -5,6 +5,7 @@ import { RootState } from '../../store';
 import { setActiveTab, toggleAdminMode, AdminTab } from '../../store/adminSlice';
 import { setUser } from '../../store/authSlice';
 import { useLogoutMutation } from '../../services/api';
+import { siteConfig } from '../../config/site';
 import {
   LayoutDashboard,
   Package,
@@ -60,11 +61,11 @@ export const AdminLayout: React.FC<AdminLayoutProps> = ({ children }) => {
           <div className="flex items-center justify-between pb-4 mb-4 border-b border-stone-800">
             <div className="flex items-center gap-2">
               <div className="w-8 h-8 rounded-lg bg-amber-500 text-stone-950 font-black flex items-center justify-center text-sm shadow">
-                ⚡
+                {siteConfig.adminBadgeEmoji}
               </div>
               <div>
-                <h1 className="text-base font-black text-stone-50 leading-tight">Shopify Admin</h1>
-                <span className="text-[10px] text-emerald-400 font-mono block">Bamboorise Admin Panel</span>
+                <h1 className="text-base font-black text-stone-50 leading-tight">{siteConfig.adminTitle}</h1>
+                <span className="text-[10px] text-emerald-400 font-mono block">{siteConfig.adminPanelName}</span>
               </div>
             </div>
 

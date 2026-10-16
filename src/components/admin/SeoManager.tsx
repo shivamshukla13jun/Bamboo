@@ -9,6 +9,7 @@ import { useSeoQuery, useUpdateSeoMutation } from '../../services/api';
 import { SeoConfig } from '../../types';
 import { setNotification } from '../../store/adminSlice';
 import { Search, Globe, Share2, Code, Save, Eye, CheckCircle2, ShieldAlert } from 'lucide-react';
+import { siteConfig } from '../../config/site';
 
 export const SeoManager: React.FC = () => {
   const dispatch = useDispatch();
@@ -185,7 +186,7 @@ export const SeoManager: React.FC = () => {
 
             <div className="bg-white p-4 rounded-xl space-y-1 shadow text-slate-900 font-sans">
               <div className="text-[11px] text-slate-600 flex items-center gap-1 truncate">
-                <span>{watchedCanonical || 'https://bamboorise.ai.studio'}</span>
+                <span>{watchedCanonical || siteConfig.siteUrl}</span>
                 <span>›</span>
               </div>
               <div className="text-blue-700 font-semibold text-base hover:underline cursor-pointer leading-tight truncate">
@@ -213,7 +214,9 @@ export const SeoManager: React.FC = () => {
                 />
               </div>
               <div className="p-3 space-y-1">
-                <span className="text-[10px] text-stone-500 uppercase font-mono block">bamboorise.ai.studio</span>
+                <span className="text-[10px] text-stone-500 uppercase font-mono block">
+                  {siteConfig.siteUrl.replace(/^https?:\/\//, '')}
+                </span>
                 <h4 className="text-xs font-bold text-stone-100 truncate">{watchedTitle}</h4>
                 <p className="text-[11px] text-stone-400 line-clamp-2">{watchedDesc}</p>
               </div>

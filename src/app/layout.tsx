@@ -1,20 +1,20 @@
 import type { Metadata } from 'next';
 import './globals.css';
 import { Providers } from './providers';
+import { siteConfig } from '../config/site';
 
 export const metadata: Metadata = {
-  title: 'Bamboorise – Sustainable Bamboo Homes & Eco Products',
-  description:
-    'Shopify-style e-commerce platform for luxury bamboo eco-villas, prefab cabins, structural beams, strand woven flooring, and handcrafted kitchenware.',
-  keywords:
-    'bamboo home, bamboo prefab cabin, bamboo flooring, eco housing, bamboo furniture, sustainable materials',
+  title: siteConfig.seo.siteTitle,
+  description: siteConfig.seo.siteDescription,
+  keywords: siteConfig.seo.keywords,
   openGraph: {
-    title: 'Bamboorise – Sustainable Bamboo Homes & Eco Products',
-    description:
-      'Shopify-style e-commerce platform for luxury bamboo eco-villas, prefab cabins, structural beams, strand woven flooring, and handcrafted kitchenware.',
-    images: [
-      'https://images.unsplash.com/photo-1540555700478-4be289fbecef?auto=format&fit=crop&w=1200&q=80'
-    ]
+    title: siteConfig.seo.siteTitle,
+    description: siteConfig.seo.siteDescription,
+    url: siteConfig.siteUrl,
+    images: [siteConfig.seo.ogImageUrl]
+  },
+  twitter: {
+    site: siteConfig.seo.twitterHandle
   }
 };
 

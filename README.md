@@ -21,6 +21,10 @@ npm run dev                  # http://localhost:3000
 
 `npm run build` / `npm run start` for production, `npm run lint` for typecheck.
 
+## Site configuration — `site.config.json`
+
+All site-related branding and copy lives in **`site.config.json`** (root). Edit it to re-skin the entire app — site name, tagline, logo emoji, admin panel title, contact info, topbar promo, hero copy + featured card, footer sections, copyright, currencies (+rates/symbols), shipping threshold/cost, coupon codes, SEO defaults, and the customizer success message. Consumed via `src/config/site.ts` (`siteConfig`, `currencyRates`, `currencySymbols`, `currencyCodes`).
+
 ## Auth
 
 - **Customers**: Sign In / Register from the header (`POST /api/auth/register` creates a `customer` role user and signs in).

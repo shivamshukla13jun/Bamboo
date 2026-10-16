@@ -9,6 +9,7 @@ import { toggleAdminMode } from '../../store/adminSlice';
 import { useFormReduxSync } from '../../hooks/useFormReduxSync';
 import { loginApi } from '../../services/api';
 import { ShieldCheck, ArrowLeft, Lock, AlertCircle } from 'lucide-react';
+import { siteConfig } from '../../config/site';
 
 interface AdminLoginInputs {
   email: string;
@@ -56,11 +57,11 @@ export const AdminLogin: React.FC = () => {
       <div className="w-full max-w-md relative z-10 space-y-6">
         <div className="text-center space-y-2">
           <div className="w-14 h-14 rounded-2xl bg-amber-500 text-stone-950 font-black flex items-center justify-center text-2xl mx-auto shadow-lg">
-            ⚡
+            {siteConfig.adminBadgeEmoji}
           </div>
           <h1 className="text-2xl font-black text-stone-50">Admin Sign In</h1>
           <p className="text-xs text-stone-400">
-            Authenticate to access the Bamboorise management panel.
+            Authenticate to access the {siteConfig.siteName} management panel.
           </p>
         </div>
 
@@ -128,8 +129,8 @@ export const AdminLogin: React.FC = () => {
           </button>
 
           <p className="text-[11px] text-stone-500 text-center pt-1">
-            Seeded admin: <code className="font-mono text-stone-400">admin@bamboorise.com</code> /{' '}
-            <code className="font-mono text-stone-400">admin123</code> (configurable via env)
+            Admin credentials are configured via <code className="font-mono text-stone-400">ADMIN_EMAIL</code> /{' '}
+            <code className="font-mono text-stone-400">ADMIN_PASSWORD</code> env.
           </p>
         </form>
 

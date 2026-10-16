@@ -9,7 +9,8 @@ import {
   applyCoupon,
   clearCart
 } from '../store/cartSlice';
-import { formatPrice } from '../utils/formatters';
+import { formatPrice, computeDiscount, computeShipping } from '../utils/formatters';
+import { siteConfig } from '../config/site';
 import { X, Trash2, ShoppingBag, ArrowRight, Tag, Truck, Check } from 'lucide-react';
 
 interface CartDrawerProps {
@@ -18,7 +19,7 @@ interface CartDrawerProps {
 
 export const CartDrawer: React.FC<CartDrawerProps> = ({ onOpenCheckout }) => {
   const dispatch = useDispatch();
-  const { items, isOpen, couponCode, discountAmount, currency, currencyRates } = useSelector(
+  const { items, isOpen, couponCode, discountAmount, discountType, currency, currencyRates } = useSelector(
     (state: RootState) => state.cart
   );
 
@@ -27,8 +28,8 @@ export const CartDrawer: React.FC<CartDrawerProps> = ({ onOpenCheckout }) => {
   if (!isOpen) return null;
 
   const rawSubtotal = items.reduce((sum, item) => sum + item.product.price * item.quantity, 0);
-  const discountVal = discountAmount > 0 ? (discountAmount < 100 ? (rawSubtotal * discountAmount) / 100 : discountAmount) : 0;
-  const shippingVal = rawSubtotal > 200 || rawSubtotal === 0 ? 0 : 45;
+  const discountVal = computeDiscount(rawSubtotal, discountAmount, discountType);
+  const shippingVal = computeShipping(rawSubtotal);
   const grandTotal = Math.max(0, rawSubtotal - discountVal + shippingVal);
 
   const handleApplyCoupon = (e: React.FormEvent) => {
@@ -152,7 +153,7 @@ export const CartDrawer: React.FC<CartDrawerProps> = ({ onOpenCheckout }) => {
               <div className="relative flex-1">
                 <input
                   type="text"
-                  placeholder="Coupon code (e.g. BAMBOO10)"
+                  placeholder={`Coupon code (e.g. ${siteConfig.commerce.couponHint})`}
                   value={inputCoupon}
                   onChange={(e) => setInputCoupon(e.target.value)}
                   className="w-full bg-stone-900 text-stone-100 placeholder-stone-500 text-xs pl-8 pr-2 py-2 rounded-xl border border-stone-800 focus:outline-none focus:border-emerald-500 font-mono uppercase"

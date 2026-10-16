@@ -9,6 +9,7 @@ import { setNotification } from '../../store/adminSlice';
 import { useFormReduxSync } from '../../hooks/useFormReduxSync';
 import { loginApi, registerApi } from '../../services/api';
 import { X, User, ShieldAlert, Leaf, UserPlus, LogIn } from 'lucide-react';
+import { siteConfig } from '../../config/site';
 
 interface AuthInputs {
   name: string;
@@ -50,7 +51,7 @@ export const AuthModal: React.FC = () => {
         setNotification({
           message:
             mode === 'register'
-              ? `Welcome to Bamboorise, ${user.name}! Your account is ready.`
+              ? `Welcome to ${siteConfig.siteName}, ${user.name}! Your account is ready.`
               : `Welcome back, ${user.name}!`,
           type: 'success'
         })
@@ -84,7 +85,7 @@ export const AuthModal: React.FC = () => {
             <Leaf className="w-5 h-5" />
           </div>
           <h2 className="text-lg font-black text-stone-50">
-            {mode === 'login' ? 'Sign In to Bamboorise' : 'Create Your Account'}
+            {mode === 'login' ? `Sign In to ${siteConfig.siteName}` : 'Create Your Account'}
           </h2>
         </div>
         <p className="text-xs text-stone-400 mb-5">

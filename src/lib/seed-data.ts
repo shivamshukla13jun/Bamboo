@@ -11,6 +11,7 @@ import {
   SeoConfig
 } from '../types';
 import { MasterType } from './models';
+import { siteConfig } from '../config/site';
 
 export const INITIAL_CATEGORIES: CategoryMaster[] = [
   { id: 'cat-homes', name: 'Bamboo Homes & Prefabs', slug: 'homes', description: 'Custom architectural bamboo villas, prefab cabins, and eco suites.', icon: '🏡' },
@@ -272,19 +273,19 @@ export const INITIAL_PRODUCTS: Product[] = [
 ];
 
 export const DEFAULT_SEO_CONFIG: SeoConfig = {
-  siteTitle: 'Bamboorise - Sustainable Bamboo Homes & Eco-Living Platform',
-  siteDescription: 'Discover luxury custom bamboo homes, modular prefab eco-cabins, structural bamboo beams, strand woven flooring, and eco-friendly products at all price points.',
-  keywords: 'bamboo home, bamboo house price, prefab bamboo cabin, bamboo flooring, eco friendly home, sustainable architecture, bamboo furniture',
-  ogImageUrl: 'https://images.unsplash.com/photo-1540555700478-4be289fbecef?auto=format&fit=crop&w=1200&q=80',
-  twitterHandle: '@bamboorise_homes',
-  canonicalUrl: 'https://bamboorise.ai.studio',
+  siteTitle: siteConfig.seo.siteTitle,
+  siteDescription: siteConfig.seo.siteDescription,
+  keywords: siteConfig.seo.keywords,
+  ogImageUrl: siteConfig.seo.ogImageUrl,
+  twitterHandle: siteConfig.seo.twitterHandle,
+  canonicalUrl: siteConfig.siteUrl,
   jsonLdSchema: JSON.stringify(
     {
       '@context': 'https://schema.org',
-      '@type': 'Store',
-      name: 'Bamboorise',
-      description: 'Shopify-style e-commerce & bamboo eco-home customizer',
-      url: 'https://bamboorise.ai.studio',
+      '@type': siteConfig.seo.siteType,
+      name: siteConfig.siteName,
+      description: siteConfig.brandDescription,
+      url: siteConfig.siteUrl,
       priceRange: '$ - $$$$$'
     },
     null,

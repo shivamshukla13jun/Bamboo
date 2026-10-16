@@ -2,10 +2,12 @@
 import React from 'react';
 import { useDispatch } from 'react-redux';
 import { setCategory, setQuickPricePreset } from '../store/filterSlice';
-import { ShieldCheck, Home, Leaf, Layers, Sparkles, CheckCircle2 } from 'lucide-react';
+import { Home, Leaf, CheckCircle2 } from 'lucide-react';
+import { siteConfig } from '../config/site';
 
 export const HeroBanner: React.FC = () => {
   const dispatch = useDispatch();
+  const { hero } = siteConfig;
 
   return (
     <section className="relative bg-stone-900 border-b border-stone-800 text-stone-100 overflow-hidden">
@@ -20,21 +22,21 @@ export const HeroBanner: React.FC = () => {
         <div className="lg:col-span-7 space-y-6">
           <div className="inline-flex items-center gap-2 px-3.5 py-1.5 rounded-full bg-emerald-950/80 border border-emerald-700/60 text-emerald-300 text-xs font-semibold">
             <Leaf className="w-3.5 h-3.5 text-emerald-400" />
-            <span>Sustainable Architecture & Eco Living Marketplace</span>
+            <span>{hero.badge}</span>
           </div>
 
           <h1 className="text-3xl sm:text-5xl font-black text-stone-50 tracking-tight leading-tight">
-            Building Eco-Homes & Living with <span className="text-emerald-400">Pure Bamboo</span>.
+            {hero.title}
           </h1>
 
           <p className="text-stone-300 text-base sm:text-lg leading-relaxed max-w-2xl">
-            From <span className="text-emerald-300 font-bold">$18 eco kitchenware</span> to <span className="text-amber-300 font-bold">$115,000 custom structural bamboo villas</span>. Explore certified bamboo timber, strand-woven flooring, prefab cabins, and eco-architecture.
+            {hero.subtitle}
           </p>
 
           {/* Quick Price Buttons */}
           <div className="pt-2">
             <span className="text-xs uppercase tracking-wider text-stone-400 font-semibold block mb-3">
-              Browse All Price Points:
+              {hero.browseLabel}
             </span>
             <div className="flex flex-wrap gap-2 text-xs font-medium">
               <button
@@ -78,18 +80,12 @@ export const HeroBanner: React.FC = () => {
 
           {/* Trust Highlights */}
           <div className="pt-4 grid grid-cols-2 sm:grid-cols-3 gap-3 border-t border-stone-800/80 text-xs text-stone-300">
-            <div className="flex items-center gap-2">
-              <CheckCircle2 className="w-4 h-4 text-emerald-400 shrink-0" />
-              <span>50-Year Pest & Boron Treated</span>
-            </div>
-            <div className="flex items-center gap-2">
-              <CheckCircle2 className="w-4 h-4 text-emerald-400 shrink-0" />
-              <span>3x Harder Than Red Oak</span>
-            </div>
-            <div className="flex items-center gap-2">
-              <CheckCircle2 className="w-4 h-4 text-emerald-400 shrink-0" />
-              <span>Carbon-Negative Living</span>
-            </div>
+            {hero.trustHighlights.map((item) => (
+              <div key={item} className="flex items-center gap-2">
+                <CheckCircle2 className="w-4 h-4 text-emerald-400 shrink-0" />
+                <span>{item}</span>
+              </div>
+            ))}
           </div>
         </div>
 
@@ -97,8 +93,8 @@ export const HeroBanner: React.FC = () => {
         <div className="lg:col-span-5 relative">
           <div className="relative rounded-2xl overflow-hidden border border-stone-700 shadow-2xl bg-stone-800 group">
             <img
-              src="https://images.unsplash.com/photo-1540555700478-4be289fbecef?auto=format&fit=crop&w=1000&q=80"
-              alt="Luxury Bamboo Villa"
+              src={hero.featuredCard.image}
+              alt={hero.featuredCard.title}
               className="w-full h-80 object-cover group-hover:scale-105 transition-transform duration-700"
             />
             <div className="absolute inset-0 bg-gradient-to-t from-stone-950 via-stone-950/40 to-transparent"></div>
@@ -107,14 +103,16 @@ export const HeroBanner: React.FC = () => {
               <div className="flex justify-between items-end">
                 <div>
                   <span className="text-[10px] uppercase font-bold text-emerald-400 tracking-wider bg-emerald-950/80 px-2 py-0.5 rounded border border-emerald-700/60">
-                    Featured Architecture
+                    {hero.featuredCard.badge}
                   </span>
-                  <h3 className="text-xl font-bold mt-1 text-white">Aura Eco-Villa Bamboo Home</h3>
-                  <p className="text-xs text-stone-300 mt-0.5">2,400 sq ft • Structural Petung Culms</p>
+                  <h3 className="text-xl font-bold mt-1 text-white">{hero.featuredCard.title}</h3>
+                  <p className="text-xs text-stone-300 mt-0.5">{hero.featuredCard.subtitle}</p>
                 </div>
                 <div className="text-right">
-                  <span className="text-xs text-stone-400 block line-through">$130,000</span>
-                  <span className="text-xl font-black text-amber-400">$115,000</span>
+                  <span className="text-xs text-stone-400 block line-through">
+                    {hero.featuredCard.originalPrice}
+                  </span>
+                  <span className="text-xl font-black text-amber-400">{hero.featuredCard.price}</span>
                 </div>
               </div>
 
@@ -123,7 +121,7 @@ export const HeroBanner: React.FC = () => {
                 className="mt-4 w-full py-2.5 rounded-xl bg-emerald-600 hover:bg-emerald-500 text-white font-bold text-xs flex items-center justify-center gap-2 transition-colors shadow"
               >
                 <Home className="w-4 h-4" />
-                <span>Configure Custom Bamboo House</span>
+                <span>{hero.featuredCard.ctaText}</span>
               </a>
             </div>
           </div>

@@ -1,23 +1,24 @@
 import { createSlice, PayloadAction } from '@reduxjs/toolkit';
 import { SeoConfig } from '../types';
+import { siteConfig } from '../config/site';
 
 const siteOrigin =
   typeof window !== 'undefined' && window.location?.origin
     ? window.location.origin
-    : 'https://bamboorise.ai.studio';
+    : siteConfig.siteUrl;
 
 const initialState: SeoConfig = {
-  siteTitle: 'Bamboorise – Sustainable Bamboo Homes & Eco Products',
-  siteDescription: 'Shopify-style e-commerce platform for luxury bamboo eco-villas, prefab cabins, structural beams, strand woven flooring, and handcrafted kitchenware.',
-  keywords: 'bamboo home, bamboo prefab cabin, bamboo flooring, eco housing, bamboo furniture, sustainable materials',
-  ogImageUrl: 'https://images.unsplash.com/photo-1540555700478-4be289fbecef?auto=format&fit=crop&w=1200&q=80',
-  twitterHandle: '@bamboorise',
+  siteTitle: siteConfig.seo.siteTitle,
+  siteDescription: siteConfig.seo.siteDescription,
+  keywords: siteConfig.seo.keywords,
+  ogImageUrl: siteConfig.seo.ogImageUrl,
+  twitterHandle: siteConfig.seo.twitterHandle,
   canonicalUrl: siteOrigin,
   jsonLdSchema: JSON.stringify({
     '@context': 'https://schema.org',
-    '@type': 'Store',
-    'name': 'Bamboorise',
-    'description': 'Shopify-style bamboo homes & products e-commerce platform',
+    '@type': siteConfig.seo.siteType,
+    'name': siteConfig.siteName,
+    'description': siteConfig.brandDescription,
     'url': siteOrigin
   }, null, 2)
 };

@@ -5,6 +5,7 @@ import { RootState } from '../store';
 import { addToCart } from '../store/cartSlice';
 import { Product } from '../types';
 import { formatPrice } from '../utils/formatters';
+import { siteConfig } from '../config/site';
 import { X, Star, ShoppingBag, Leaf, Check, Search } from 'lucide-react';
 
 interface ProductDetailModalProps {
@@ -77,7 +78,7 @@ export const ProductDetailModal: React.FC<ProductDetailModalProps> = ({ product,
                   {product.seoTitle || product.name}
                 </div>
                 <div className="text-emerald-500 text-[11px] truncate">
-                  https://bamboorise.ai.studio/products/{product.slug}
+                  {siteConfig.siteUrl}/products/{product.slug}
                 </div>
                 <div className="text-stone-400 text-[11px] line-clamp-2 leading-relaxed">
                   {product.seoDescription || product.description}

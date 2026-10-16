@@ -1,0 +1,102 @@
+{
+  "siteName": "Bamboorise",
+  "tagline": "Bamboo Homes & Eco-Market",
+  "logoEmoji": "🌱",
+  "adminBadgeEmoji": "⚡",
+  "adminTitle": "Shopify Admin",
+  "adminPanelName": "Bamboorise Admin Panel",
+  "adminPoweredBy": "Powered by Bamboorise Eco-Commerce",
+  "brandDescription": "Shopify-style sustainable bamboo homes & products e-commerce platform. Selling bamboo architecture, structural culms, flooring, and eco goods across all price ranges.",
+  "siteUrl": "https://bamboorise.ai.studio",
+
+  "contact": {
+    "address": "Bamboorise Eco-Hub, 12 Green Lane, Ubud, Bali, Indonesia",
+    "phone": "+62 361 987 654",
+    "email": "support@bamboorise.com"
+  },
+
+  "topbar": {
+    "promoBadge": "Eco Blueprint",
+    "promoText": "🌿 Free Architectural 3D Blueprint & Consultation for Bamboo Homes over $15,000",
+    "rightText": "Carbon-Negative Bamboo Marketplace"
+  },
+
+  "searchPlaceholder": "Search bamboo homes, beams, furniture ($5 - $120,000+)...",
+  "customizerLinkText": "Custom Bamboo Home Estimator",
+
+  "hero": {
+    "badge": "Sustainable Architecture & Eco Living Marketplace",
+    "title": "Building Eco-Homes & Living with Pure Bamboo.",
+    "subtitle": "From $18 eco kitchenware to $115,000 custom structural bamboo villas. Explore certified bamboo timber, strand-woven flooring, prefab cabins, and eco-architecture.",
+    "browseLabel": "Browse All Price Points:",
+    "trustHighlights": [
+      "50-Year Pest & Boron Treated",
+      "3x Harder Than Red Oak",
+      "Carbon-Negative Living"
+    ],
+    "featuredCard": {
+      "badge": "Featured Architecture",
+      "title": "Aura Eco-Villa Bamboo Home",
+      "subtitle": "2,400 sq ft • Structural Petung Culms",
+      "image": "https://images.unsplash.com/photo-1540555700478-4be289fbecef?auto=format&fit=crop&w=1000&q=80",
+      "originalPrice": "$130,000",
+      "price": "$115,000",
+      "ctaText": "Configure Custom Bamboo House"
+    }
+  },
+
+  "footer": {
+    "categoriesHeading": "Eco Categories",
+    "categoryLinks": [
+      "Custom Bamboo Eco-Villas",
+      "Modular Prefab Cabins",
+      "Strand Woven Flooring",
+      "Heavy Structural Beams",
+      "Handcrafted Kitchenware"
+    ],
+    "techHeading": "Tech Architecture",
+    "techItems": [
+      "State: Redux Toolkit + RHF Error Bridge",
+      "Data Fetching: TanStack Query",
+      "Database: MongoDB Mongoose Engine",
+      "Storage: Managed Object Storage"
+    ],
+    "guaranteeHeading": "Quality Guarantee",
+    "guaranteeTitle": "50-Year Structural Lifespan",
+    "guaranteeText": "All bamboo posts undergo pressure-vacuum Borax/Boron salt treatment preventing 100% of insect infestation.",
+    "copyright": "© 2026 Bamboorise Eco Homes Inc. All rights reserved.",
+    "note": "SEO Admin Handle Enabled • Single App Next.js"
+  },
+
+  "commerce": {
+    "defaultCurrency": "USD",
+    "currencies": {
+      "USD": { "rate": 1.0, "symbol": "$", "label": "USD ($)" },
+      "EUR": { "rate": 0.92, "symbol": "€", "label": "EUR (€)" },
+      "GBP": { "rate": 0.78, "symbol": "£", "label": "GBP (£)" },
+      "AUD": { "rate": 1.52, "symbol": "A$", "label": "AUD (A$)" }
+    },
+    "shippingCost": 45,
+    "freeShippingThreshold": 200,
+    "couponHint": "BAMBOO10",
+    "coupons": {
+      "BAMBOO10": { "type": "percentage", "value": 10 },
+      "ECOHOME500": { "type": "fixed", "value": 500 }
+    }
+  },
+
+  "seo": {
+    "siteTitle": "Bamboorise – Sustainable Bamboo Homes & Eco Products",
+    "siteDescription": "Shopify-style e-commerce platform for luxury bamboo eco-villas, prefab cabins, structural beams, strand woven flooring, and handcrafted kitchenware.",
+    "keywords": "bamboo home, bamboo prefab cabin, bamboo flooring, eco housing, bamboo furniture, sustainable materials",
+    "ogImageUrl": "https://images.unsplash.com/photo-1540555700478-4be289fbecef?auto=format&fit=crop&w=1200&q=80",
+    "twitterHandle": "@bamboorise",
+    "siteType": "Store"
+  },
+
+  "customizer": {
+    "successTitle": "Architectural Quote Request Received!",
+    "successText": "Thank you for designing your sustainable bamboo home with Bamboorise.",
+    "successCta": "Configure Another Home"
+  }
+}

@@ -6,7 +6,7 @@ import { RootState } from '../store';
 import { clearCart } from '../store/cartSlice';
 import { useFormReduxSync } from '../hooks/useFormReduxSync';
 import { useCreateOrderMutation } from '../services/api';
-import { formatPrice } from '../utils/formatters';
+import { formatPrice, computeDiscount, computeShipping } from '../utils/formatters';
 import { X, CreditCard, ShieldCheck, CheckCircle2, Truck, ArrowRight, ShieldAlert } from 'lucide-react';
 
 interface CheckoutInputs {
@@ -29,7 +29,7 @@ export const CheckoutModal: React.FC<CheckoutModalProps> = ({ isOpen, onClose, o
   const dispatch = useDispatch();
   const createOrderMutation = useCreateOrderMutation();
 
-  const { items, discountAmount, couponCode, currency, currencyRates } = useSelector(
+  const { items, discountAmount, discountType, couponCode, currency, currencyRates } = useSelector(
     (state: RootState) => state.cart
   );
 
@@ -50,8 +50,8 @@ export const CheckoutModal: React.FC<CheckoutModalProps> = ({ isOpen, onClose, o
   useFormReduxSync('checkout-form', formState);
 
   const rawSubtotal = items.reduce((sum, item) => sum + item.product.price * item.quantity, 0);
-  const discountVal = discountAmount > 0 ? (discountAmount < 100 ? (rawSubtotal * discountAmount) / 100 : discountAmount) : 0;
-  const shippingVal = rawSubtotal > 200 || rawSubtotal === 0 ? 0 : 45;
+  const discountVal = computeDiscount(rawSubtotal, discountAmount, discountType);
+  const shippingVal = computeShipping(rawSubtotal);
   const grandTotal = Math.max(0, rawSubtotal - discountVal + shippingVal);
 
   const onSubmit = (data: CheckoutInputs) => {

@@ -1,13 +1,15 @@
 import { createSlice, PayloadAction } from '@reduxjs/toolkit';
 import { CartItem, Product } from '../types';
+import { siteConfig, currencyRates } from '../config/site';
 
 interface CartState {
   items: CartItem[];
   isOpen: boolean;
   couponCode: string;
   discountAmount: number;
+  discountType: 'percentage' | 'fixed' | null;
   shippingCost: number;
-  currency: 'USD' | 'EUR' | 'GBP' | 'AUD';
+  currency: string;
   currencyRates: Record<string, number>;
 }
 
@@ -16,14 +18,10 @@ const initialState: CartState = {
   isOpen: false,
   couponCode: '',
   discountAmount: 0,
+  discountType: null,
   shippingCost: 0,
-  currency: 'USD',
-  currencyRates: {
-    USD: 1.0,
-    EUR: 0.92,
-    GBP: 0.78,
-    AUD: 1.52
-  }
+  currency: siteConfig.commerce.defaultCurrency,
+  currencyRates
 };
 
 export const cartSlice = createSlice({
@@ -65,21 +63,23 @@ export const cartSlice = createSlice({
     applyCoupon: (state, action: PayloadAction<string>) => {
       const code = action.payload.trim().toUpperCase();
       state.couponCode = code;
-      if (code === 'BAMBOO10') {
-        state.discountAmount = 10; // 10%
-      } else if (code === 'ECOHOME500') {
-        state.discountAmount = 500; // $500 flat discount for homes
+      const coupon = siteConfig.commerce.coupons[code];
+      if (coupon) {
+        state.discountAmount = coupon.value;
+        state.discountType = coupon.type;
       } else {
         state.discountAmount = 0;
+        state.discountType = null;
       }
     },
-    setCurrency: (state, action: PayloadAction<'USD' | 'EUR' | 'GBP' | 'AUD'>) => {
+    setCurrency: (state, action: PayloadAction<string>) => {
       state.currency = action.payload;
     },
     clearCart: (state) => {
       state.items = [];
       state.couponCode = '';
       state.discountAmount = 0;
+      state.discountType = null;
     }
   }
 });

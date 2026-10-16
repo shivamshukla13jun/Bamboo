@@ -8,6 +8,7 @@ import { useCreateHomeQuoteMutation } from '../services/api';
 import { BambooHomeConfig } from '../types';
 import { setNotification } from '../store/adminSlice';
 import { Home, Calculator, ArrowRight, ShieldAlert } from 'lucide-react';
+import { siteConfig } from '../config/site';
 
 interface CustomizerInputs {
   clientName: string;
@@ -145,15 +146,15 @@ export const BambooHomeCustomizer: React.FC = () => {
           <div className="w-16 h-16 rounded-full bg-emerald-600/20 text-emerald-400 border border-emerald-500 flex items-center justify-center mx-auto text-3xl">
             ✓
           </div>
-          <h3 className="text-2xl font-bold text-emerald-300">Architectural Quote Request Received!</h3>
+          <h3 className="text-2xl font-bold text-emerald-300">{siteConfig.customizer.successTitle}</h3>
           <p className="text-stone-300 max-w-lg mx-auto text-sm">
-            Thank you for designing your sustainable bamboo home with Bamboorise. Estimated building cost: <strong className="text-amber-400">${estimatedPrice.toLocaleString()}</strong>.
+            {siteConfig.customizer.successText} Estimated building cost: <strong className="text-amber-400">${estimatedPrice.toLocaleString()}</strong>.
           </p>
           <button
             onClick={() => setSubmittedSuccess(false)}
             className="px-6 py-2.5 rounded-xl bg-emerald-600 hover:bg-emerald-500 text-white font-bold text-xs"
           >
-            Configure Another Home
+            {siteConfig.customizer.successCta}
           </button>
         </div>
       ) : (

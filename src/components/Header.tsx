@@ -10,6 +10,7 @@ import { useQuery } from '@tanstack/react-query';
 import { CategoryMaster } from '../types';
 import { openAuthModal, setUser } from '../store/authSlice';
 import { useLogoutMutation } from '../services/api';
+import { siteConfig, currencyCodes } from '../config/site';
 
 export const Header: React.FC = () => {
   const dispatch = useDispatch();
@@ -52,13 +53,13 @@ export const Header: React.FC = () => {
       {/* Top Announcement Bar */}
       <div className="bg-emerald-800 text-emerald-100 text-xs py-1.5 px-4 flex flex-wrap justify-between items-center border-b border-emerald-700/50">
         <div className="flex items-center gap-2 font-medium mx-auto sm:mx-0">
-          <span className="bg-emerald-600 text-white text-[10px] uppercase font-bold px-2 py-0.5 rounded-full">Eco Blueprint</span>
-          <span>🌿 Free Architectural 3D Blueprint & Consultation for Bamboo Homes over $15,000</span>
+          <span className="bg-emerald-600 text-white text-[10px] uppercase font-bold px-2 py-0.5 rounded-full">{siteConfig.topbar.promoBadge}</span>
+          <span>{siteConfig.topbar.promoText}</span>
         </div>
 
         <div className="flex items-center gap-4 text-xs mx-auto sm:mx-0 mt-1 sm:mt-0">
-          <span className="text-stone-300 hidden md:inline">Carbon-Negative Bamboo Marketplace</span>
-          
+          <span className="text-stone-300 hidden md:inline">{siteConfig.topbar.rightText}</span>
+
           {/* Currency Picker */}
           <div className="flex items-center gap-1 bg-stone-800 px-2 py-0.5 rounded border border-stone-700">
             <span className="text-stone-400 text-[10px]">Currency:</span>
@@ -67,10 +68,11 @@ export const Header: React.FC = () => {
               onChange={(e) => dispatch(setCurrency(e.target.value as any))}
               className="bg-transparent text-stone-100 font-bold focus:outline-none cursor-pointer text-xs"
             >
-              <option value="USD" className="bg-stone-900">USD ($)</option>
-              <option value="EUR" className="bg-stone-900">EUR (€)</option>
-              <option value="GBP" className="bg-stone-900">GBP (£)</option>
-              <option value="AUD" className="bg-stone-900">AUD (A$)</option>
+              {currencyCodes.map((code) => (
+                <option key={code} value={code} className="bg-stone-900">
+                  {siteConfig.commerce.currencies[code].label}
+                </option>
+              ))}
             </select>
           </div>
 
@@ -84,7 +86,7 @@ export const Header: React.FC = () => {
             }`}
           >
             <ShieldCheck className="w-3.5 h-3.5" />
-            {isAdminMode ? 'Back to Storefront' : 'Shopify Admin Panel'}
+            {isAdminMode ? 'Back to Storefront' : `${siteConfig.adminTitle} Panel`}
           </button>
         </div>
       </div>
@@ -101,14 +103,14 @@ export const Header: React.FC = () => {
             className="flex items-center gap-2 group text-left"
           >
             <div className="w-10 h-10 rounded-xl bg-emerald-700 flex items-center justify-center text-emerald-200 font-extrabold text-xl shadow-lg group-hover:bg-emerald-600 transition-colors">
-              🌱
+              {siteConfig.logoEmoji}
             </div>
             <div>
               <span className="text-xl font-black tracking-tight text-stone-50 group-hover:text-emerald-400 transition-colors">
-                Bamboorise
+                {siteConfig.siteName}
               </span>
               <span className="text-[10px] block text-emerald-400 font-medium tracking-wide uppercase">
-                Bamboo Homes & Eco-Market
+                {siteConfig.tagline}
               </span>
             </div>
           </button>
@@ -119,7 +121,7 @@ export const Header: React.FC = () => {
           <div className="relative">
             <input
               type="text"
-              placeholder="Search bamboo homes, beams, furniture ($5 - $120,000+)..."
+              placeholder={siteConfig.searchPlaceholder}
               value={localSearch}
               onChange={(e) => setLocalSearch(e.target.value)}
               className="w-full bg-stone-800 text-stone-100 placeholder-stone-400 text-sm pl-10 pr-24 py-2 rounded-lg border border-stone-700 focus:outline-none focus:border-emerald-500 focus:ring-1 focus:ring-emerald-500"
@@ -142,7 +144,7 @@ export const Header: React.FC = () => {
             className="hidden lg:flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-emerald-900/60 hover:bg-emerald-900 text-emerald-300 text-xs font-semibold border border-emerald-700/60 transition-colors"
           >
             <Home className="w-3.5 h-3.5" />
-            <span>Custom Bamboo Home Estimator</span>
+            <span>{siteConfig.customizerLinkText}</span>
             <ArrowRight className="w-3 h-3" />
           </a>
 
