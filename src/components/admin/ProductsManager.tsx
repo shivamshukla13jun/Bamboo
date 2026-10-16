@@ -13,8 +13,9 @@ import {
 import { Product, ProductVariant, ReferenceCheckResult } from '../../types';
 import { formatPrice } from '../../utils/formatters';
 import { setNotification, NotificationType } from '../../store/adminSlice';
-import { Plus, Search, Edit2, Trash2, X, Upload, HardDrive, ShieldAlert, Check, Layers } from 'lucide-react';
+import { Plus, Search, Edit2, Trash2, X, Upload, HardDrive, ShieldAlert, Check, Layers, ExternalLink } from 'lucide-react';
 import { ReferenceWarningModal } from './ReferenceWarningModal';
+import { siteConfig } from '../../config/site';
 
 interface ProductFormInputs {
   name: string;
@@ -28,6 +29,7 @@ interface ProductFormInputs {
   dimensions: string;
   seoTitle: string;
   seoDescription: string;
+  seoKeywords?: string;
 }
 
 export const ProductsManager: React.FC = () => {
@@ -73,9 +75,24 @@ export const ProductsManager: React.FC = () => {
   const updateProductMutation = useUpdateProductMutation();
   const uploadFileMutation = useUploadFileMutation();
 
-  const { register, handleSubmit, reset, formState } = useForm<ProductFormInputs>({
+  const { register, handleSubmit, reset, watch, formState } = useForm<ProductFormInputs>({
     mode: 'onChange'
   });
+
+  // Live preview values for the SEO section
+  const wSeoTitle = watch('seoTitle');
+  const wSeoDesc = watch('seoDescription');
+  const wName = watch('name');
+  const wDesc = watch('description');
+  const previewSlug =
+    editingProduct?.slug ||
+    String(wName || 'product')
+      .toLowerCase()
+      .replace(/[^a-z0-9]+/g, '-')
+      .replace(/^-|-$/g, '');
+  const previewUrl = `${siteConfig.siteUrl.replace(/\/$/, '')}/products/${previewSlug}`;
+  const previewTitle = wSeoTitle || `${wName || 'Product'} | ${siteConfig.siteName}`;
+  const previewDesc = wSeoDesc || wDesc || 'Product description appears in Google search results.';
 
   useFormReduxSync('product-admin-form', formState);
 
@@ -95,7 +112,8 @@ export const ProductsManager: React.FC = () => {
       description: '',
       dimensions: '',
       seoTitle: '',
-      seoDescription: ''
+      seoDescription: '',
+      seoKeywords: ''
     });
     setIsModalOpen(true);
   };
@@ -115,7 +133,8 @@ export const ProductsManager: React.FC = () => {
       description: prod.description,
       dimensions: prod.dimensions || '',
       seoTitle: prod.seoTitle || '',
-      seoDescription: prod.seoDescription || ''
+      seoDescription: prod.seoDescription || '',
+      seoKeywords: (prod.seoKeywords || []).join(', ')
     });
     setIsModalOpen(true);
   };
@@ -199,6 +218,10 @@ export const ProductsManager: React.FC = () => {
 
     const payload = {
       ...data,
+      seoKeywords: (data.seoKeywords || '')
+        .split(',')
+        .map((k) => k.trim())
+        .filter(Boolean),
       categoryName: selectedCat?.name || 'General',
       speciesName: selectedSpec?.name || '',
       treatmentName: selectedTreat?.name || '',
@@ -346,7 +369,7 @@ export const ProductsManager: React.FC = () => {
                       {p.speciesName || '—'}
                     </td>
                     <td className="p-3.5 font-mono font-bold text-accent-400">
-                      ${p.price.toLocaleString()}
+                      {formatPrice(p.price)}
                     </td>
                     <td className="p-3.5">
                       <div className="space-y-1">
@@ -622,6 +645,74 @@ export const ProductsManager: React.FC = () => {
                   {...register('description')}
                   className="w-full bg-neutral-950 text-neutral-100 border border-neutral-700 rounded-xl px-3 py-2 text-xs focus:outline-none"
                 ></textarea>
+              </div>
+
+              {/* Product SEO — renders on /products/<slug> via generateMetadata */}
+              <div className="bg-neutral-950 p-4 rounded-2xl border border-neutral-800 space-y-3">
+                <div className="flex justify-between items-center text-[11px] font-bold text-primary-400 uppercase tracking-wider">
+                  <span>Product Page SEO</span>
+                  <Search className="w-4 h-4 text-primary-400" />
+                </div>
+
+                <div className="grid sm:grid-cols-2 gap-3">
+                  <div>
+                    <label className="block text-neutral-300 font-medium mb-1">SEO Title</label>
+                    <input
+                      type="text"
+                      {...register('seoTitle')}
+                      placeholder={`${wName || 'Product name'} | ${siteConfig.siteName}`}
+                      className="w-full bg-neutral-900 text-neutral-100 border border-neutral-800 rounded-xl px-3 py-2 text-xs focus:outline-none"
+                    />
+                  </div>
+                  <div>
+                    <label className="block text-neutral-300 font-medium mb-1">Keywords (comma-separated)</label>
+                    <input
+                      type="text"
+                      {...register('seoKeywords')}
+                      placeholder="bamboo villa, prefab home, eco house"
+                      className="w-full bg-neutral-900 text-neutral-100 border border-neutral-800 rounded-xl px-3 py-2 text-xs focus:outline-none"
+                    />
+                  </div>
+                </div>
+
+                <div>
+                  <label className="block text-neutral-300 font-medium mb-1">SEO Description</label>
+                  <textarea
+                    rows={2}
+                    {...register('seoDescription', {
+                      maxLength: { value: 160, message: 'Recommended under 160 characters' }
+                    })}
+                    placeholder="Short summary Google shows under the title (falls back to Description)"
+                    className={`w-full bg-neutral-900 text-neutral-100 border rounded-xl px-3 py-2 text-xs focus:outline-none ${
+                      formState.errors.seoDescription ? 'border-rose-500' : 'border-neutral-800'
+                    }`}
+                  ></textarea>
+                  <span className="text-[10px] text-neutral-500">{(wSeoDesc || '').length} / 160</span>
+                </div>
+
+                {/* Live Google SERP preview */}
+                <div className="space-y-1.5">
+                  <span className="text-[10px] font-bold text-neutral-500 uppercase tracking-wider">
+                    Google Preview — /products/{previewSlug}
+                  </span>
+                  <div className="bg-white p-3 rounded-xl space-y-0.5">
+                    <div className="text-[11px] text-slate-600 truncate">{previewUrl}</div>
+                    <div className="text-blue-700 font-semibold text-sm leading-tight truncate">{previewTitle}</div>
+                    <div className="text-xs text-slate-600 line-clamp-2">{previewDesc}</div>
+                  </div>
+                </div>
+
+                {editingProduct && (
+                  <a
+                    href={`/products/${editingProduct.slug}`}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="inline-flex items-center gap-1.5 text-[11px] font-bold text-primary-400 hover:text-primary-300"
+                  >
+                    <ExternalLink className="w-3.5 h-3.5" />
+                    <span>Open live product page</span>
+                  </a>
+                )}
               </div>
 
               {/* Submit CTA */}
