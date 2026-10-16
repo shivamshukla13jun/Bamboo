@@ -3,13 +3,15 @@ import React, { useState } from 'react';
 import { useForm } from 'react-hook-form';
 import { useDispatch, useSelector } from 'react-redux';
 import { useMutation } from '@tanstack/react-query';
+import { useRouter } from 'next/navigation';
 import { RootState } from '../../store';
 import { setUser, openAuthModal } from '../../store/authSlice';
 import { setNotification, NotificationType } from '../../store/adminSlice';
 import { useFormReduxSync } from '../../hooks/useFormReduxSync';
 import { loginApi, registerApi, forgotPasswordApi, resetPasswordApi } from '../../services/api';
-import { X, User, ShieldAlert, Leaf, UserPlus, LogIn, KeyRound, MailCheck } from 'lucide-react';
+import { X, User, ShieldAlert, Leaf, UserPlus, LogIn, KeyRound, MailCheck, ShieldCheck, ArrowLeft } from 'lucide-react';
 import { siteConfig } from '../../config/site';
+import { UserRole } from '../../types';
 
 enum AuthMode {
   Login = 'login',
@@ -25,10 +27,26 @@ interface AuthInputs {
   resetToken: string;
 }
 
-/** Customer sign-in / register / forgot-password modal. */
-export const AuthModal: React.FC = () => {
+interface AuthModalProps {
+  /**
+   * Render as an inline panel instead of a floating modal — used by the
+   * /admin and /account gates. Always visible in this mode.
+   */
+  inline?: boolean;
+  /**
+   * Only admin-role sessions may pass this gate. Wording becomes
+   * admin-flavored and non-admin logins get an access error (they stay
+   * signed in for the storefront).
+   */
+  requireAdmin?: boolean;
+}
+
+/** Unified sign-in / register / forgot-password UI for customers and admins. */
+export const AuthModal: React.FC<AuthModalProps> = ({ inline = false, requireAdmin = false }) => {
   const dispatch = useDispatch();
-  const isOpen = useSelector((state: RootState) => state.auth.isAuthModalOpen);
+  const router = useRouter();
+  const modalOpen = useSelector((state: RootState) => state.auth.isAuthModalOpen);
+  const isOpen = inline || modalOpen;
 
   // Deep link support: /?reset-token=<token> opens the reset step prefilled
   const [prefilledToken] = useState<string>(() => {
@@ -126,6 +144,18 @@ export const AuthModal: React.FC = () => {
 
     const onSuccess = (user: any) => {
       dispatch(setUser(user));
+      // Admin gate — role decides access
+      if (requireAdmin && user.role !== UserRole.Admin) {
+        setServerError(
+          'This account does not have admin access. Sign in with an admin account.'
+        );
+        return;
+      }
+      if (inline) {
+        // Session cookie changed → let the server layout re-evaluate access
+        router.refresh();
+        return;
+      }
       dispatch(openAuthModal(false));
       notify(
         mode === AuthMode.Register
@@ -146,27 +176,34 @@ export const AuthModal: React.FC = () => {
   };
 
   const titles: Record<AuthMode, string> = {
-    [AuthMode.Login]: `Sign In to ${siteConfig.siteName}`,
+    [AuthMode.Login]: requireAdmin ? `Admin Sign In` : `Sign In to ${siteConfig.siteName}`,
     [AuthMode.Register]: 'Create Your Account',
     [AuthMode.Forgot]: 'Forgot Password',
     [AuthMode.Reset]: 'Reset Your Password'
   };
 
+  const subtitle = requireAdmin
+    ? 'Authenticate to access the management panel.'
+    : 'Save products, track quote projects, and check out faster.';
+
   const isPasswordless = mode === AuthMode.Forgot;
 
-  return (
-    <div className="fixed inset-0 z-50 bg-neutral-950/80 backdrop-blur-sm flex items-center justify-center p-4">
-      <div className="bg-neutral-900 border border-neutral-700 rounded-3xl max-w-md w-full text-neutral-100 shadow-2xl relative p-6 sm:p-8">
-        <button
-          onClick={close}
-          className="absolute top-4 right-4 p-2 rounded-full bg-neutral-800 hover:bg-neutral-700 text-neutral-300 hover:text-white transition-colors"
-        >
-          <X className="w-5 h-5" />
-        </button>
+  const card = (
+    <div className="bg-neutral-900 border border-neutral-700 rounded-3xl max-w-md w-full text-neutral-100 shadow-2xl relative p-6 sm:p-8">
+        {!inline && (
+          <button
+            onClick={close}
+            className="absolute top-4 right-4 p-2 rounded-full bg-neutral-800 hover:bg-neutral-700 text-neutral-300 hover:text-white transition-colors"
+          >
+            <X className="w-5 h-5" />
+          </button>
+        )}
 
         <div className="flex items-center gap-2 mb-1">
-          <div className="w-9 h-9 rounded-xl bg-primary-700 flex items-center justify-center text-primary-200">
-            <Leaf className="w-5 h-5" />
+          <div className={`w-9 h-9 rounded-xl flex items-center justify-center ${
+            requireAdmin ? 'bg-accent-500 text-neutral-950' : 'bg-primary-700 text-primary-200'
+          }`}>
+            {requireAdmin ? <ShieldCheck className="w-5 h-5" /> : <Leaf className="w-5 h-5" />}
           </div>
           <h2 className="text-lg font-black text-neutral-50">{titles[mode]}</h2>
         </div>
@@ -175,7 +212,7 @@ export const AuthModal: React.FC = () => {
             ? 'Enter your account email and we will generate a password reset link.'
             : mode === AuthMode.Reset
               ? 'Paste your reset token and choose a new password.'
-              : 'Save eco-products, track bamboo home quotes, and check out faster.'}
+              : subtitle}
         </p>
 
         {/* Mode Tabs */}
@@ -353,7 +390,33 @@ export const AuthModal: React.FC = () => {
             </button>
           )}
         </div>
+    </div>
+  );
+
+  if (inline) {
+    return (
+      <div className="min-h-screen bg-neutral-950 text-neutral-100 flex items-center justify-center p-4 relative overflow-hidden">
+        <div className="absolute inset-0 opacity-15 pointer-events-none">
+          <div className="absolute -top-24 -left-24 w-96 h-96 bg-primary-500 rounded-full blur-3xl"></div>
+          <div className="absolute bottom-0 right-0 w-96 h-96 bg-accent-600 rounded-full blur-3xl"></div>
+        </div>
+        <div className="w-full max-w-md relative z-10 space-y-5">
+          {card}
+          <button
+            onClick={() => router.push('/')}
+            className="mx-auto flex items-center gap-1.5 text-xs text-neutral-400 hover:text-primary-400 transition-colors"
+          >
+            <ArrowLeft className="w-3.5 h-3.5" />
+            <span>Back to Store</span>
+          </button>
+        </div>
       </div>
+    );
+  }
+
+  return (
+    <div className="fixed inset-0 z-50 bg-neutral-950/80 backdrop-blur-sm flex items-center justify-center p-4">
+      {card}
     </div>
   );
 };

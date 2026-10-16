@@ -4,7 +4,7 @@ import { SESSION_COOKIE, verifySessionToken } from '../../lib/auth';
 import { UserRole } from '../../types';
 import { siteConfig } from '../../config/site';
 import { AdminLayout } from '../../components/admin/AdminLayout';
-import { AdminLogin } from '../../components/auth/AdminLogin';
+import { AuthModal } from '../../components/auth/AuthModal';
 
 // Admin pages are never indexed — SEO only applies to public routes.
 export const metadata: Metadata = {
@@ -21,7 +21,7 @@ export default async function AdminRootLayout({ children }: { children: React.Re
   const session = token ? verifySessionToken(token) : null;
 
   if (!session || session.role !== UserRole.Admin) {
-    return <AdminLogin />;
+    return <AuthModal inline requireAdmin />;
   }
 
   return <AdminLayout>{children}</AdminLayout>;
