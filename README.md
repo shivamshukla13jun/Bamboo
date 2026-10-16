@@ -50,10 +50,11 @@ The codebase uses product-agnostic names so the storefront can be repurposed: `S
 - **Customers**: Sign In / Register from the header (`POST /api/auth/register` creates a `customer` role user and signs in).
 - **Admins**: clicking the Admin Panel toggle opens a dedicated login page — sign in with an admin account to unlock the panel.
 - **Admin-only API**: all management reads/writes (products/masters CRUD, inventory, orders list & status, quotes list & status, analytics, storage, uploads, reference checks) require a valid admin session (401 unauthenticated / 403 non-admin). Storefront reads and checkout/quote POSTs stay public.
+- **Password reset**: `POST /api/auth/forgot-password` stores a SHA-256-hashed token (30 min) and emails a `/?reset-token=` link via the nodemailer service (`src/lib/email.ts`, branded templates in `src/lib/email-templates.ts` using `site.config.json` theme). Configure `SMTP_HOST`/`SMTP_PORT`/`SMTP_USER`/`SMTP_PASS`/`SMTP_FROM`; without SMTP, dev mode returns the token in the response. `POST /api/auth/reset-password` validates and rotates the password. Registration also sends a welcome email.
 
 ## Features
 
-**Storefront** (single page): master-driven category pills, search, USD/EUR/GBP/AUD currency picker, price-range slider + sort, product grid, detail modal with Google SEO preview + material specs + quantity add-to-cart, cart drawer, checkout → `POST /api/orders`, and a Bamboo Home Customizer (home type / species / roof style masters × sq-ft slider × stories × solar → live estimate → `POST /api/bamboo-homes/quote`).
+**Storefront** (single page): master-driven category pills, search, currency picker (auto-hidden with a single configured currency — currently INR), price-range slider + sort, product grid, detail modal with Google SEO preview + material specs + quantity add-to-cart, cart drawer, checkout → `POST /api/orders`, and a custom Home Configurator (home type / species / roof style masters × sq-ft slider × stories × solar → live estimate → `POST /api/home-quotes`).
 
 **Admin panel** (login-gated): dashboard analytics, Products Manager with variant builder + image upload + master selects + SEO fields, Inventory Manager (per-variant SKU stock, low/out-of-stock filters), Masters Manager (categories, species, treatments, roof styles, home types — `type` stamped server-side), Orders Manager, quote leads, SEO Manager, File Uploads panel (usage stats + test upload), and a Redux Form Console that streams React Hook Form errors via `useFormReduxSync`.
 
@@ -62,6 +63,8 @@ The codebase uses product-agnostic names so the storefront can be repurposed: `S
 ```
 POST      /api/auth/register       POST           /api/auth/login
 GET       /api/auth/me             POST           /api/auth/logout
+POST      /api/auth/forgot-password
+POST      /api/auth/reset-password
 GET/POST  /api/products            GET/PUT/DELETE /api/products/[id]
 GET       /api/masters             GET/POST       /api/masters/[type]
                                    PUT/DELETE     /api/masters/[type]/[id]
