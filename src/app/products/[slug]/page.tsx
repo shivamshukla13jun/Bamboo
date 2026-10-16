@@ -3,6 +3,7 @@ import { notFound } from 'next/navigation';
 import { ProductPageClient } from '../../../components/ProductPageClient';
 import { ensureSeeded } from '../../../lib/seed';
 import { getEnrichedProduct } from '../../../lib/products';
+import { resolvePageSeo, canonicalFor } from '../../../lib/seo';
 import { siteConfig } from '../../../config/site';
 import { Product } from '../../../types';
 
@@ -21,29 +22,34 @@ export async function generateMetadata({ params }: Ctx): Promise<Metadata> {
   const product = await loadProduct(slug);
   if (!product) return { title: `Product Not Found | ${siteConfig.siteName}` };
 
-  const title = product.seoTitle || `${product.name} | ${siteConfig.siteName}`;
-  const description = product.seoDescription || product.description;
-  const canonical = `${siteConfig.siteUrl}/products/${product.slug}`;
+  // Per-page SEO record (admin SEO manager) overrides product-level fields
+  const pageSeo = await resolvePageSeo(`/products/${product.slug}`, {
+    title: product.seoTitle || `${product.name} | ${siteConfig.siteName}`,
+    description: product.seoDescription || product.description,
+    keywords: product.seoKeywords,
+    ogImageUrl: product.images?.[0]
+  });
+  const canonical = canonicalFor(`/products/${product.slug}`);
 
   return {
-    title,
-    description,
-    keywords: product.seoKeywords,
+    title: pageSeo.title,
+    description: pageSeo.description,
+    keywords: pageSeo.keywords,
     alternates: { canonical },
     openGraph: {
       type: 'website',
       siteName: siteConfig.siteName,
-      title,
-      description,
+      title: pageSeo.title,
+      description: pageSeo.description,
       url: canonical,
-      images: product.images?.length ? [{ url: product.images[0] }] : undefined
+      images: pageSeo.ogImageUrl ? [{ url: pageSeo.ogImageUrl }] : undefined
     },
     twitter: {
       card: 'summary_large_image',
       site: siteConfig.seo.twitterHandle,
-      title,
-      description,
-      images: product.images?.[0] ? [product.images[0]] : undefined
+      title: pageSeo.title,
+      description: pageSeo.description,
+      images: pageSeo.ogImageUrl ? [pageSeo.ogImageUrl] : undefined
     }
   };
 }

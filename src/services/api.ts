@@ -1,6 +1,6 @@
 'use client';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
-import { Product, HomeQuote, Order, SeoConfig, StoragePublicConfig, AuthUser } from '../types';
+import { Product, HomeQuote, Order, SeoConfig, StoragePublicConfig, AuthUser, PageSeo } from '../types';
 
 // API Fetchers
 export async function fetchProducts(params?: {
@@ -74,6 +74,23 @@ export async function fetchSeoConfig(): Promise<SeoConfig> {
   const res = await fetch('/api/seo');
   if (!res.ok) throw new Error('Failed to fetch SEO config');
   return res.json();
+}
+
+export async function fetchPageSeoList(): Promise<PageSeo[]> {
+  const res = await fetch('/api/seo/pages');
+  if (!res.ok) throw new Error('Failed to fetch page SEO');
+  return res.json();
+}
+
+export async function updatePageSeoApi(seo: PageSeo): Promise<PageSeo> {
+  const res = await fetch('/api/seo/pages', {
+    method: 'PUT',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify(seo)
+  });
+  const data = await res.json();
+  if (!res.ok) throw new Error(data.message || 'Failed to save page SEO');
+  return data;
 }
 
 export async function updateSeoConfigApi(seo: Partial<SeoConfig>): Promise<SeoConfig> {
@@ -205,6 +222,20 @@ export function useUpdateSeoMutation() {
     mutationFn: updateSeoConfigApi,
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['seo'] });
+    }
+  });
+}
+
+export function usePageSeoQuery() {
+  return useQuery({ queryKey: ['pageSeo'], queryFn: fetchPageSeoList });
+}
+
+export function useUpdatePageSeoMutation() {
+  const queryClient = useQueryClient();
+  return useMutation({
+    mutationFn: updatePageSeoApi,
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['pageSeo'] });
     }
   });
 }

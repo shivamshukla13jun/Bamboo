@@ -196,6 +196,15 @@ export enum StockFilter {
   Out = 'out'
 }
 
+/** Per-page SEO record — keyed by route path ('/', '/products/<slug>'). */
+export interface PageSeo {
+  path: string;
+  title?: string;
+  description?: string;
+  keywords?: string[];
+  ogImageUrl?: string;
+}
+
 export interface CartItem {
   product: Product;
   variant?: ProductVariant;

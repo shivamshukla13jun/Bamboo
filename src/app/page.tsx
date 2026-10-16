@@ -1,45 +1,44 @@
 import type { Metadata } from 'next';
 import { StorefrontApp } from '../components/StorefrontApp';
 import { ensureSeeded } from '../lib/seed';
-import { Setting } from '../lib/models';
 import { getEnrichedProducts } from '../lib/products';
-import { DEFAULT_SEO_CONFIG } from '../lib/seed-data';
+import { getGlobalSeo, resolvePageSeo, canonicalFor } from '../lib/seo';
 import { siteConfig } from '../config/site';
-import { SeoConfig, Product, SortBy } from '../types';
+import { SeoConfig, Product } from '../types';
 
 // Always render fresh SEO + catalog server-side so crawlers get live content.
 export const dynamic = 'force-dynamic';
 
 async function loadSeo(): Promise<SeoConfig> {
-  const doc = await Setting.findOne({ key: 'seo' }).lean();
-  return { ...DEFAULT_SEO_CONFIG, ...((doc as any)?.value || {}) } as SeoConfig;
+  return getGlobalSeo();
 }
 
-/** Meta tags resolved on the server BEFORE the page loads — driven by the SEO
- *  settings stored in MongoDB (admin SEO manager) with site.config.json defaults. */
+/** Meta tags resolved on the server BEFORE the page loads — per-page SEO
+ *  record (admin SEO manager) > global settings > site.config.json. */
 export async function generateMetadata(): Promise<Metadata> {
   await ensureSeeded();
-  const seo = await loadSeo();
+  const [seo, pageSeo] = await Promise.all([getGlobalSeo(), resolvePageSeo('/')]);
+  const canonical = canonicalFor('/');
 
   return {
-    title: seo.siteTitle,
-    description: seo.siteDescription,
-    keywords: seo.keywords.split(',').map((k) => k.trim()).filter(Boolean),
-    alternates: { canonical: seo.canonicalUrl || siteConfig.siteUrl },
+    title: pageSeo.title,
+    description: pageSeo.description,
+    keywords: pageSeo.keywords,
+    alternates: { canonical: seo.canonicalUrl || canonical },
     openGraph: {
       type: 'website',
       siteName: siteConfig.siteName,
-      title: seo.siteTitle,
-      description: seo.siteDescription,
-      url: seo.canonicalUrl || siteConfig.siteUrl,
-      images: seo.ogImageUrl ? [{ url: seo.ogImageUrl }] : undefined
+      title: pageSeo.title,
+      description: pageSeo.description,
+      url: seo.canonicalUrl || canonical,
+      images: pageSeo.ogImageUrl ? [{ url: pageSeo.ogImageUrl }] : undefined
     },
     twitter: {
       card: 'summary_large_image',
       site: seo.twitterHandle,
-      title: seo.siteTitle,
-      description: seo.siteDescription,
-      images: seo.ogImageUrl ? [seo.ogImageUrl] : undefined
+      title: pageSeo.title,
+      description: pageSeo.description,
+      images: pageSeo.ogImageUrl ? [pageSeo.ogImageUrl] : undefined
     },
     robots: { index: true, follow: true }
   };

@@ -174,6 +174,18 @@ const UserSchema = new Schema(
   { strict: false }
 );
 
+// Per-page SEO records keyed by route path ('/', '/products/<slug>', ...)
+const PageSeoSchema = new Schema(
+  {
+    path: { type: String, required: true, unique: true, index: true },
+    title: String,
+    description: String,
+    keywords: [String],
+    ogImageUrl: String
+  },
+  { timestamps: true }
+);
+
 // Generic key/value store for singleton configs: 'seo', 'storage'
 const SettingSchema = new Schema(
   {
@@ -189,6 +201,7 @@ export const Order: Model<any> = models.Order || mongoose.model('Order', OrderSc
 export const HomeQuote: Model<any> =
   models.HomeQuote || mongoose.model('HomeQuote', HomeQuoteSchema);
 export const Setting: Model<any> = models.Setting || mongoose.model('Setting', SettingSchema);
+export const PageSeo: Model<any> = models.PageSeo || mongoose.model('PageSeo', PageSeoSchema);
 export const User: Model<any> = models.User || mongoose.model('User', UserSchema);
 
 /** Strip mongoose internals from lean docs */
