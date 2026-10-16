@@ -3,6 +3,8 @@ import { ensureSeeded } from '../../../../lib/seed';
 import { User } from '../../../../lib/models';
 import { hashPassword, toPublicUser, createSessionToken, sessionCookieHeader } from '../../../../lib/auth';
 import { UserRole } from '../../../../types';
+import { sendEmail } from '../../../../lib/email';
+import { welcomeEmail } from '../../../../lib/email-templates';
 
 export async function POST(request: NextRequest) {
   try {
@@ -40,6 +42,9 @@ export async function POST(request: NextRequest) {
       createdAt: new Date().toISOString()
     };
     const created = await User.create(doc);
+
+    // Fire-and-forget welcome email (no-op when SMTP isn't configured)
+    sendEmail(normalizedEmail, welcomeEmail({ userName: doc.name }));
 
     const token = createSessionToken(doc.id, UserRole.Customer);
     const res = NextResponse.json(toPublicUser(created.toObject()), { status: 201 });

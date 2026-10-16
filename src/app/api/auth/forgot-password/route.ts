@@ -1,17 +1,20 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { ensureSeeded } from '../../../../lib/seed';
 import { User } from '../../../../lib/models';
-import { createPasswordResetToken } from '../../../../lib/auth';
+import { createPasswordResetToken, RESET_TOKEN_TTL_MS } from '../../../../lib/auth';
+import { sendEmail, isEmailConfigured } from '../../../../lib/email';
+import { passwordResetEmail } from '../../../../lib/email-templates';
 import { siteConfig } from '../../../../config/site';
 
 /**
  * POST /api/auth/forgot-password
- * Generates a password-reset token stored hashed on the user (30 min expiry).
- * Always returns a generic success message so account existence isn't leaked.
+ * Generates a password-reset token (stored hashed, 30 min expiry) and emails
+ * the reset link via SMTP. Always returns a generic message so account
+ * existence isn't leaked.
  *
- * No SMTP is configured for this app — in development the reset link/token is
- * included in the response so the flow is testable. In production wire this up
- * to your email provider and only return the generic message.
+ * When SMTP_* env vars are not configured (local dev), the response includes
+ * devResetToken/devResetUrl so the flow stays testable without an email
+ * provider.
  */
 export async function POST(request: NextRequest) {
   try {
@@ -25,11 +28,11 @@ export async function POST(request: NextRequest) {
     const normalizedEmail = String(email).trim().toLowerCase();
     const user = await User.findOne({ email: normalizedEmail });
 
-    const message =
-      'If an account with that email exists, a password reset link has been generated.';
+    const genericMessage =
+      'If an account with that email exists, a password reset link has been sent.';
 
     if (!user) {
-      return NextResponse.json({ message });
+      return NextResponse.json({ message: genericMessage });
     }
 
     const reset = createPasswordResetToken();
@@ -39,14 +42,27 @@ export async function POST(request: NextRequest) {
 
     const resetUrl = `${siteConfig.siteUrl.replace(/\/$/, '')}/?reset-token=${reset.token}`;
 
-    // TODO: send `resetUrl` via email provider (SMTP) in production.
-    console.log(`[password-reset] token for ${normalizedEmail}: ${reset.token}`);
+    const body: Record<string, string> = { message: genericMessage };
 
-    const body: Record<string, string> = { message };
-    if (process.env.NODE_ENV !== 'production') {
-      // Dev helper — lets the UI surface the link without an email provider.
-      body.devResetToken = reset.token;
-      body.devResetUrl = resetUrl;
+    if (isEmailConfigured()) {
+      const sent = await sendEmail(
+        normalizedEmail,
+        passwordResetEmail({
+          userName: user.name,
+          resetUrl,
+          expiryMinutes: Math.round(RESET_TOKEN_TTL_MS / 60000)
+        })
+      );
+      if (!sent) {
+        console.error(`[password-reset] email delivery failed for ${normalizedEmail}`);
+      }
+    } else {
+      // No SMTP configured — dev helper keeps the flow testable.
+      console.log(`[password-reset] token for ${normalizedEmail}: ${reset.token}`);
+      if (process.env.NODE_ENV !== 'production') {
+        body.devResetToken = reset.token;
+        body.devResetUrl = resetUrl;
+      }
     }
 
     return NextResponse.json(body);
